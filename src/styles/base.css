@@ -12,3 +12,7 @@ body {
   background-color: light-dark(var(--bg), var(--bg-dark));
   font-family: var(--font);
 }
+
+main {
+  padding-top: 180px; 
+}

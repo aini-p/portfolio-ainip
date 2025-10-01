@@ -3,6 +3,7 @@ import "~/styles/reset.css";
 import "~/styles/base.css";
 
 import smartypants from "smartypants";
+import Header from "~/components/header.astro"; // 1. Headerコンポーネントをインポート
 
 const siteName = "Astro Photo Grid";
 
@@ -46,6 +47,16 @@ const pageTitle = Astro.url.pathname === "/" ? title : `${title} · ${siteName}`
     }
   </head>
   <body>
-    <slot />
+    <Header /> {/* 2. Headerコンポーネントを<body>の最初に追加 */}
+    <main>
+      <slot />
+    </main>
   </body>
 </html>
+
+<style>
+  main {
+    /* この指定で、mainがページの主要なコンテンツブロックであることを明確にします */
+    padding-top: 80px;
+  }
+</style>

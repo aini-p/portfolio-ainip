@@ -1,0 +1,59 @@
+---
+// ナビゲーションバーのコンポーネント
+const { pathname } = Astro.url;
+---
+<header>
+  <nav>
+    <a href="/" class:list={{ active: pathname === "/" }}>Home</a>
+    <a href="/profile" class:list={{ active: pathname === "/profile/" }}>Profile</a>
+  </nav>
+</header>
+
+<style>
+  header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+  }
+
+  nav {
+    display: flex;
+    gap: 2rem;
+  }
+
+  nav a {
+    color: #333;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s;
+  }
+
+  nav a:hover,
+  nav a.active {
+    border-color: #333;
+  }
+
+  /* ダークモード用のスタイル */
+  @media (prefers-color-scheme: dark) {
+    header {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+    nav a {
+      color: #eee;
+    }
+    nav a:hover,
+    nav a.active {
+      border-color: #eee;
+    }
+  }
+</style>

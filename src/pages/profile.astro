@@ -1,0 +1,153 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Profile"
+  description="プロフィールページのディスクリプションをここに記述します。"
+>
+  <div class="container">
+    <section class="profile-section">
+      <img src="/images/icon.png" alt="自身のアイコン" class="profile-icon" />
+      <div class="profile-text">
+        <h1>あなたの名前</h1>
+        <p>
+          ここにあなたの自己紹介、経歴、スキル、連絡先などを自由に記述してください。<br />
+          イラストの制作依頼に関する情報などを記載するのも良いでしょう。
+        </p>
+      </div>
+    </section>
+
+    <section class="links-section">
+      <h2>X (Twitter)</h2>
+      <div class="x-accounts">
+        <a href="https://twitter.com/account1" target="_blank" rel="noopener noreferrer">
+          <img src="/images/x-icon.svg" alt="X Icon" />
+          <span>アカウント名1</span>
+        </a>
+        <a href="https://twitter.com/account2" target="_blank" rel="noopener noreferrer">
+          <img src="/images/x-icon.svg" alt="X Icon" />
+          <span>アカウント名2</span>
+        </a>
+        <a href="https://twitter.com/account3" target="_blank" rel="noopener noreferrer">
+          <img src="/images/x-icon.svg" alt="X Icon" />
+          <span>アカウント名3</span>
+        </a>
+        <a href="https://twitter.com/account4" target="_blank" rel="noopener noreferrer">
+          <img src="/images/x-icon.svg" alt="X Icon" />
+          <span>アカウント名4</span>
+        </a>
+        <a href="https://twitter.com/account5" target="_blank" rel="noopener noreferrer">
+          <img src="/images/x-icon.svg" alt="X Icon" />
+          <span>アカウント名5</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="links-section">
+      <h2>Links</h2>
+      <div class="banner-links">
+        <a href="https://www.patreon.com/your-id" target="_blank" rel="noopener noreferrer" class="banner-link">
+          <img src="/images/patreon-banner.jpg" alt="Patreon" />
+        </a>
+        <a href="https://www.pixiv.net/users/your-id" target="_blank" rel="noopener noreferrer" class="banner-link">
+          <img src="/images/pixiv-banner.jpg" alt="Pixiv" />
+        </a>
+        <a href="https://your-sales-page.com" target="_blank" rel="noopener noreferrer" class="banner-link">
+          <img src="/images/sales-banner.jpg" alt="同人誌販売ページ" />
+        </a>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+  }
+
+  /* プロフィールセクション */
+  .profile-section {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .profile-icon {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #eee;
+  }
+
+  /* Xアカウントセクション */
+  .x-accounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .x-accounts a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s;
+  }
+  .x-accounts a:hover {
+    transform: translateY(-2px);
+  }
+  .x-accounts img {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* バナーリンク セクション */
+  .banner-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .banner-link img {
+    width: 100%;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .banner-link:hover img {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+
+  /* ダークモード対応 */
+  @media (prefers-color-scheme: dark) {
+    h2 {
+      border-color: #555;
+    }
+    .profile-icon {
+      border-color: #444;
+    }
+  }
+</style>
