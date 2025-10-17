@@ -12,7 +12,7 @@ export async function getStaticPaths() {
   }));
 }
 
-const { lang } = Astro.params as { lang: 'ja' | 'en' };
+const { lang } = Astro.locals; // Astro.paramsからAstro.localsに変更
 const { artwork } = Astro.props;
 const { Content } = await artwork.render();
 const t = ui[lang];
