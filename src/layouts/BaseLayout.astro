@@ -1,73 +1,112 @@
 ---
-import "~/styles/reset.css";
-import "~/styles/base.css";
-
 import smartypants from "smartypants";
-import Header from "~/components/header.astro"; // 1. Headerコンポーネントをインポート
-
-const siteName = "あいにP | AiniP";
+import Header from "~/components/header.astro";
 
 export interface Props {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
+  keywords?: string;
   image?: {
     src: string;
     alt: string;
   };
 }
 
-const { title, description, image } = Astro.props;
+const { title, description, keywords, image } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const pageTitle = Astro.url.pathname === "/" ? title : `${title} · ${siteName}`;
+// ▼▼▼ ミドルウェアから安全に言語情報を取得 ▼▼▼
+const { lang } = Astro.locals;
+// ▲▲▲ ここまで ▲▲▲
+
+const canonicalURL = new URL(Astro.url.pathname.replace(/^\/(ja|en)/, '') || '/', Astro.site);
+const siteName = lang === 'ja' ? "あいにP | AiniP" : "AiniP";
+const pageTitle = title ? `${title} · ${siteName}` : siteName;
+
+const jaPath = `/ja${Astro.url.pathname.replace(/^\/(ja|en)/, '') || '/'}`;
+const enPath = `/en${Astro.url.pathname.replace(/^\/(ja|en)/, '') || '/'}`;
 ---
 
-<html lang="en">
+<html lang={lang}>
   <head>
+    {/* ... headタグの中身は変更ありません ... */}
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <link rel="canonical" href={canonicalURL} />
-
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="AiniP" />
-    <link rel="manifest" href="/site.webmanifest" />
-
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="alternate" hreflang="ja" href={new URL(jaPath, Astro.site)} />
+    <link rel="alternate" hreflang="en" href={new URL(enPath, Astro.site)} />
+    <link rel="alternate" hreflang="x-default" href={new URL(jaPath, Astro.site)} />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;200;300&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1+Code:wght@100;200;400;700&display=swap" rel="stylesheet">
     <title set:html={smartypants(pageTitle, 1)} />
-    <meta name="description" content={smartypants(description, 1)} />
-    <meta property="og:title" content={smartypants(title, 1)} />
+    {description && <meta name="description" content={smartypants(description, 1)} />}
+    {keywords && <meta name="keywords" content={keywords} />}
+    <meta property="og:title" content={smartypants(pageTitle, 1)} />
     <meta property="og:type" content="website" />
-    <meta property="og:description" content={smartypants(description, 1)} />
+    {description && <meta property="og:description" content={smartypants(description, 1)} />}
     <meta property="og:url" content={canonicalURL} />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={lang === 'ja' ? 'ja_JP' : 'en_US'} />
     <meta property="og:site_name" content={siteName} />
-    {
-      image && (
-        <>
-          <meta property="og:image" content={image.src} />
-          <meta property="og:image:alt" content={image.alt} />
-        </>
-      )
-    }
+    {image && (<><meta property="og:image" content={image.src} /><meta property="og:image:alt" content={image.alt} /></>)}
   </head>
   <body>
-    <Header /> {/* 2. Headerコンポーネントを<body>の最初に追加 */}
+    <Header />
     <main>
       <slot />
     </main>
   </body>
 </html>
 
-<style>
+<style is:global>
+/* ... reset.cssの内容 ... */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  * { margin: 0; }
+  /* ... (中略) ... */
+  p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+
+
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --bg-dark: #000000;
+    --outline: #ffffff;
+    --font:
+      "M PLUS 1 Code", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    
+    /* ▼▼▼ 文字色を定義します ▼▼▼ */
+    --text-light: #686b7aff; /* 少し青みがかったダークグレー */
+    --text-dark: #d1d5db;  /* 明るいグレー */
+    /* ▲▲▲ ここまで ▲▲▲ */
+  }
+
+  body {
+    background-color: light-dark(var(--bg), var(--bg-dark));
+    font-family: var(--font);
+    font-weight: 400;
+    
+    /* ▼▼▼ 文字色と文字間を適用します ▼▼▼ */
+    color: light-dark(var(--text-light), var(--text-dark));
+    letter-spacing: 0.02em; /* 文字間を少し広げる */
+    /* ▲▲▲ ここまで ▲▲▲ */
+  }
+
+  /* ▼▼▼ 見出しのスタイルを追記します ▼▼▼ */
+  h1, h2 {
+    font-weight: 400; /* 見出しの太さを本文と同じ細さに */
+  }
+  /* ▲▲▲ ここまで ▲▲▲ */
+
   main {
-    /* この指定で、mainがページの主要なコンテンツブロックであることを明確にします */
     padding-top: 80px;
   }
 </style>

@@ -1,59 +1,56 @@
 ---
-// ナビゲーションバーのコンポーネント
+import { ui } from "~/i18n/ui";
 const { pathname } = Astro.url;
+
+// ▼▼▼ ミドルウェアから安全に言語情報を取得 ▼▼▼
+const { lang } = Astro.locals;
+// ▲▲▲ ここまで ▲▲▲
+
+const t = ui[lang];
+
+const jaPath = `/ja${pathname.replace(/^\/(ja|en)/, '') || '/'}`;
+const enPath = `/en${pathname.replace(/^\/(ja|en)/, '') || '/'}`;
 ---
 <header>
   <nav>
-    <a href="/" class:list={{ active: pathname === "/" }}>Gallery</a>
-    <a href="/profile" class:list={{ active: pathname === "/profile/" }}>Profile</a>
+    <a href={`/${lang}/`} class:list={{ active: pathname === `/${lang}/` || pathname === `/${lang}` }}>{t['nav.gallery']}</a>
+    <a href={`/${lang}/profile`} class:list={{ active: pathname.startsWith(`/${lang}/profile`) }}>{t['nav.profile']}</a>
   </nav>
+  <div class="language-switcher">
+    {lang === 'ja' ? <span>JA</span> : <a href={jaPath}>JA</a>}
+    <span>|</span>
+    {lang === 'en' ? <span>EN</span> : <a href={enPath}>EN</a>}
+  </div>
 </header>
-
 <style>
-  header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    background-color: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    z-index: 10;
-  }
-
-  nav {
-    display: flex;
-    gap: 2rem;
-  }
+/* ... header, nav のスタイル ... */
+  header { position: fixed; top: 0; left: 0; width: 100%; display: flex; justify-content: center; align-items: center; padding: 1rem; background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); z-index: 10; }
+  nav { display: flex; gap: 2rem; }
 
   nav a {
-    color: #333;
+    color: #686b7aff;
     text-decoration: none;
     font-weight: 600;
     padding: 0.5rem 0;
     border-bottom: 2px solid transparent;
     transition: border-color 0.3s;
+    
+    /* ▼▼▼ この一行を追加します ▼▼▼ */
+    font-size: 1.0rem; /* お好みのサイズに調整してください */
+    /* ▲▲▲ ここまで ▲▲▲ */
   }
 
-  nav a:hover,
-  nav a.active {
-    border-color: #333;
-  }
-
-  /* ダークモード用のスタイル */
+  nav a:hover, nav a.active { border-color: #333; }
+  
+  /* ... language-switcher, @media のスタイル ... */
+  .language-switcher { display: flex; align-items: center; gap: 0.5rem; position: absolute; right: 1.5rem; font-weight: 600; }
+  .language-switcher a { color: #888; text-decoration: none; }
+  .language-switcher span { color: #333; }
   @media (prefers-color-scheme: dark) {
-    header {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-    nav a {
-      color: #eee;
-    }
-    nav a:hover,
-    nav a.active {
-      border-color: #eee;
-    }
+    header { background-color: rgba(0, 0, 0, 0.7); }
+    nav a { color: #eee; }
+    nav a:hover, nav a.active { border-color: #eee; }
+    .language-switcher a { color: #777; }
+    .language-switcher span { color: #eee; }
   }
 </style>
