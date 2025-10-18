@@ -102,4 +102,34 @@ const icon5Name = "Sub5";
     .email-icon:hover { background-color: #555; }
     .email-icon svg { stroke: #eee; }
   }
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem; /* コンテナの余白を減らす */
+    }
+    .profile-section {
+      flex-direction: column; /* アイコンとテキストを縦並びにする */
+      text-align: center; /* テキストを中央揃えにする */
+    }
+    .profile-icon {
+      width: 120px; /* アイコンを少し小さくする */
+      height: 120px;
+    }
+    .profile-text {
+      display: flex; /* Flexboxを使って中央揃えしやすくする */
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      font-size: 1.5rem; /* 見出しを少し小さくする */
+    }
+    h2 {
+      font-size: 1.3rem; /* 見出しを少し小さくする */
+    }
+    .x-accounts {
+      justify-content: center; /* Xアカウントを中央揃えにする */
+    }
+    .contact-links {
+      justify-content: center; /* メール/Pixivアイコンを中央揃えにする */
+    }
+  }
 </style>

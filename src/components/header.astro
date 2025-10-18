@@ -50,6 +50,24 @@ if (enPath === '/en') enPath = '/en/';
   .language-switcher { display: flex; align-items: center; gap: 0.5rem; position: absolute; right: 1.5rem; font-weight: 600; }
   .language-switcher a { color: #888; text-decoration: none; }
   .language-switcher span { color: #333; }
+  /* ▼▼▼ モバイル対応を追加 ▼▼▼ */
+  @media (max-width: 768px) {
+    header {
+      justify-content: space-between; /* 要素を左右に寄せる */
+      padding: 0.5rem 1rem; /* 上下のパディングを減らす */
+    }
+    nav {
+      gap: 1rem; /* ナビゲーション間のスペースを減らす */
+    }
+    nav a {
+      font-size: 0.8rem; /* 文字を少し小さくする */
+      padding: 0.3rem 0;
+    }
+    .language-switcher {
+      position: static; /* 右端固定をやめる */
+      font-size: 0.8rem;
+    }
+  }
   @media (prefers-color-scheme: dark) {
     header { background-color: rgba(0, 0, 0, 0.7); }
     nav a { color: #eee; }

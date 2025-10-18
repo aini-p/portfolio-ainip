@@ -67,4 +67,12 @@ artworks.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueO
     content: " ";
     flex-grow: 1000000000;
   }
+  /* ▼▼▼ モバイル対応を追加 ▼▼▼ */
+  @media (max-width: 768px) {
+    .justified-gallery {
+      --min-height: clamp(150px, 25vw, 250px); /* 最小高さを小さくする */
+      --padding: max(1.5vw, 8px); /* 余白を少し減らす */
+      --space: max(1.5vw, 8px);   /* 画像間のスペースを少し減らす */
+    }
+  }
 </style>

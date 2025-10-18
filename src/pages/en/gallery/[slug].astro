@@ -75,6 +75,20 @@ const relatedArtworks = artwork.data.relatedImages ? await getCollection('artwor
   .thumbnail-grid a { aspect-ratio: 1 / 1; }
   .thumbnail-grid img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; transition: transform 0.2s; }
   .thumbnail-grid img:hover { transform: scale(1.05); }
-  @media (max-width: 768px) { .artwork-detail { grid-template-columns: 1fr; } }
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem; /* コンテナの余白を減らす */
+    }
+    .artwork-detail {
+      grid-template-columns: 1fr; /* 1カラムレイアウトに変更 */
+      gap: 1.5rem; /* 要素間のスペースを少し減らす */
+    }
+    h1 {
+      font-size: 2rem; /* 見出しを少し小さくする */
+    }
+    .related-works h2 {
+      font-size: 1.3rem; /* 見出しを少し小さくする */
+    }
+  }
   @media (prefers-color-scheme: dark) { .related-works h2 { border-color: #555; } }
 </style>
