@@ -1,20 +1,34 @@
 ---
 import { ui } from "~/i18n/ui";
 const { pathname } = Astro.url;
-
-// ▼▼▼ ミドルウェアから安全に言語情報を取得 ▼▼▼
 const { lang } = Astro.locals;
-// ▲▲▲ ここまで ▲▲▲
-
 const t = ui[lang];
 
-const jaPath = `/ja${pathname.replace(/^\/(ja|en)/, '') || '/'}`;
-const enPath = `/en${pathname.replace(/^\/(ja|en)/, '') || '/'}`;
+// ▼▼▼ ナビゲーションとスイッチャーのパス生成ロジックを修正 ▼▼▼
+const galleryPath = lang === 'ja' ? '/' : '/en';
+const profilePath = lang === 'ja' ? '/profile' : '/en/profile';
+
+let jaPath, enPath;
+if (lang === 'en') {
+  // 現在英語ページ (/en/foo)
+  jaPath = pathname.replace(/^\/en/, '') || '/'; // /en を削除、空なら /
+  enPath = pathname;
+} else {
+  // 現在日本語ページ (/foo)
+  jaPath = pathname;
+  enPath = `/en${pathname === '/' ? '' : pathname}`; // /en を先頭に追加 (ルートの場合は /en)
+}
+// ルートパスの場合、末尾のスラッシュを保証
+if (jaPath === '') jaPath = '/';
+if (enPath === '/en') enPath = '/en/';
+// ▲▲▲ ここまで ▲▲▲
 ---
 <header>
   <nav>
-    <a href={`/${lang}/`} class:list={{ active: pathname === `/${lang}/` || pathname === `/${lang}` }}>{t['nav.gallery']}</a>
-    <a href={`/${lang}/profile`} class:list={{ active: pathname.startsWith(`/${lang}/profile`) }}>{t['nav.profile']}</a>
+    {/* ▼▼▼ hrefとactiveの判定を修正 ▼▼▼ */}
+    <a href={galleryPath} class:list={{ active: pathname === '/' || pathname === '/en' || pathname === '/en/' }}>{t['nav.gallery']}</a>
+    <a href={profilePath} class:list={{ active: pathname.startsWith('/profile') || pathname.startsWith('/en/profile') }}>{t['nav.profile']}</a>
+    {/* ▲▲▲ ここまで ▲▲▲ */}
   </nav>
   <div class="language-switcher">
     {lang === 'ja' ? <span>JA</span> : <a href={jaPath}>JA</a>}
@@ -23,26 +37,16 @@ const enPath = `/en${pathname.replace(/^\/(ja|en)/, '') || '/'}`;
   </div>
 </header>
 <style>
-/* ... header, nav のスタイル ... */
+  /* ... (styleタグの中身は変更なし) ... */
   header { position: fixed; top: 0; left: 0; width: 100%; display: flex; justify-content: center; align-items: center; padding: 1rem; background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); z-index: 10; }
   nav { display: flex; gap: 2rem; }
-
   nav a {
-    color: #686b7aff;
-    text-decoration: none;
-    font-weight: 600;
-    padding: 0.5rem 0;
-    border-bottom: 2px solid transparent;
+    color: #333; text-decoration: none; font-weight: 600; /* ヘッダーのウェイトは600のままにする */
+    padding: 0.5rem 0; border-bottom: 2px solid transparent;
     transition: border-color 0.3s;
-    
-    /* ▼▼▼ この一行を追加します ▼▼▼ */
-    font-size: 1.0rem; /* お好みのサイズに調整してください */
-    /* ▲▲▲ ここまで ▲▲▲ */
+    font-size: 0.9rem; /* サイズを0.9remに戻す */
   }
-
   nav a:hover, nav a.active { border-color: #333; }
-  
-  /* ... language-switcher, @media のスタイル ... */
   .language-switcher { display: flex; align-items: center; gap: 0.5rem; position: absolute; right: 1.5rem; font-weight: 600; }
   .language-switcher a { color: #888; text-decoration: none; }
   .language-switcher span { color: #333; }

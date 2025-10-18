@@ -1,29 +1,31 @@
 ---
-import { getCollection, type CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import { ui } from "~/i18n/ui";
 
+const lang = "ja"; // 日本語ページとして固定
+
 export async function getStaticPaths() {
-  const artworks = await getCollection("artworks");
+  // 日本語の作品データのみを取得
+  const artworks = await getCollection("artworks", ({ id }) => id.startsWith('ja/'));
   return artworks.map((artwork) => ({
-    params: { lang: artwork.id.split('/')[0], slug: artwork.slug.replace(/^(ja|en)\//, '') },
+    params: { slug: artwork.slug.replace(/^(ja)\//, '') }, // slugから言語プレフィックスを除去
     props: { artwork },
   }));
 }
 
-const { lang } = Astro.locals; // Astro.paramsからAstro.localsに変更
 const { artwork } = Astro.props;
 const { Content } = await artwork.render();
 const t = ui[lang];
 
+// 関連イラストも日本語データから取得
 const relatedArtworks = artwork.data.relatedImages ? await getCollection('artworks', ({ id, slug }) => {
   const artworkLang = id.split('/')[0];
-  const artworkSlug = slug.replace(/^(ja|en)\//, '');
+  const artworkSlug = slug.replace(/^(ja)\//, '');
   return artworkLang === lang && artwork.data.relatedImages!.includes(artworkSlug);
 }) : [];
 ---
-
 <BaseLayout title={artwork.data.title} description={artwork.data.description} keywords={artwork.data.keywords.join(', ')}>
   <div class="container">
     <article class="artwork-detail">
@@ -40,17 +42,14 @@ const relatedArtworks = artwork.data.relatedImages ? await getCollection('artwor
         <a href={artwork.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="patreon-link">
           <img src={artwork.data.patreonEmbedImageUrl} alt="Support on Patreon" />
         </a>
-        
-        <div class="artwork-body">
-          <Content />
-        </div>
-
+        <div class="artwork-body"><Content /></div>
         {relatedArtworks.length > 0 && (
           <div class="related-works">
             <h2>{t['artwork.related']}</h2>
             <div class="thumbnail-grid">
               {relatedArtworks.map((related) => (
-                <a href={`/${lang}/gallery/${related.slug.replace(`${lang}/`, '')}`}>
+                // 関連イラストへのリンクも /gallery/...
+                <a href={`/gallery/${related.slug.replace(`${lang}/`, '')}`}>
                   <Image src={related.data.src} alt={related.data.title} width={150} height={150} />
                 </a>
               ))}
@@ -61,23 +60,11 @@ const relatedArtworks = artwork.data.relatedImages ? await getCollection('artwor
     </article>
   </div>
 </BaseLayout>
-
 <style is:inline>
+  /* 以前の[slug].astroのスタイルをそのままコピー */
   .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-  
-  .artwork-detail {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    align-items: start; 
-  }
-
-  /* ▼▼▼ CSSを完全にシンプル化 ▼▼▼ */
-  .main-image {
-    width: 100%;
-  }
-  /* ▲▲▲ ここまで ▲▲▲ */
-
+  .artwork-detail { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start; }
+  .main-image { width: 100%; }
   h1 { font-size: 2.5rem; margin-bottom: 1.5rem; }
   .artwork-body { margin-top: 1.5rem; }
   .patreon-link img { width: 100%; border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s; }

@@ -1,0 +1,80 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { ui } from "~/i18n/ui";
+
+const lang = "en"; // 英語ページとして固定
+
+export async function getStaticPaths() {
+  // 英語の作品データのみを取得
+  const artworks = await getCollection("artworks", ({ id }) => id.startsWith('en/'));
+  return artworks.map((artwork) => ({
+    params: { slug: artwork.slug.replace(/^(en)\//, '') }, // slugから言語プレフィックスを除去
+    props: { artwork },
+  }));
+}
+
+const { artwork } = Astro.props;
+const { Content } = await artwork.render();
+const t = ui[lang];
+
+// 関連イラストも英語データから取得
+const relatedArtworks = artwork.data.relatedImages ? await getCollection('artworks', ({ id, slug }) => {
+  const artworkLang = id.split('/')[0];
+  const artworkSlug = slug.replace(/^(en)\//, '');
+  return artworkLang === lang && artwork.data.relatedImages!.includes(artworkSlug);
+}) : [];
+---
+<BaseLayout title={artwork.data.title} description={artwork.data.description} keywords={artwork.data.keywords.join(', ')}>
+  <div class="container">
+    <article class="artwork-detail">
+      <div class="main-image">
+        <Image 
+          src={artwork.data.src} 
+          alt={artwork.data.title}
+          quality="max"
+          style="width: 100%; height: auto;"
+        />
+      </div>
+      <div class="artwork-info">
+        <h1>{artwork.data.title}</h1>
+        <a href={artwork.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="patreon-link">
+          <img src={artwork.data.patreonEmbedImageUrl} alt="Support on Patreon" />
+        </a>
+        <div class="artwork-body"><Content /></div>
+        {relatedArtworks.length > 0 && (
+          <div class="related-works">
+            <h2>{t['artwork.related']}</h2>
+            <div class="thumbnail-grid">
+              {relatedArtworks.map((related) => (
+                // 関連イラストへのリンクも /en/gallery/...
+                <a href={`/en/gallery/${related.slug.replace(`${lang}/`, '')}`}>
+                  <Image src={related.data.src} alt={related.data.title} width={150} height={150} />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </article>
+  </div>
+</BaseLayout>
+<style is:inline>
+  /* 日本語の[slug].astroと同じスタイルをコピー */
+  .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+  .artwork-detail { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start; }
+  .main-image { width: 100%; }
+  h1 { font-size: 2.5rem; margin-bottom: 1.5rem; }
+  .artwork-body { margin-top: 1.5rem; }
+  .patreon-link img { width: 100%; border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s; }
+  .patreon-link:hover img { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+  .related-works { margin-top: 2rem; }
+  .related-works h2 { font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 2px solid #ccc; padding-bottom: 0.5rem; }
+  .thumbnail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; }
+  .thumbnail-grid a { aspect-ratio: 1 / 1; }
+  .thumbnail-grid img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; transition: transform 0.2s; }
+  .thumbnail-grid img:hover { transform: scale(1.05); }
+  @media (max-width: 768px) { .artwork-detail { grid-template-columns: 1fr; } }
+  @media (prefers-color-scheme: dark) { .related-works h2 { border-color: #555; } }
+</style>

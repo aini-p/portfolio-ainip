@@ -1,6 +1,7 @@
 ---
 import smartypants from "smartypants";
 import Header from "~/components/header.astro";
+import { ui, defaultLang, languages } from "~/i18n/ui";
 
 export interface Props {
   title?: string;
@@ -13,43 +14,62 @@ export interface Props {
 }
 
 const { title, description, keywords, image } = Astro.props;
+const { lang } = Astro.locals; // ミドルウェアから取得
 
-// ▼▼▼ ミドルウェアから安全に言語情報を取得 ▼▼▼
-const { lang } = Astro.locals;
+// ▼▼▼ hreflang用のパス生成ロジックを修正 ▼▼▼
+const currentPath = Astro.url.pathname;
+let jaPath, enPath;
+
+if (lang === 'en') {
+  // 現在英語ページ (/en/foo)
+  jaPath = currentPath.replace(/^\/en/, '') || '/'; // /en を削除、空なら /
+  enPath = currentPath;
+} else {
+  // 現在日本語ページ (/foo)
+  jaPath = currentPath;
+  enPath = `/en${currentPath === '/' ? '' : currentPath}`; // /en を先頭に追加 (ルートの場合は /en)
+}
+// ルートパスの場合、末尾のスラッシュを保証 (SEO的に推奨)
+if (jaPath === '') jaPath = '/';
+if (enPath === '/en') enPath = '/en/';
 // ▲▲▲ ここまで ▲▲▲
 
-const canonicalURL = new URL(Astro.url.pathname.replace(/^\/(ja|en)/, '') || '/', Astro.site);
 const siteName = lang === 'ja' ? "あいにP | AiniP" : "AiniP";
 const pageTitle = title ? `${title} · ${siteName}` : siteName;
-
-const jaPath = `/ja${Astro.url.pathname.replace(/^\/(ja|en)/, '') || '/'}`;
-const enPath = `/en${Astro.url.pathname.replace(/^\/(ja|en)/, '') || '/'}`;
 ---
 
 <html lang={lang}>
   <head>
-    {/* ... headタグの中身は変更ありません ... */}
+    {/* ... (metaタグなどは変更なし) ... */}
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="canonical" href={canonicalURL} />
+    {/* ▼▼▼ canonical URL を修正 ▼▼▼ */}
+    <link rel="canonical" href={new URL(lang === 'ja' ? jaPath : enPath, Astro.site)} />
+    {/* ▲▲▲ ここまで ▲▲▲ */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
+
+    {/* ▼▼▼ hreflangのURLを修正 ▼▼▼ */}
     <link rel="alternate" hreflang="ja" href={new URL(jaPath, Astro.site)} />
     <link rel="alternate" hreflang="en" href={new URL(enPath, Astro.site)} />
-    <link rel="alternate" hreflang="x-default" href={new URL(jaPath, Astro.site)} />
+    <link rel="alternate" hreflang="x-default" href={new URL(jaPath, Astro.site)} /> {/* デフォルトは日本語に */}
+    {/* ▲▲▲ ここまで ▲▲▲ */}
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1+Code:wght@100;200;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;700&display=swap" rel="stylesheet"> {/* フォントをInterに戻す */}
+
     <title set:html={smartypants(pageTitle, 1)} />
+    {/* ... (残りのheadタグは変更なし) ... */}
     {description && <meta name="description" content={smartypants(description, 1)} />}
     {keywords && <meta name="keywords" content={keywords} />}
     <meta property="og:title" content={smartypants(pageTitle, 1)} />
     <meta property="og:type" content="website" />
     {description && <meta property="og:description" content={smartypants(description, 1)} />}
-    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:url" content={new URL(lang === 'ja' ? jaPath : enPath, Astro.site)} />
     <meta property="og:locale" content={lang === 'ja' ? 'ja_JP' : 'en_US'} />
     <meta property="og:site_name" content={siteName} />
     {image && (<><meta property="og:image" content={image.src} /><meta property="og:image:alt" content={image.alt} /></>)}
@@ -63,50 +83,25 @@ const enPath = `/en${Astro.url.pathname.replace(/^\/(ja|en)/, '') || '/'}`;
 </html>
 
 <style is:global>
-/* ... reset.cssの内容 ... */
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
-  * { margin: 0; }
-  /* ... (中略) ... */
+  /* ... (styleタグの中身は変更なし) ... */
+  *, *::before, *::after { box-sizing: border-box; } * { margin: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  img, picture, video, canvas, svg { display: block; max-width: 100%; }
+  input, button, textarea, select { font: inherit; }
   p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
-
-
   :root {
-    color-scheme: light dark;
-    --bg: #ffffff;
-    --bg-dark: #000000;
-    --outline: #ffffff;
-    --font:
-      "M PLUS 1 Code", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
-      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    
-    /* ▼▼▼ 文字色を定義します ▼▼▼ */
-    --text-light: #686b7aff; /* 少し青みがかったダークグレー */
-    --text-dark: #d1d5db;  /* 明るいグレー */
-    /* ▲▲▲ ここまで ▲▲▲ */
+    color-scheme: light dark; --bg: #ffffff; --bg-dark: #000000; --outline: #ffffff;
+    --font: "Inter", "Noto Sans JP", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* フォントをInterに戻す */
+    --text-light: #374151; --text-dark: #d1d5db;
   }
-
   body {
     background-color: light-dark(var(--bg), var(--bg-dark));
     font-family: var(--font);
-    font-weight: 400;
-    
-    /* ▼▼▼ 文字色と文字間を適用します ▼▼▼ */
+    font-weight: 200; /* フォントウェイトを200に戻す */
     color: light-dark(var(--text-light), var(--text-dark));
-    letter-spacing: 0.02em; /* 文字間を少し広げる */
-    /* ▲▲▲ ここまで ▲▲▲ */
+    letter-spacing: 0.05em; /* 文字間隔を0.05emに戻す */
   }
-
-  /* ▼▼▼ 見出しのスタイルを追記します ▼▼▼ */
-  h1, h2 {
-    font-weight: 400; /* 見出しの太さを本文と同じ細さに */
-  }
-  /* ▲▲▲ ここまで ▲▲▲ */
-
-  main {
-    padding-top: 80px;
-  }
+  h1, h2 { font-weight: 200; } /* 見出しウェイトを200に戻す */
+  main { padding-top: 80px; }
 </style>

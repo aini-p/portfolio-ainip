@@ -3,12 +3,12 @@ import { languages, defaultLang } from "./i18n/ui";
 
 export const onRequest = defineMiddleware((context, next) => {
   const { pathname } = context.url;
-  const pathLang = pathname.split('/')[1];
-  
-  // URLから言語を判定し、Astroの共有データ(locals)に保存
-  if (pathLang in languages) {
-    context.locals.lang = pathLang as keyof typeof languages;
+
+  // URLが /en または /en/ で始まる場合は英語
+  if (pathname.startsWith('/en/') || pathname === '/en') {
+    context.locals.lang = 'en';
   } else {
+    // それ以外（ルートパス '/' を含む）はすべてデフォルト言語（日本語）
     context.locals.lang = defaultLang;
   }
   
