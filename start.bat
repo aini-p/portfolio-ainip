@@ -9,6 +9,13 @@ if not exist "node_modules" (
     echo Dependencies not found. Installing all required packages...
     echo This might take a moment.
     echo.
+
+    REM pnpmロックファイルが存在する場合、npmとの競合を防ぐために削除
+    if exist "pnpm-lock.yaml" (
+        echo Found pnpm-lock.yaml. Removing it to force npm usage...
+        del pnpm-lock.yaml
+    )
+    
     npm install
     
     REM npm installが失敗した場合、エラーを表示して停止する
