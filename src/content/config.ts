@@ -7,7 +7,11 @@ const artworksCollection = defineCollection({
     title: z.string(),
     publishDate: z.date(),
     src: image(), // 画像ファイルを直接指定できるように変更
-    patreonUrl: z.string().url(),
+    patreonUrl: z.union([
+      z.string().url(),      // 有効なURL
+      z.literal("None"),   // "None" という文字列
+      z.literal("")        // 空の文字列
+    ]),
     patreonEmbedImageUrl: z.string(),
     relatedImages: z.array(z.string()).optional(),
     // SEO
