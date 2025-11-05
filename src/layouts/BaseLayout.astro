@@ -60,7 +60,7 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;700&display=swap" rel="stylesheet"> {/* フォントをInterに戻す */}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;700&display=swap" rel="stylesheet"> {/* フォントをInterに戻す */}
 
     <title set:html={smartypants(pageTitle, 1)} />
     {/* ... (残りのheadタグは変更なし) ... */}
@@ -79,6 +79,9 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <main>
       <slot />
     </main>
+    <footer>
+      <small>&copy; {new Date().getFullYear()} あいにP | AiniP. All rights reserved.</small>
+    </footer>
   </body>
 </html>
 
@@ -86,22 +89,45 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
   /* ... (styleタグの中身は変更なし) ... */
   *, *::before, *::after { box-sizing: border-box; } * { margin: 0; }
   html { -webkit-text-size-adjust: 100%; }
-  body { line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    /* 画面が短くてもフッターが最下部に固定されるようにします */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
   img, picture, video, canvas, svg { display: block; max-width: 100%; }
   input, button, textarea, select { font: inherit; }
   p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
   :root {
     color-scheme: light dark; --bg: #ffffff; --bg-dark: #000000; --outline: #ffffff;
     --font: "Inter", "Noto Sans JP", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* フォントをInterに戻す */
-    --text-light: #374151; --text-dark: #d1d5db;
+    --text-light: #617491ff; --text-dark: #d1d5db;
   }
   body {
     background-color: light-dark(var(--bg), var(--bg-dark));
     font-family: var(--font);
-    font-weight: 200; /* フォントウェイトを200に戻す */
+    font-weight: 300; /* フォントウェイトを200に戻す */
     color: light-dark(var(--text-light), var(--text-dark));
     letter-spacing: 0.05em; /* 文字間隔を0.05emに戻す */
   }
-  h1, h2 { font-weight: 200; } /* 見出しウェイトを200に戻す */
-  main { padding-top: 80px; }
+  h1, h2 { font-weight: 300; } /* 見出しウェイトを200に戻す */
+  main {
+    padding-top: 80px;
+    flex-grow: 1; /* メインコンテンツが残りのスペースをすべて埋める */
+  }
+  footer {
+    width: 100%;
+    padding: 2rem 1rem;
+    font-size: 1.0rem;
+    color: light-dark(var(--text-light, #888), var(--text-dark, #777));
+    opacity: 0.8;
+    
+    /* 変更前: text-align: center; */
+    
+    /* 変更後: Flexboxで中央揃え */
+    display: flex;
+    justify-content: center;
+  }
 </style>
