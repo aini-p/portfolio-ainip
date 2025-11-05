@@ -1,7 +1,6 @@
 ---
 import smartypants from "smartypants";
 import Header from "~/components/header.astro";
-import { ui, defaultLang, languages } from "~/i18n/ui";
 
 export interface Props {
   title?: string;
@@ -18,7 +17,7 @@ const { lang } = Astro.locals; // ミドルウェアから取得
 
 // ▼▼▼ hreflang用のパス生成ロジックを修正 ▼▼▼
 const currentPath = Astro.url.pathname;
-let jaPath, enPath;
+let jaPath: string, enPath: string;
 
 if (lang === 'en') {
   // 現在英語ページ (/en/foo)

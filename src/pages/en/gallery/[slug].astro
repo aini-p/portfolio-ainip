@@ -36,7 +36,7 @@ if (hasPatreonUrl) {
       // または（例: /posts/142481220）
       // から末尾の数字（投稿ID）を抽出
       const match = url.pathname.match(/(\d+)$/);
-      if (match && match[1]) {
+      if (match?.[1]) {
         patreonPostId = match[1];
       }
     }
@@ -60,7 +60,8 @@ const relatedArtworks = artwork.data.relatedImages ? await getCollection('artwor
   // 3.「今開いているページ」の relatedImages 配列 (['../_images/Test_A.jpg']) を確認
   //    その配列の「いずれかの文字列」に、
   //    今チェックしている作品の artworkSlug ('Test_A') が「含まれているか」をチェック
-  return artwork.data.relatedImages!.some(imagePath => 
+  // '!' を '?' に変更 (Non-null assertionの削除)
+  return artwork.data.relatedImages?.some(imagePath => 
     imagePath.includes(artworkSlug)
   );
 }) : [];
@@ -89,7 +90,6 @@ const relatedArtworks = artwork.data.relatedImages ? await getCollection('artwor
               style="border: none; max-width: 600px; min-height: 400px; border-radius: 8px;"
               allowfullscreen
               frameborder="0"
-              loading="lazy"
             ></iframe>
           </div>
         )}

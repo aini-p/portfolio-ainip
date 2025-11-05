@@ -8,7 +8,7 @@ const t = ui[lang];
 const galleryPath = lang === 'ja' ? '/' : '/en';
 const profilePath = lang === 'ja' ? '/profile' : '/en/profile';
 
-let jaPath, enPath;
+let jaPath: string, enPath: string;
 if (lang === 'en') {
   // 現在英語ページ (/en/foo)
   jaPath = pathname.replace(/^\/en/, '') || '/'; // /en を削除、空なら /
