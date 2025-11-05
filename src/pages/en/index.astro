@@ -5,15 +5,14 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 
 const lang = "en"; // 英語ページとして固定
 const artworks = await getCollection("artworks", ({ id }) => id.startsWith(`${lang}/`));
-artworks.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 ---
 <BaseLayout>
-  <section class="justified-gallery">
+  <section class="justified-gallery" id="gallery-container">
     {artworks.map((artwork, index) => (
       <a
         style={`--width: ${artwork.data.src.width}; --height: ${artwork.data.src.height};`}
-        // 英語ギャラリーから詳細ページへのリンクは /en/gallery/...
         href={`/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
+        class="gallery-item" {/* ▼▼▼ class="gallery-item" を追加 ▼▼▼ */}
       >
         <Image
           format="webp"
@@ -76,3 +75,29 @@ artworks.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueO
     }
   }
 </style>
+<script is:inline>
+  function shuffleArray(array) {
+    let currentIndex = array.length,  randomIndex;
+    while (currentIndex != 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  }
+
+  function shuffleGallery() {
+    const gallery = document.getElementById('gallery-container');
+    if (!gallery) return;
+    const items = Array.from(gallery.querySelectorAll('.gallery-item'));
+    const shuffledItems = shuffleArray(items);
+    shuffledItems.forEach(item => {
+      gallery.appendChild(item);
+    });
+  }
+  
+  document.addEventListener('astro:page-load', shuffleGallery);
+
+  shuffleGallery();
+</script>
