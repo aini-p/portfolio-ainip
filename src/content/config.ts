@@ -12,7 +12,7 @@ const artworksCollection = defineCollection({
       z.literal("None"),   // "None" という文字列
       z.literal("")        // 空の文字列
     ]),
-    patreonEmbedImageUrl: z.string(),
+    patreonEmbedImageUrl: image().optional(),
     relatedImages: z.array(z.string()).optional(),
     // SEO
     description: z.string(),
