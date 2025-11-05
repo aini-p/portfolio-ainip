@@ -12,7 +12,7 @@ const artworks = await getCollection("artworks", ({ id }) => id.startsWith(`${la
       <a
         style={`--width: ${artwork.data.src.width}; --height: ${artwork.data.src.height};`}
         href={`/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
-        class="gallery-item" {/* ▼▼▼ class="gallery-item" を追加 ▼▼▼ */}
+        class="gallery-item"
       >
         <Image
           format="webp"
