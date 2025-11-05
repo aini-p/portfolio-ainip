@@ -20,7 +20,6 @@ const { Content } = await artwork.render();
 const t = ui[lang];
 
 const hasPatreonUrl = artwork.data.patreonUrl && artwork.data.patreonUrl !== "None" && artwork.data.patreonUrl !== "";
-const hasPatreonImage = !!artwork.data.patreonEmbedImageUrl;
 
 // 関連イラストも日本語データから取得
 const relatedArtworks = artwork.data.relatedImages ?
@@ -46,7 +45,7 @@ await getCollection('artworks', ({ id, slug }) => {
         <h1>{artwork.data.title}</h1>
 
         {/* 条件を「URLと画像の両方がある場合」のみに変更 */}
-        {hasPatreonUrl && hasPatreonImage && (
+        {hasPatreonUrl && artwork.data.patreonEmbedImageUrl && (
           <a href={artwork.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="patreon-link">
             <Image 
               src={artwork.data.patreonEmbedImageUrl} 
