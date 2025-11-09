@@ -112,7 +112,7 @@ await getCollection('artworks', ({ id, slug }) => {
   .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
   .artwork-detail { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start; }
   .main-image { width: 100%; }
-  h1 { font-size: 2.5rem; margin-bottom: 1.5rem; }
+  h1 { font-size: 2.0rem; margin-bottom: 1.5rem; }
   .artwork-body { margin-top: 1.5rem; }
 
   /* ▼▼▼ 追加したメタ（キャラ名/作品名）のスタイル ▼▼▼ */
@@ -121,7 +121,7 @@ await getCollection('artworks', ({ id, slug }) => {
     flex-wrap: wrap;
     gap: 0.4rem; /* 隙間 */
     margin-bottom: 1.5rem; /* タイトル下、バナー上との余白 */
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     color: light-dark(var(--text-light, #777), var(--text-dark, #aaa));
   }
   .meta-characters, .meta-series {
