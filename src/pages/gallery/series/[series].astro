@@ -1,0 +1,101 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { ui } from "~/i18n/ui";
+
+const lang = "ja"; // ★ "en" から "ja" に修正
+const t = ui[lang];
+
+export async function getStaticPaths() {
+  const artworks = await getCollection("artworks", ({ id }) => id.startsWith('ja/')); // ★ 'en/' から 'ja/' に修正
+  const paths: { params: { series: string }; props: { artworks: CollectionEntry<'artworks'>[] } }[] = [];
+  const seriesMap = new Map<string, CollectionEntry<'artworks'>[]>();
+
+  for (const artwork of artworks) {
+    if (artwork.data.series) {
+      const series = artwork.data.series;
+      if (!seriesMap.has(series)) {
+        seriesMap.set(series, []);
+      }
+      seriesMap.get(series)!.push(artwork);
+    }
+  }
+
+  for (const [series, collection] of seriesMap.entries()) {
+    paths.push({
+      params: { series: encodeURIComponent(series) },
+      props: { artworks: collection.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()) },
+    });
+  }
+  return paths;
+}
+
+const { series } = Astro.params;
+const { artworks } = Astro.props;
+const seriesName = decodeURIComponent(series);
+---
+<BaseLayout title={`${seriesName} - ${t['nav.gallery']}`}>
+  <div class="list-container">
+    <h1>{seriesName}</h1>
+    <section class="justified-gallery">
+      {artworks.map((artwork, index) => (
+        <a
+          style={`--width: ${artwork.data.src.width}; --height: ${artwork.data.src.height};`}
+          href={`/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
+        >
+          <Image
+            format="webp"
+            src={artwork.data.src}
+            alt={artwork.data.title}
+            height={400}
+            loading={index < 20 ? "eager" : "lazy"}
+          />
+        </a>
+      ))}
+    </section>
+  </div>
+</BaseLayout>
+<style is:inline>
+  /* スタイルは変更なし (既存のものをコピー) */
+  .list-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+  h1 { font-size: 2.5rem; margin-bottom: 1.5rem; }
+  @media (max-width: 768px) {
+    .list-container { padding: 1rem; }
+    h1 { font-size: 2rem; }
+  }
+  .justified-gallery {
+    --padding: 0;
+    --space: max(2.5vw, 12px);
+    --min-height: clamp(200px, 20vw, 400px);
+    padding: var(--padding);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space);
+  }
+  .justified-gallery a {
+    flex-grow: calc(var(--width) * (100000 / var(--height)));
+    flex-basis: calc(var(--min-height) * (var(--width) / var(--height)));
+    aspect-ratio: var(--width) / var(--height);
+    overflow: hidden;
+    opacity: 1;
+    transition: all 0.05s ease-in-out;
+  }
+  .justified-gallery a img {
+    display: block; object-fit: cover; height: 100%; width: 100%;
+  }
+  .justified-gallery a:focus-visible {
+    outline: 3px solid var(--outline); outline-offset: 2px; transform: scale(1.05); z-index: 1; border-radius: 2px;
+    box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.1);
+  }
+  .justified-gallery::after {
+    content: " ";
+    flex-grow: 1000000000;
+  }
+  @media (max-width: 768px) {
+    .justified-gallery {
+      --min-height: clamp(150px, 25vw, 250px);
+      --space: max(1.5vw, 8px);
+    }
+  }
+</style>

@@ -4,7 +4,8 @@ import { Image } from "astro:assets";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import { ui } from "~/i18n/ui";
 
-const lang = "en"; // 英語ページとして固定
+const lang = "en";
+// 英語ページとして固定
 
 export async function getStaticPaths() {
   // 英語の作品データのみを取得
@@ -18,12 +19,11 @@ export async function getStaticPaths() {
 const { artwork } = Astro.props;
 const { Content } = await artwork.render();
 const t = ui[lang];
-
 const hasPatreonUrl = artwork.data.patreonUrl && artwork.data.patreonUrl !== "None" && artwork.data.patreonUrl !== "";
 
 // 関連イラストも英語データから取得
 const relatedArtworks = artwork.data.relatedImages ?
-  await getCollection('artworks', ({ id, slug }) => {
+await getCollection('artworks', ({ id, slug }) => {
     // 1. 言語をチェック
     const artworkLang = id.split('/')[0];
     if (artworkLang !== lang) {
@@ -50,7 +50,37 @@ const relatedArtworks = artwork.data.relatedImages ?
       </div>
       <div class="artwork-info">
         <h1>{artwork.data.title}</h1>
+        
+        {/* ▼▼▼ キャラクター・シリーズ リンク ▼▼▼ */}
+        <div class="artwork-meta">
+          {/* キャラクターリンク (配列) */}
+          {artwork.data.characters && artwork.data.characters.length > 0 && (
+            <div class="meta-characters">
+              {artwork.data.characters.map((char, index) => (
+                <>
+                  <a href={`/en/gallery/character/${encodeURIComponent(char)}`}>
+                    {char}
+                  </a>
+                  {index < artwork.data.characters.length - 1 && ', '}
+                </>
+              ))}
+            </div>
+          )}
 
+          {/* 作品シリーズリンク (文字列) */}
+          {artwork.data.series && (
+            <div class="meta-series">
+              {/* キャラクターが既にある場合は区切り線を追加 */}
+              {artwork.data.characters && artwork.data.characters.length > 0 && ' / '}
+              <a href={`/en/gallery/series/${encodeURIComponent(artwork.data.series)}`}>
+                {artwork.data.series}
+              </a>
+            </div>
+          )}
+        </div>
+        {/* ▲▲▲ ここまで ▲▲▲ */}
+
+        {/* Patreonバナー */}
         {hasPatreonUrl && artwork.data.patreonEmbedImageUrl && (
           <a href={artwork.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="patreon-link">
             <Image 
@@ -65,6 +95,8 @@ const relatedArtworks = artwork.data.relatedImages ?
         )}
 
         <div class="artwork-body"><Content /></div>
+        
+        {/* 関連イラスト */}
         {relatedArtworks.length > 0 && (
           <div class="related-works">
             <h2>{t['artwork.related']}</h2>
@@ -89,6 +121,31 @@ const relatedArtworks = artwork.data.relatedImages ?
   .main-image { width: 100%; }
   h1 { font-size: 2.5rem; margin-bottom: 1.5rem; }
   .artwork-body { margin-top: 1.5rem; }
+
+  /* ▼▼▼ 追加したメタ（キャラ名/作品名）のスタイル ▼▼▼ */
+  .artwork-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: light-dark(var(--text-light, #777), var(--text-dark, #aaa));
+  }
+  .meta-characters, .meta-series {
+    display: inline;
+  }
+  .artwork-meta a {
+    color: light-dark(var(--text-light, #555), var(--text-dark, #ddd));
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+  }
+  .artwork-meta a:hover {
+    color: light-dark(#000, #fff);
+  }
+  /* ▲▲▲ ここまで ▲▲▲ */
+
   .patreon-link img { width: 100%; border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s; }
   .patreon-link:hover img { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
   .related-works { margin-top: 2rem; }
@@ -99,17 +156,17 @@ const relatedArtworks = artwork.data.relatedImages ?
   .thumbnail-grid img:hover { transform: scale(1.05); }
   @media (max-width: 768px) {
     .container {
-      padding: 1rem; /* コンテナの余白を減らす */
+      padding: 1rem;
     }
     .artwork-detail {
-      grid-template-columns: 1fr; /* 1カラムレイアウトに変更 */
-      gap: 1.5rem; /* 要素間のスペースを少し減らす */
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
     }
     h1 {
-      font-size: 2rem; /* 見出しを少し小さくする */
+      font-size: 2rem;
     }
     .related-works h2 {
-      font-size: 1.3rem; /* 見出しを少し小さくする */
+      font-size: 1.3rem;
     }
   }
   @media (prefers-color-scheme: dark) { .related-works h2 { border-color: #555; } }
