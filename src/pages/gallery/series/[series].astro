@@ -24,7 +24,7 @@ export async function getStaticPaths() {
 
   for (const [series, collection] of seriesMap.entries()) {
     paths.push({
-      params: { series: encodeURIComponent(series) },
+      params: { series: series },
       props: { artworks: collection.sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()) },
     });
   }
