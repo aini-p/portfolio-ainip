@@ -1,0 +1,8 @@
+# すべてのクローラー (User-agent: *) に対して...
+User-agent: *
+# すべてのページへのクロールを許可します (Allow: /)
+Allow: /
+
+# サイトマップの場所をGoogleに伝えます
+# ※必ずご自身のドメイン（astro.config.mjsで設定したsiteのURL）に置き換えてください
+Sitemap: https://aini-p.com/sitemap-index.xml

@@ -4,7 +4,7 @@ import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 
 export default defineConfig({
-  site: "https://mysite.com",
+  site: "https://aini-p.com",
   devToolbar: {
     enabled: false,
   },
