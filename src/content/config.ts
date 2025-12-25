@@ -1,7 +1,7 @@
-import { z, defineCollection } from "astro:content";
+import { defineCollection, z } from "astro:content";
 
 const artworksCollection = defineCollection({
-  type: 'content',
+  type: "content",
   // `image`ヘルパーを使うことで、画像最適化が簡単になります
   schema: ({ image }) => z.object({
     title: z.string(),
@@ -25,5 +25,5 @@ const artworksCollection = defineCollection({
 });
 
 export const collections = {
-  'artworks': artworksCollection,
+  artworks: artworksCollection,
 };
