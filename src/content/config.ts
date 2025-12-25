@@ -16,7 +16,9 @@ const artworksCollection = defineCollection({
     relatedImages: z.array(z.string()).optional(),
     // SEO
     description: z.string(),
-    characters: z.array(z.string()),
+    characters: z.array(z.string()).optional(),
+    main_character: z.string().optional(),
+    sub_characters: z.array(z.string()).optional(),
     series: z.string(),
     keywords: z.array(z.string()),
   }),

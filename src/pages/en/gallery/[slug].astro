@@ -21,6 +21,27 @@ const { Content } = await artwork.render();
 const t = ui[lang];
 const hasPatreonUrl = artwork.data.patreonUrl && artwork.data.patreonUrl !== "None" && artwork.data.patreonUrl !== "";
 
+// メインキャラクターとサブキャラクターのリストを定義
+let mainCharacter: string | undefined;
+let subCharacters: string[] = [];
+
+// 新しいフォーマット（main_character, sub_characters）を優先
+if (artwork.data.main_character) {
+  mainCharacter = artwork.data.main_character;
+  // sub_charactersが存在すれば追加
+  if (artwork.data.sub_characters) {
+    subCharacters = artwork.data.sub_characters;
+  }
+} 
+// 古いフォーマット（characters）へのフォールバック
+else if (artwork.data.characters && artwork.data.characters.length > 0) {
+  // 配列の先頭をメイン、残りをサブとする
+  [mainCharacter, ...subCharacters] = artwork.data.characters;
+}
+
+// 表示用の全キャラクターリストを作成（undefinedやnullを除外）
+const allCharacters = [mainCharacter, ...subCharacters].filter(Boolean) as string[];
+
 // 関連イラストも英語データから取得
 const relatedArtworks = artwork.data.relatedImages ?
 await getCollection('artworks', ({ id, slug }) => {
@@ -53,15 +74,15 @@ await getCollection('artworks', ({ id, slug }) => {
         
         {/* ▼▼▼ キャラクター・シリーズ リンク ▼▼▼ */}
         <div class="artwork-meta">
-          {/* キャラクターリンク (配列) */}
-          {artwork.data.characters && artwork.data.characters.length > 0 && (
+          {/* キャラクターリンク */}
+          {allCharacters.length > 0 && (
             <div class="meta-characters">
-              {artwork.data.characters.map((char, index) => (
+              {allCharacters.map((char, index) => (
                 <>
                   <a href={`/en/gallery/character/${encodeURIComponent(char)}`}>
                     {char}
                   </a>
-                  {index < artwork.data.characters.length - 1 && ', '}
+                  {index < allCharacters.length - 1 && ', '}
                 </>
               ))}
             </div>
@@ -71,7 +92,7 @@ await getCollection('artworks', ({ id, slug }) => {
           {artwork.data.series && (
             <div class="meta-series">
               {/* キャラクターが既にある場合は区切り線を追加 */}
-              {artwork.data.characters && artwork.data.characters.length > 0 && ' / '}
+              {allCharacters.length > 0 && ' / '}
               <a href={`/en/gallery/series/${encodeURIComponent(artwork.data.series)}`}>
                 {artwork.data.series}
               </a>

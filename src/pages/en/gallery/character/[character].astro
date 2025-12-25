@@ -13,8 +13,24 @@ export async function getStaticPaths() {
   const charactersMap = new Map<string, CollectionEntry<'artworks'>[]>();
 
   for (const artwork of artworks) {
-    if (artwork.data.characters) {
-      for (const char of artwork.data.characters) {
+    const allCharacters: string[] = [];
+
+    // 新しいフォーマット（main_character, sub_characters）を優先
+    if (artwork.data.main_character) {
+      allCharacters.push(artwork.data.main_character);
+    }
+    if (artwork.data.sub_characters) {
+      allCharacters.push(...artwork.data.sub_characters);
+    }
+
+    // 新フォーマットのキャラクターがいない場合、古いフォーマットにフォールバック
+    if (allCharacters.length === 0 && artwork.data.characters) {
+      allCharacters.push(...artwork.data.characters);
+    }
+    
+    // 統合されたリストからマップを構築
+    if (allCharacters.length > 0) {
+      for (const char of allCharacters) {
         if (!charactersMap.has(char)) {
           charactersMap.set(char, []);
         }
