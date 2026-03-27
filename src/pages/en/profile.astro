@@ -1,12 +1,14 @@
 ---
+import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import { ui } from '~/i18n/ui';
+import AdsenseAd from "~/components/AdsenseAd.astro";
 
 const lang = "en"; // 英語ページとして固定
 const t = ui[lang];
 
 const profileName = "At5Fun";
-const profileDescription = "Illustrator / AI + Retouch / DM for work inquiries.";
+const profileDescription =
+  "Illustrator / AI + Retouch / DM for work inquiries.";
 const icon1Name = "Sub1";
 const icon2Name = "Sub2";
 const icon3Name = "Main";
@@ -61,6 +63,7 @@ const icon5Name = "Sub5";
         </a>
       </div>
     </section>
+    <AdsenseAd adSlot="8844389887" />
     <section class="links-section">
       <h2>{t['profile.fansite']}</h2>
       <div class="banner-links">
@@ -69,6 +72,7 @@ const icon5Name = "Sub5";
         </a>
       </div>
     </section>
+    <AdsenseAd adSlot="7531308217" />
   </div>
 </BaseLayout>
 <style is:inline>
@@ -79,7 +83,7 @@ const icon5Name = "Sub5";
   p { font-size: 1.1rem; line-height: 1.8; }
   .profile-section { display: flex; align-items: center; gap: 2rem; }
   .profile-icon { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #eee; }
-  .x-accounts { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+  .x-accounts { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; }
   .x-accounts a { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit; transition: transform 0.2s; }
   .x-accounts a:hover { transform: translateY(-4px); }
   .x-accounts img { width: 48px; height: 48px; }

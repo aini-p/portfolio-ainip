@@ -19,21 +19,21 @@ const { lang } = Astro.locals; // ミドルウェアから取得
 const currentPath = Astro.url.pathname;
 let jaPath: string, enPath: string;
 
-if (lang === 'en') {
+if (lang === "en") {
   // 現在英語ページ (/en/foo)
-  jaPath = currentPath.replace(/^\/en/, '') || '/'; // /en を削除、空なら /
+  jaPath = currentPath.replace(/^\/en/, "") || "/"; // /en を削除、空なら /
   enPath = currentPath;
 } else {
   // 現在日本語ページ (/foo)
   jaPath = currentPath;
-  enPath = `/en${currentPath === '/' ? '' : currentPath}`; // /en を先頭に追加 (ルートの場合は /en)
+  enPath = `/en${currentPath === "/" ? "" : currentPath}`; // /en を先頭に追加 (ルートの場合は /en)
 }
 // ルートパスの場合、末尾のスラッシュを保証 (SEO的に推奨)
-if (jaPath === '') jaPath = '/';
-if (enPath === '/en') enPath = '/en/';
+if (jaPath === "") jaPath = "/";
+if (enPath === "/en") enPath = "/en/";
 // ▲▲▲ ここまで ▲▲▲
 
-const siteName = lang === 'ja' ? "あと5分。" : "At5Fun";
+const siteName = lang === "ja" ? "あと5分。" : "At5Fun";
 const pageTitle = title ? `${title} · ${siteName}` : siteName;
 ---
 
@@ -114,6 +114,11 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <meta property="og:locale" content={lang === 'ja' ? 'ja_JP' : 'en_US'} />
     <meta property="og:site_name" content={siteName} />
     {image && (<><meta property="og:image" content={image.src} /><meta property="og:image:alt" content={image.alt} /></>)}
+
+    <!-- Google AdSense -->
+    <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2812218267740921"
+         crossorigin="anonymous"></script>
+
     {/* 本番環境 (npm run build) のみで実行する */}
     {import.meta.env.PROD && (
       <>

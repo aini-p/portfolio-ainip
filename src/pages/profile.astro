@@ -1,12 +1,14 @@
 ---
+import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import { ui } from '~/i18n/ui';
+import AdsenseAd from "~/components/AdsenseAd.astro";
 
 const lang = "ja"; // 日本語ページとして固定
 const t = ui[lang];
 
 const profileName = "あと5分。";
-const profileDescription = "イラストレーター / AI+加筆 / お仕事のご依頼はDMまで。";
+const profileDescription =
+  "イラストレーター / AI+加筆 / お仕事のご依頼はDMまで。";
 const icon1Name = "サブ1号";
 const icon2Name = "サブ2号";
 const icon3Name = "公式メイン";
@@ -60,6 +62,7 @@ const icon5Name = "サブ5号";
         </a>
       </div>
     </section>
+    <AdsenseAd adSlot="8844389887" />
     <section class="links-section">
       <h2>{t['profile.fansite']}</h2>
       <div class="banner-links">
@@ -68,6 +71,7 @@ const icon5Name = "サブ5号";
         </a>
       </div>
     </section>
+    <AdsenseAd adSlot="7531308217" />
   </div>
 </BaseLayout>
 <style is:inline>
@@ -78,7 +82,7 @@ const icon5Name = "サブ5号";
   p { font-size: 1.1rem; line-height: 1.8; }
   .profile-section { display: flex; align-items: center; gap: 2rem; }
   .profile-icon { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #eee; }
-  .x-accounts { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+  .x-accounts { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; }
   .x-accounts a { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit; transition: transform 0.2s; }
   .x-accounts a:hover { transform: translateY(-4px); }
   .x-accounts img { width: 48px; height: 48px; }

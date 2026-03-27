@@ -1,0 +1,33 @@
+---
+export interface Props {
+  adSlot: string;
+  adFormat?: 'auto' | 'fluid' | 'rectangle' | 'vertical' | 'horizontal';
+  adStyle?: string;
+  fullWidth?: boolean; // 新しいプロパティ
+}
+
+const { adSlot, adFormat = 'auto', adStyle = 'display: block;', fullWidth = false } = Astro.props; // fullWidthをデフォルトfalse
+---
+<div class="adsense-ad-container" class:list={{ 'full-width-ad': fullWidth }}>
+  <ins class="adsbygoogle"
+       style={adStyle}
+       data-ad-client="ca-pub-2812218267740921"
+       data-ad-slot={adSlot}
+       data-ad-format={adFormat}
+       data-full-width-responsive="true"></ins>
+  <script is:inline>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>
+
+<style is:global>
+  .adsense-ad-container {
+    margin: 20px auto; /* 広告の上下に余白を設けて中央寄せ */
+    text-align: center;
+    max-width: 100%; /* 親要素の幅を超えないようにする */
+  }
+
+  .adsense-ad-container.full-width-ad {
+    grid-column: 1 / -1; /* グリッドの全幅を占める */
+  }
+</style>

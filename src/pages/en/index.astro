@@ -1,10 +1,13 @@
 ---
-import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import AdsenseAd from "~/components/AdsenseAd.astro";
 
 const lang = "en"; // 英語ページとして固定
-const artworks = await getCollection("artworks", ({ id }) => id.startsWith(`${lang}/`));
+const artworks = await getCollection("artworks", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
 ---
 <BaseLayout>
   <section class="justified-gallery" id="gallery-container">
@@ -24,6 +27,7 @@ const artworks = await getCollection("artworks", ({ id }) => id.startsWith(`${la
       </a>
     ))}
   </section>
+  <AdsenseAd adSlot="8596977871" />
 </BaseLayout>
 <style is:inline>
   /* 日本語のindex.astroと同じスタイルをコピー */

@@ -1,26 +1,27 @@
 ---
 import { ui } from "~/i18n/ui";
+
 const { pathname } = Astro.url;
 const { lang } = Astro.locals;
 const t = ui[lang];
 
 // ▼▼▼ ナビゲーションとスイッチャーのパス生成ロジックを修正 ▼▼▼
-const galleryPath = lang === 'ja' ? '/' : '/en';
-const profilePath = lang === 'ja' ? '/profile' : '/en/profile';
+const galleryPath = lang === "ja" ? "/" : "/en";
+const profilePath = lang === "ja" ? "/profile" : "/en/profile";
 
 let jaPath: string, enPath: string;
-if (lang === 'en') {
+if (lang === "en") {
   // 現在英語ページ (/en/foo)
-  jaPath = pathname.replace(/^\/en/, '') || '/'; // /en を削除、空なら /
+  jaPath = pathname.replace(/^\/en/, "") || "/"; // /en を削除、空なら /
   enPath = pathname;
 } else {
   // 現在日本語ページ (/foo)
   jaPath = pathname;
-  enPath = `/en${pathname === '/' ? '' : pathname}`; // /en を先頭に追加 (ルートの場合は /en)
+  enPath = `/en${pathname === "/" ? "" : pathname}`; // /en を先頭に追加 (ルートの場合は /en)
 }
 // ルートパスの場合、末尾のスラッシュを保証
-if (jaPath === '') jaPath = '/';
-if (enPath === '/en') enPath = '/en/';
+if (jaPath === "") jaPath = "/";
+if (enPath === "/en") enPath = "/en/";
 // ▲▲▲ ここまで ▲▲▲
 ---
 <header>

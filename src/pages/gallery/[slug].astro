@@ -1,17 +1,20 @@
 ---
-import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
-import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
 import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import AdsenseAd from "~/components/AdsenseAd.astro";
 
 const lang = "ja";
 // 日本語ページとして固定
 
 export async function getStaticPaths() {
   // 日本語の作品データのみを取得
-  const artworks = await getCollection("artworks", ({ id }) => id.startsWith('ja/'));
+  const artworks = await getCollection("artworks", ({ id }) =>
+    id.startsWith("ja/"),
+  );
   return artworks.map((artwork) => ({
-    params: { slug: artwork.slug.replace(/^(ja)\//, '') }, // slugから言語プレフィックスを除去
+    params: { slug: artwork.slug.replace(/^(ja)\//, "") }, // slugから言語プレフィックスを除去
     props: { artwork },
   }));
 }
@@ -19,7 +22,10 @@ export async function getStaticPaths() {
 const { artwork } = Astro.props;
 const { Content } = await artwork.render();
 const t = ui[lang];
-const hasPatreonUrl = artwork.data.patreonUrl && artwork.data.patreonUrl !== "None" && artwork.data.patreonUrl !== "";
+const hasPatreonUrl =
+  artwork.data.patreonUrl &&
+  artwork.data.patreonUrl !== "None" &&
+  artwork.data.patreonUrl !== "";
 
 // メインキャラクターとサブキャラクターのリストを定義
 let mainCharacter: string | undefined;
@@ -32,7 +38,7 @@ if (artwork.data.main_character) {
   if (artwork.data.sub_characters) {
     subCharacters = artwork.data.sub_characters;
   }
-} 
+}
 // 古いフォーマット（characters）へのフォールバック
 else if (artwork.data.characters && artwork.data.characters.length > 0) {
   // 配列の先頭をメイン、残りをサブとする
@@ -40,16 +46,22 @@ else if (artwork.data.characters && artwork.data.characters.length > 0) {
 }
 
 // 表示用の全キャラクターリストを作成（undefinedやnullを除外）
-const allCharacters = [mainCharacter, ...subCharacters].filter(Boolean) as string[];
+const allCharacters = [mainCharacter, ...subCharacters].filter(
+  Boolean,
+) as string[];
 
 // 関連イラストも日本語データから取得
-const relatedArtworks = artwork.data.relatedImages ?
-await getCollection('artworks', ({ id, slug }) => {
-  const artworkLang = id.split('/')[0];
-  const artworkSlug = slug.replace(/^(ja)\//, '');
-  // '!' を '?' に変更 (Non-null assertionの削除)
-  return artworkLang === lang && artwork.data.relatedImages?.includes(artworkSlug);
-}) : [];
+const relatedArtworks = artwork.data.relatedImages
+  ? await getCollection("artworks", ({ id, slug }) => {
+      const artworkLang = id.split("/")[0];
+      const artworkSlug = slug.replace(/^(ja)\//, "");
+      // '!' を '?' に変更 (Non-null assertionの削除)
+      return (
+        artworkLang === lang &&
+        artwork.data.relatedImages?.includes(artworkSlug)
+      );
+    })
+  : [];
 ---
 <BaseLayout title={artwork.data.title} description={artwork.data.description} keywords={artwork.data.keywords.join(', ')}>
   <div class="container">
@@ -61,6 +73,7 @@ await getCollection('artworks', ({ id, slug }) => {
           quality="max"
           style="width: 100%; height: auto;"
         />
+        <AdsenseAd adSlot="7855841926" fullWidth={true} />
       </div>
       <div class="artwork-info">
         <h1>{artwork.data.title}</h1>
@@ -113,6 +126,7 @@ await getCollection('artworks', ({ id, slug }) => {
         {/* 関連イラスト */}
         {relatedArtworks.length > 0 && (
           <div class="related-works">
+            <AdsenseAd adSlot="4905144872" />
             <h2>{t['artwork.related']}</h2>
             <div class="thumbnail-grid">
               {relatedArtworks.map((related) => (
