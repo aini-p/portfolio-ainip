@@ -1,21 +1,20 @@
 ---
 import AdsenseAd from "~/components/AdsenseAd.astro";
+import { discordUrl, patreonUrl, profileNames, xAccountNames, xAccountUrls } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
 const lang = "en"; // 英語ページとして固定
 const t = ui[lang];
 
-const profileName = "At5Fun";
+const profileName = profileNames[lang];
 const profileDescription =
   "Illustrator / AI + Retouch / DM for work inquiries.";
-const icon1Name = "Sub1";
-const icon2Name = "Sub2";
-const icon3Name = "Main";
-const icon4Name = "Sub4";
-const icon5Name = "Sub5";
+const profilePageTitle = t["nav.profile"];
+const profileKeywords = "profile, illustrator, ai art, At5Fun";
+const xNames = xAccountNames[lang];
 ---
-<BaseLayout>
+<BaseLayout title={profilePageTitle} description={profileDescription} keywords={profileKeywords}>
   <div class="container">
     <section class="profile-section">
       <img src="/images/icon.png" alt="Profile Icon" class="profile-icon" />
@@ -23,11 +22,8 @@ const icon5Name = "Sub5";
         <h1>{profileName}</h1>
         <p>{profileDescription}</p>
         <div class="contact-links">
-          <a href="mailto:aini.h.panda@gmail.com" class="icon-link email-icon" aria-label="Contact via Email">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-              <polyline points="22,6 12,13 2,6"></polyline>
-            </svg>
+          <a href={discordUrl} target="_blank" rel="noopener noreferrer" class="icon-link discord-icon" aria-label="Contact via Discord">
+            <img src="/Discord_Symbol_Color/Discord-Symbol-Blurple.svg" alt="Discord" />
           </a>
           <!-- <a href="https://www.pixiv.net/users/your-id" target="_blank" rel="noopener noreferrer" class="icon-link pixiv-icon" aria-label="See Pixiv Profile">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -41,25 +37,25 @@ const icon5Name = "Sub5";
       <h2>X (Twitter)</h2>
       <div class="x-accounts">
         {/* Xアカウントのリンクは共通 */}
-        <a href="https://x.com/aini_p_001" target="_blank" rel="noopener noreferrer">
-          <img src="/images/icon_x1.png" alt="X Icon" />
-          <span>{icon1Name}</span>
+        <a href={xAccountUrls[0]} target="_blank" rel="noopener noreferrer">
+          <img src="/images/icon_x1.jpg" alt="X Icon" />
+          <span>{xNames[0]}</span>
         </a>
-        <a href="https://x.com/aini_p_002" target="_blank" rel="noopener noreferrer">
-          <img src="/images/icon_x2.png" alt="X Icon" />
-          <span>{icon2Name}</span>
+        <a href={xAccountUrls[1]} target="_blank" rel="noopener noreferrer">
+          <img src="/images/icon_x2.jpg" alt="X Icon" />
+          <span>{xNames[1]}</span>
         </a>
-        <a href="https://x.com/aini_p_003" target="_blank" rel="noopener noreferrer">
-          <img src="/images/icon_x3.png" alt="X Icon" />
-          <span>{icon3Name}</span>
+        <a href={xAccountUrls[2]} target="_blank" rel="noopener noreferrer">
+          <img src="/images/icon_x3.jpg" alt="X Icon" />
+          <span>{xNames[2]}</span>
         </a>
-        <a href="https://x.com/aini_p_004" target="_blank" rel="noopener noreferrer">
-          <img src="/images/icon_x4.png" alt="X Icon" />
-          <span>{icon4Name}</span>
+        <a href={xAccountUrls[3]} target="_blank" rel="noopener noreferrer">
+          <img src="/images/icon_x4.jpg" alt="X Icon" />
+          <span>{xNames[3]}</span>
         </a>
-        <a href="https://x.com/aini_p_005" target="_blank" rel="noopener noreferrer">
-          <img src="/images/icon_x5.png" alt="X Icon" />
-          <span>{icon5Name}</span>
+        <a href={xAccountUrls[4]} target="_blank" rel="noopener noreferrer">
+          <img src="/images/icon_x5.jpg" alt="X Icon" />
+          <span>{xNames[4]}</span>
         </a>
       </div>
     </section>
@@ -67,7 +63,7 @@ const icon5Name = "Sub5";
     <section class="links-section">
       <h2>{t['profile.fansite']}</h2>
       <div class="banner-links">
-        <a href="https://www.patreon.com/at5fun" target="_blank" rel="noopener noreferrer" class="banner-link">
+        <a href={patreonUrl} target="_blank" rel="noopener noreferrer" class="banner-link">
           <img src="/images/patreon-banner.png" alt="Patreon" />
         </a>
       </div>
@@ -93,18 +89,17 @@ const icon5Name = "Sub5";
   .contact-links { display: flex; flex-direction: row; gap: 1rem; margin-top: 1rem; }
   .icon-link { display: inline-flex; justify-content: center; align-items: center; width: 50px; height: 50px; border-radius: 50%; transition: all 0.2s ease-in-out; }
   .icon-link:hover { transform: scale(1.1); }
-  .email-icon { background-color: #f0f0f0; }
-  .email-icon:hover { background-color: #e0e0e0; }
-  .email-icon svg { stroke: #333; }
+  .discord-icon { background-color: #f5f3ff; }
+  .discord-icon:hover { background-color: #e9e3ff; }
+  .discord-icon img { width: 28px; height: 28px; }
   .pixiv-icon { background-color: #0096fa; }
   .pixiv-icon:hover { background-color: #007bc5; }
   .pixiv-icon svg { fill: #fff; }
   @media (prefers-color-scheme: dark) {
     h2 { border-color: #555; }
     .profile-icon { border-color: #444; }
-    .email-icon { background-color: #333; }
-    .email-icon:hover { background-color: #555; }
-    .email-icon svg { stroke: #eee; }
+    .discord-icon { background-color: #2d2f45; }
+    .discord-icon:hover { background-color: #40456a; }
   }
   @media (max-width: 768px) {
     .container {
