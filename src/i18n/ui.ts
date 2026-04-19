@@ -9,13 +9,13 @@ export const ui = {
   ja: {
     "nav.gallery": "ギャラリー",
     "nav.profile": "プロフィール",
-    "profile.fansite": "ファンサイト",
+    "profile.fansite": "メンバーシップ",
     "artwork.related": "関連イラスト",
   },
   en: {
     "nav.gallery": "Gallery",
     "nav.profile": "Profile",
-    "profile.fansite": "Fan Site",
+    "profile.fansite": "Membership",
     "artwork.related": "Related Artworks",
   },
 } as const;
