@@ -1,0 +1,914 @@
+---
+export interface Props {
+  bannerSrc?: string;
+  bannerAlt?: string;
+  shareUrl?: string;
+  copy: {
+    title: string;
+    lead: string;
+    whiteInput: string;
+    blackInput: string;
+    dropHint: string;
+    chooseButton: string;
+    fileHint: string;
+    resizeX: string;
+    generate: string;
+    download: string;
+    previewWhite: string;
+    previewBlack: string;
+    statusIdle: string;
+    statusNeedBoth: string;
+    statusWorking: string;
+    statusReady: string;
+    statusError: string;
+    contactLabel: string;
+    contactLinkText: string;
+    noteApproximation: string;
+    noteResize: string;
+    contactHref: string;
+    shareButton: string;
+    shareText: string;
+  };
+}
+
+const { copy, bannerSrc, bannerAlt = "", shareUrl } = Astro.props;
+const xShareHref = shareUrl
+  ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(copy.shareText)}&url=${encodeURIComponent(shareUrl)}`
+  : undefined;
+---
+
+<section
+  class="tool-shell"
+  data-dual-image-tool
+  data-status-idle={copy.statusIdle}
+  data-status-need-both={copy.statusNeedBoth}
+  data-status-working={copy.statusWorking}
+  data-status-ready={copy.statusReady}
+  data-status-error={copy.statusError}
+>
+  <div class="hero-card">
+    {bannerSrc && (
+      <>
+        <img class="hero-banner" src={bannerSrc} alt="" aria-hidden="true" />
+        <div class="hero-overlay" aria-hidden="true"></div>
+      </>
+    )}
+    <div class="hero-content">
+      <p class="eyebrow">PNG Tool</p>
+      <h1>{copy.title}</h1>
+      <p class="lead">{copy.lead}</p>
+      {xShareHref && (
+        <a class="share-button" href={xShareHref} target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623 5.905-5.623Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          {copy.shareButton}
+        </a>
+      )}
+    </div>
+  </div>
+
+  <div class="workspace-grid">
+    <form class="control-panel">
+      <div class="field-group">
+        <label class="file-field file-dropzone" data-role="drop-white">
+          <span>{copy.whiteInput}</span>
+          <p class="drop-hint">{copy.dropHint}</p>
+          <button class="browse-button" data-role="browse-white" type="button">{copy.chooseButton}</button>
+          <p class="selected-file" data-role="file-name-white"></p>
+          <img class="input-thumb" data-role="thumb-white" alt="White input thumbnail" />
+          <input data-role="input-white" type="file" accept="image/png,image/*" />
+        </label>
+        <label class="file-field file-dropzone" data-role="drop-black">
+          <span>{copy.blackInput}</span>
+          <p class="drop-hint">{copy.dropHint}</p>
+          <button class="browse-button" data-role="browse-black" type="button">{copy.chooseButton}</button>
+          <p class="selected-file" data-role="file-name-black"></p>
+          <img class="input-thumb" data-role="thumb-black" alt="Black input thumbnail" />
+          <input data-role="input-black" type="file" accept="image/png,image/*" />
+        </label>
+      </div>
+
+      <label class="checkbox-field">
+        <input data-role="resize-checkbox" type="checkbox" checked />
+        <span>{copy.resizeX}</span>
+      </label>
+
+      <div class="action-row">
+        <button data-role="generate-button" type="button">{copy.generate}</button>
+        <button data-role="download-button" type="button" disabled>{copy.download}</button>
+      </div>
+
+      <p class="status-text" data-role="status" aria-live="polite">{copy.statusIdle}</p>
+    </form>
+
+    <div class="preview-panel">
+      <div class="preview-card preview-card-light">
+        <p>{copy.previewWhite}</p>
+        <canvas data-role="preview-white"></canvas>
+      </div>
+      <div class="preview-card preview-card-dark">
+        <p>{copy.previewBlack}</p>
+        <canvas data-role="preview-black"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <section class="notes-panel">
+    <ul class="notes-list">
+      <li>{copy.fileHint}</li>
+      <li>{copy.noteResize}</li>
+      <li>{copy.noteApproximation}</li>
+      <li>
+        {copy.contactLabel}
+        <a class="notes-link" href={copy.contactHref}>{copy.contactLinkText}</a>
+      </li>
+    </ul>
+  </section>
+</section>
+
+<style>
+  .tool-shell {
+    --panel-border: color-mix(in srgb, currentcolor 16%, transparent);
+    --panel-bg: color-mix(in srgb, canvas 92%, #cfd8e6 8%);
+    --panel-strong: color-mix(in srgb, canvas 84%, #dbe5f5 16%);
+    --accent: #1c6dd0;
+
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .notes-panel {
+    padding: 1rem 1.2rem 0.2rem;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .hero-card,
+  .control-panel,
+  .preview-card {
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    background: var(--panel-bg);
+    box-shadow: 0 18px 40px rgb(15 23 42 / 8%);
+  }
+
+  .hero-card {
+    position: relative;
+    min-height: 320px;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    background: #fff;
+  }
+
+  .hero-banner {
+    position: absolute;
+    inset: 0;
+    left: auto;
+    right: 0;
+    height: 100%;
+    width: auto;
+    max-width: 65%;
+    object-fit: contain;
+    object-position: right bottom;
+    border-radius: 0 24px 24px 0;
+    display: block;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    background: linear-gradient(
+      to right,
+      #fff 16%,
+      rgb(255 255 255 / 72%) 40%,
+      rgb(255 255 255 / 0%) 72%
+    );
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+    display: grid;
+    gap: 0.5rem;
+    align-self: center;
+    max-width: 70%;
+  }
+
+  .share-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.6rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: #000;
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    width: fit-content;
+    transition: background 0.15s ease;
+  }
+
+  .share-button:hover {
+    background: #1a1a1a;
+  }
+
+  .eyebrow {
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.82;
+  }
+
+  h1 {
+    margin-top: 0;
+    font-size: clamp(1.25rem, 2.8vw, 2rem);
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  .lead {
+    margin-top: 0;
+    max-width: 60ch;
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .control-panel {
+    padding: 1.4rem;
+    display: grid;
+    gap: 1rem;
+    position: sticky;
+    top: 96px;
+  }
+
+  .field-group {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .file-field {
+    display: grid;
+    gap: 0.45rem;
+    position: relative;
+    font-weight: 600;
+    padding: 0.95rem;
+    border: 1px dashed color-mix(in srgb, currentcolor 22%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, canvas 94%, #dbeafe 6%);
+  }
+
+  .file-field input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .drop-hint,
+  .selected-file {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+
+  .selected-file {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    word-break: break-all;
+  }
+
+  .browse-button {
+    justify-self: start;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, #dbeafe 55%, canvas 45%);
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .browse-button:hover,
+  .browse-button:focus-visible {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #bfdbfe 65%, canvas 35%);
+  }
+
+  .input-thumb {
+    display: none;
+    width: 100%;
+    max-height: 180px;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, currentcolor 18%, transparent);
+    object-fit: contain;
+    background: color-mix(in srgb, #e2e8f0 28%, canvas 72%);
+  }
+
+  .input-thumb.is-visible {
+    display: block;
+  }
+
+  .file-dropzone.is-dragover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #bfdbfe 30%, canvas 70%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .status-text,
+  .notes-list {
+    font-size: 0.95rem;
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-weight: 600;
+  }
+
+  .checkbox-field input {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+  }
+
+  .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .action-row button {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.85rem 1.25rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .action-row button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: none;
+  }
+
+  .action-row button:hover:not(:disabled),
+  .action-row button:focus-visible:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgb(28 109 208 / 24%);
+  }
+
+  .action-row button[data-role="generate-button"] {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .action-row button[data-role="download-button"] {
+    background: color-mix(in srgb, currentcolor 12%, canvas 88%);
+    color: inherit;
+  }
+
+  .status-text {
+    min-height: 1.6em;
+    font-weight: 600;
+  }
+
+  .notes-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.45rem;
+    opacity: 0.86;
+  }
+
+  .notes-link {
+    margin-left: 0.3rem;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .preview-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .preview-card {
+    padding: 1rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .preview-card p {
+    font-weight: 700;
+  }
+
+  .preview-card canvas {
+    width: 100%;
+    height: auto;
+    border-radius: 18px;
+    border: 1px solid rgb(148 163 184 / 25%);
+  }
+
+  .preview-card-light canvas {
+    background: #fff;
+  }
+
+  .preview-card-dark {
+    color: #f8fafc;
+    background:
+      radial-gradient(circle at top, rgb(56 189 248 / 16%), transparent 35%),
+      linear-gradient(160deg, #111827, #020617);
+    border-color: rgb(255 255 255 / 8%);
+  }
+
+  .preview-card-dark canvas {
+    background: #000;
+  }
+
+  @media (width <= 900px) {
+    .workspace-grid,
+    .preview-panel {
+      grid-template-columns: 1fr;
+    }
+
+    .control-panel {
+      position: static;
+    }
+  }
+
+  @media (width <= 640px) {
+    .tool-shell {
+      padding: 1rem;
+    }
+
+    .hero-card {
+      flex-direction: column;
+      align-items: stretch;
+      min-height: unset;
+    }
+
+    .hero-banner {
+      position: relative;
+      inset: auto;
+      max-width: 100%;
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .hero-overlay {
+      display: none;
+    }
+
+    .hero-content {
+      padding: 1.2rem;
+      max-width: 100%;
+    }
+
+    .hero-card,
+    .control-panel,
+    .preview-card {
+      border-radius: 20px;
+    }
+
+    .action-row button {
+      width: 100%;
+    }
+  }
+</style>
+
+<script is:inline>
+  function initDualImageTool(root) {
+    if (root.dataset.initialized === "true") {
+      return;
+    }
+
+    root.dataset.initialized = "true";
+
+    const whiteInput = root.querySelector('[data-role="input-white"]');
+    const blackInput = root.querySelector('[data-role="input-black"]');
+    const whiteDropzone = root.querySelector('[data-role="drop-white"]');
+    const blackDropzone = root.querySelector('[data-role="drop-black"]');
+    const whiteBrowseButton = root.querySelector('[data-role="browse-white"]');
+    const blackBrowseButton = root.querySelector('[data-role="browse-black"]');
+    const whiteFileName = root.querySelector('[data-role="file-name-white"]');
+    const blackFileName = root.querySelector('[data-role="file-name-black"]');
+    const whiteThumb = root.querySelector('[data-role="thumb-white"]');
+    const blackThumb = root.querySelector('[data-role="thumb-black"]');
+    const resizeCheckbox = root.querySelector('[data-role="resize-checkbox"]');
+    const generateButton = root.querySelector('[data-role="generate-button"]');
+    const downloadButton = root.querySelector('[data-role="download-button"]');
+    const status = root.querySelector('[data-role="status"]');
+    const whitePreview = root.querySelector('[data-role="preview-white"]');
+    const blackPreview = root.querySelector('[data-role="preview-black"]');
+
+    const resultCanvas = document.createElement("canvas");
+    const labels = {
+      idle: root.dataset.statusIdle || "",
+      needBoth: root.dataset.statusNeedBoth || "",
+      working: root.dataset.statusWorking || "",
+      ready: root.dataset.statusReady || "",
+      error: root.dataset.statusError || "",
+    };
+    const thumbUrls = {
+      white: "",
+      black: "",
+    };
+
+    function setStatus(message) {
+      if (status) {
+        status.textContent = message;
+      }
+    }
+
+    function setDownloadReady(isReady) {
+      if (downloadButton) {
+        downloadButton.disabled = !isReady;
+      }
+    }
+
+    function clearPreview(canvas) {
+      const context = canvas.getContext("2d");
+      if (!context) {
+        return;
+      }
+
+      canvas.width = 1;
+      canvas.height = 1;
+      context.clearRect(0, 0, 1, 1);
+    }
+
+    function syncPreview(canvas) {
+      const context = canvas.getContext("2d");
+      if (!context) {
+        return;
+      }
+
+      canvas.width = resultCanvas.width;
+      canvas.height = resultCanvas.height;
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(resultCanvas, 0, 0);
+    }
+
+    function toGrayscaleByte(red, green, blue) {
+      return Math.round(0.2126 * red + 0.7152 * green + 0.0722 * blue);
+    }
+
+    function updateFileLabel(label, file) {
+      if (!label) {
+        return;
+      }
+
+      label.textContent = file ? file.name : "";
+    }
+
+    function updateInputWithFile(input, file) {
+      if (!input || !file) {
+        return;
+      }
+
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      input.files = transfer.files;
+    }
+
+    function updateThumbnail(imageElement, file, key) {
+      if (!imageElement) {
+        return;
+      }
+
+      const previousUrl = thumbUrls[key];
+      if (previousUrl) {
+        URL.revokeObjectURL(previousUrl);
+        thumbUrls[key] = "";
+      }
+
+      if (!file) {
+        imageElement.removeAttribute("src");
+        imageElement.classList.remove("is-visible");
+        return;
+      }
+
+      const nextUrl = URL.createObjectURL(file);
+      thumbUrls[key] = nextUrl;
+      imageElement.src = nextUrl;
+      imageElement.classList.add("is-visible");
+    }
+
+    function handleDropzone(dropzone, input, label) {
+      if (!dropzone || !input) {
+        return;
+      }
+
+      const onDrag = (event) => {
+        event.preventDefault();
+        dropzone.classList.add("is-dragover");
+      };
+
+      const onDragLeave = () => {
+        dropzone.classList.remove("is-dragover");
+      };
+
+      dropzone.addEventListener("dragenter", onDrag);
+      dropzone.addEventListener("dragover", onDrag);
+      dropzone.addEventListener("dragleave", onDragLeave);
+      dropzone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        onDragLeave();
+
+        const fileList = event.dataTransfer?.files;
+        const droppedFile = fileList && fileList.length > 0 ? fileList[0] : null;
+        if (!droppedFile) {
+          return;
+        }
+
+        updateInputWithFile(input, droppedFile);
+        updateFileLabel(label, droppedFile);
+        if (input === whiteInput) {
+          updateThumbnail(whiteThumb, droppedFile, "white");
+        } else {
+          updateThumbnail(blackThumb, droppedFile, "black");
+        }
+        setDownloadReady(false);
+        setStatus(labels.idle);
+      });
+    }
+
+    function loadImage(file) {
+      return new Promise((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(image);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("image-load-failed"));
+        };
+        image.src = objectUrl;
+      });
+    }
+
+    function getPreparedImageData(image, width, height) {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+
+      if (!context) {
+        throw new Error("canvas-context-unavailable");
+      }
+
+      context.clearRect(0, 0, width, height);
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, width, height);
+      context.drawImage(image, 0, 0, width, height);
+
+      const imageData = context.getImageData(0, 0, width, height);
+      const pixels = imageData.data;
+      for (let index = 0; index < pixels.length; index += 4) {
+        const gray = toGrayscaleByte(pixels[index], pixels[index + 1], pixels[index + 2]);
+        pixels[index] = gray;
+        pixels[index + 1] = gray;
+        pixels[index + 2] = gray;
+        pixels[index + 3] = 255;
+      }
+
+      return imageData;
+    }
+
+    function createSolidGrayscaleImageData(width, height, gray) {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      if (!context) {
+        throw new Error("canvas-context-unavailable");
+      }
+
+      const imageData = context.createImageData(width, height);
+      const pixels = imageData.data;
+      for (let index = 0; index < pixels.length; index += 4) {
+        pixels[index] = gray;
+        pixels[index + 1] = gray;
+        pixels[index + 2] = gray;
+        pixels[index + 3] = 255;
+      }
+      return imageData;
+    }
+
+    function blitCentered(baseImageData, baseWidth, baseHeight, sourceImageData, sourceWidth, sourceHeight) {
+      const offsetX = Math.round((baseWidth - sourceWidth) / 2);
+      const offsetY = Math.round((baseHeight - sourceHeight) / 2);
+      const basePixels = baseImageData.data;
+      const sourcePixels = sourceImageData.data;
+
+      for (let y = 0; y < sourceHeight; y++) {
+        for (let x = 0; x < sourceWidth; x++) {
+          const srcIndex = (y * sourceWidth + x) * 4;
+          const dstX = x + offsetX;
+          const dstY = y + offsetY;
+          if (dstX < 0 || dstX >= baseWidth || dstY < 0 || dstY >= baseHeight) {
+            continue;
+          }
+
+          const dstIndex = (dstY * baseWidth + dstX) * 4;
+          basePixels[dstIndex] = sourcePixels[srcIndex];
+          basePixels[dstIndex + 1] = sourcePixels[srcIndex + 1];
+          basePixels[dstIndex + 2] = sourcePixels[srcIndex + 2];
+          basePixels[dstIndex + 3] = 255;
+        }
+      }
+    }
+
+    async function generateComposite() {
+      const whiteFile = whiteInput && whiteInput.files ? whiteInput.files[0] : null;
+      const blackFile = blackInput && blackInput.files ? blackInput.files[0] : null;
+
+      if (!whiteFile || !blackFile) {
+        setDownloadReady(false);
+        clearPreview(whitePreview);
+        clearPreview(blackPreview);
+        setStatus(labels.needBoth);
+        return;
+      }
+
+      setStatus(labels.working);
+      setDownloadReady(false);
+
+      try {
+        const [whiteImage, blackImage] = await Promise.all([
+          loadImage(whiteFile),
+          loadImage(blackFile),
+        ]);
+
+        const fitScale = resizeCheckbox && resizeCheckbox.checked
+          ? Math.min(1, 900 / whiteImage.naturalWidth, 900 / whiteImage.naturalHeight)
+          : 1;
+        const resultWidth = Math.max(1, Math.round(whiteImage.naturalWidth * fitScale));
+        const resultHeight = Math.max(1, Math.round(whiteImage.naturalHeight * fitScale));
+
+        const whiteImageData = getPreparedImageData(whiteImage, resultWidth, resultHeight);
+
+        const blackFitScale = Math.min(
+          resultWidth / blackImage.naturalWidth,
+          resultHeight / blackImage.naturalHeight,
+        );
+        const blackWidth = Math.max(1, Math.round(blackImage.naturalWidth * blackFitScale));
+        const blackHeight = Math.max(1, Math.round(blackImage.naturalHeight * blackFitScale));
+        const blackImageData = getPreparedImageData(blackImage, blackWidth, blackHeight);
+
+        const baseBlack = createSolidGrayscaleImageData(resultWidth, resultHeight, 0);
+        const baseWhite = createSolidGrayscaleImageData(resultWidth, resultHeight, 255);
+        blitCentered(baseBlack, resultWidth, resultHeight, blackImageData, blackWidth, blackHeight);
+        blitCentered(baseWhite, resultWidth, resultHeight, whiteImageData, resultWidth, resultHeight);
+
+        resultCanvas.width = resultWidth;
+        resultCanvas.height = resultHeight;
+        const resultContext = resultCanvas.getContext("2d");
+
+        if (!resultContext) {
+          throw new Error("canvas-context-unavailable");
+        }
+
+        const resultImageData = resultContext.createImageData(resultWidth, resultHeight);
+        const whitePixels = baseBlack.data;
+        const blackPixels = baseWhite.data;
+        const outputPixels = resultImageData.data;
+
+        for (let index = 0; index < outputPixels.length; index += 4) {
+          const b1 = whitePixels[index] / 2;
+          const alpha = 255 - (blackPixels[index + 1] / 2 + 127.5) + b1;
+          let b = 0;
+          if (alpha > 0) {
+            b = b1 / alpha;
+          }
+
+          const grayscale = Math.round(255 * b);
+          outputPixels[index] = grayscale;
+          outputPixels[index + 1] = grayscale;
+          outputPixels[index + 2] = grayscale;
+          outputPixels[index + 3] = Math.round(alpha);
+        }
+
+        resultContext.putImageData(resultImageData, 0, 0);
+        syncPreview(whitePreview);
+        syncPreview(blackPreview);
+        setDownloadReady(true);
+        setStatus(labels.ready);
+      } catch (_error) {
+        setDownloadReady(false);
+        clearPreview(whitePreview);
+        clearPreview(blackPreview);
+        setStatus(labels.error);
+      }
+    }
+
+    generateButton.addEventListener("click", generateComposite);
+
+    [
+      [whiteInput, whiteFileName, whiteThumb, "white"],
+      [blackInput, blackFileName, blackThumb, "black"],
+    ].forEach(([input, label, thumb, key]) => {
+      input.addEventListener("change", () => {
+        const file = input.files && input.files[0] ? input.files[0] : null;
+        updateFileLabel(label, file);
+        updateThumbnail(thumb, file, key);
+        setDownloadReady(false);
+        setStatus(labels.idle);
+      });
+    });
+
+    if (whiteBrowseButton) {
+      whiteBrowseButton.addEventListener("click", () => {
+        whiteInput.click();
+      });
+    }
+
+    if (blackBrowseButton) {
+      blackBrowseButton.addEventListener("click", () => {
+        blackInput.click();
+      });
+    }
+
+    handleDropzone(whiteDropzone, whiteInput, whiteFileName);
+    handleDropzone(blackDropzone, blackInput, blackFileName);
+
+    resizeCheckbox.addEventListener("change", () => {
+      const hasFiles = whiteInput.files && whiteInput.files[0] && blackInput.files && blackInput.files[0];
+      if (hasFiles) {
+        generateComposite();
+      }
+    });
+
+    downloadButton.addEventListener("click", () => {
+      if (!resultCanvas.width || !resultCanvas.height) {
+        return;
+      }
+
+      resultCanvas.toBlob((blob) => {
+        if (!blob) {
+          setStatus(labels.error);
+          return;
+        }
+
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = objectUrl;
+        link.download = "dual-image-composite.png";
+        link.click();
+        URL.revokeObjectURL(objectUrl);
+      }, "image/png");
+    });
+
+    clearPreview(whitePreview);
+    clearPreview(blackPreview);
+    updateFileLabel(whiteFileName, null);
+    updateFileLabel(blackFileName, null);
+    updateThumbnail(whiteThumb, null, "white");
+    updateThumbnail(blackThumb, null, "black");
+    setStatus(labels.idle);
+
+    window.addEventListener("beforeunload", () => {
+      updateThumbnail(whiteThumb, null, "white");
+      updateThumbnail(blackThumb, null, "black");
+    });
+  }
+
+  function bindDualImageTools() {
+    document.querySelectorAll("[data-dual-image-tool]").forEach((root) => {
+      initDualImageTool(root);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindDualImageTools, { once: true });
+  } else {
+    bindDualImageTools();
+  }
+
+  document.addEventListener("astro:page-load", bindDualImageTools);
+</script>
