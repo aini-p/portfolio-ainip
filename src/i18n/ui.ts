@@ -10,7 +10,7 @@ export const ui = {
     "nav.gallery": "ギャラリー",
     "nav.profile": "プロフィール",
     "nav.tool": "ツール",
-    "profile.fansite": "ファンサイト",
+    "profile.fansite": "メンバーシップ",
     "artwork.related": "関連イラスト",
     "tool.pageTitle": "タップ変化画像つくるちゃん",
     "tool.pageDescription":
@@ -58,7 +58,7 @@ export const ui = {
     "nav.gallery": "Gallery",
     "nav.profile": "Profile",
     "nav.tool": "Tool",
-    "profile.fansite": "Fan Site",
+    "profile.fansite": "Membership",
     "artwork.related": "Related Artworks",
     "tool.pageTitle": "Tap-Change Image Maker Chan",
     "tool.pageDescription":
