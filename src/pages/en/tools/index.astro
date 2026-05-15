@@ -39,7 +39,7 @@ const itemListJsonLd = {
         <a class="tool-card" href={tapToolPath}>
           <img
             class="tool-card-thumb"
-            src="/images/tap_change_image_chan.jpg"
+            src="/images/tap_change_image_chan_twcard.jpg"
             alt={t["tools.card.tapTitle"]}
           />
           <div class="tool-card-body">
@@ -99,8 +99,10 @@ const itemListJsonLd = {
     display: block;
     width: 100%;
     aspect-ratio: 16 / 9;
-    object-fit: cover;
-    object-position: center top;
+    object-fit: contain;
+    object-position: center;
+    background: #fff;
+    image-rendering: auto;
   }
 
   .tool-card-body {

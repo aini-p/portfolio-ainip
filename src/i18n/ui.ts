@@ -42,7 +42,7 @@ export const ui = {
       "画像サイズが異なる場合は、イラスト A のサイズに合わせてイラスト B をリサイズして合成します。",
     "tool.shareButton": "X でシェア",
     "tool.shareText":
-      "背景色によって見え方が切り替わる透過 PNG を作れるブラウザツール「タップ変化画像つくるちゃん」",
+      "見え方が切り替わる透過 PNG を作れるブラウザツール「タップ変化画像つくるちゃん」",
     "tools.pageTitle": "製作支援ツール一覧",
     "tools.pageDescription":
       "イラスト制作やSNS投稿を支援するWebツールの一覧ページです。ブラウザだけで動作する無料ツールを用途別にまとめています。",
@@ -90,7 +90,7 @@ export const ui = {
       "If the image sizes differ, illustration B is resized to match illustration A before compositing.",
     "tool.shareButton": "Share on X",
     "tool.shareText":
-      "Tap-Change Image Maker Chan — create a transparent PNG that switches between illustrations on white and black backgrounds",
+      "Tap-Change Image Maker Chan — create a transparent PNG that switches appearance",
     "tools.pageTitle": "Creator Support Tools",
     "tools.pageDescription":
       "Free browser-based tools that support illustration creation and SNS posting. No installation required — use them right in your browser.",
