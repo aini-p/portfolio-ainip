@@ -1,0 +1,117 @@
+---
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const lang = "en";
+const t = ui[lang];
+const tapToolPath = "/en/tools/tap-change-image";
+const itemListJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: t["tools.pageTitle"],
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: t["tools.card.tapTitle"],
+      url: new URL(tapToolPath, Astro.site).toString(),
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={t["tools.pageTitle"]}
+  description={t["tools.pageDescription"]}
+  keywords="creator support tools, web tools, image tools, png, illustration, free browser tools"
+  image={{ src: "/images/tap_change_image_chan.jpg", alt: t["tools.card.tapTitle"] }}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(itemListJsonLd)} />
+
+  <section class="tools-shell">
+    <header class="tools-header">
+      <h1>{t["tools.heading"]}</h1>
+      <p>{t["tools.lead"]}</p>
+    </header>
+
+    <ul class="tools-grid">
+      <li>
+        <a class="tool-card" href={tapToolPath}>
+          <img
+            class="tool-card-thumb"
+            src="/images/tap_change_image_chan_twcard.jpg"
+            alt={t["tools.card.tapTitle"]}
+          />
+          <div class="tool-card-body">
+            <h2>{t["tools.card.tapTitle"]}</h2>
+            <p>{t["tools.card.tapDescription"]}</p>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</BaseLayout>
+
+<style is:inline>
+  .tools-shell {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 1.2rem;
+    display: grid;
+    gap: 1.1rem;
+  }
+
+  .tools-header {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .tools-header h1 {
+    font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  }
+
+  .tools-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 0.9rem;
+  }
+
+  .tool-card {
+    border: 1px solid color-mix(in srgb, currentcolor 15%, transparent);
+    border-radius: 16px;
+    overflow: hidden;
+    display: grid;
+    gap: 0;
+    background: color-mix(in srgb, canvas 92%, #dbeafe 8%);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .tool-card:hover {
+    box-shadow: 0 4px 18px rgb(0 0 0 / 12%);
+  }
+
+  .tool-card-thumb {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    object-position: center;
+    background: #fff;
+    image-rendering: auto;
+  }
+
+  .tool-card-body {
+    padding: 0.85rem 1rem 1rem;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .tool-card h2 {
+    font-size: 1.05rem;
+  }
+</style>
