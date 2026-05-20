@@ -54,20 +54,33 @@ const itemListJsonLd = {
 
 <style is:inline>
   .tools-shell {
-    max-width: 980px;
+    max-width: 1040px;
     margin: 0 auto;
-    padding: 1.2rem;
+    padding: 1.25rem;
     display: grid;
-    gap: 1.1rem;
+    gap: 1.25rem;
   }
 
   .tools-header {
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    background: rgb(255 255 255);
+    padding: 1.2rem 1.3rem;
     display: grid;
     gap: 0.55rem;
   }
 
   .tools-header h1 {
-    font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+    margin: 0;
+    font-size: clamp(1.7rem, 3.4vw, 2.35rem);
+    letter-spacing: 0.01em;
+  }
+
+  .tools-header p {
+    margin: 0;
+    line-height: 1.8;
+    max-width: 70ch;
   }
 
   .tools-grid {
@@ -75,24 +88,24 @@ const itemListJsonLd = {
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 0.9rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
   }
 
   .tool-card {
-    border: 1px solid color-mix(in srgb, currentcolor 15%, transparent);
-    border-radius: 16px;
+    border: 1px solid rgb(226 223 214);
+    border-radius: 20px;
     overflow: hidden;
     display: grid;
     gap: 0;
-    background: color-mix(in srgb, canvas 92%, #dbeafe 8%);
+    background: rgb(255 255 255);
     text-decoration: none;
     color: inherit;
-    transition: box-shadow 0.15s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
   .tool-card:hover {
-    box-shadow: 0 4px 18px rgb(0 0 0 / 12%);
+    transform: translateY(-3px);
   }
 
   .tool-card-thumb {
@@ -101,17 +114,45 @@ const itemListJsonLd = {
     aspect-ratio: 16 / 9;
     object-fit: contain;
     object-position: center;
-    background: #fff;
+    background: rgb(255 255 255);
     image-rendering: auto;
+    padding: 0.45rem;
   }
 
   .tool-card-body {
-    padding: 0.85rem 1rem 1rem;
+    padding: 1rem 1.05rem 1.1rem;
     display: grid;
-    gap: 0.45rem;
+    gap: 0.5rem;
   }
 
   .tool-card h2 {
-    font-size: 1.05rem;
+    margin: 0;
+    font-size: 1.12rem;
+    font-weight: 700;
+  }
+
+  .tool-card p {
+    margin: 0;
+    line-height: 1.72;
+  }
+
+  @media (width <= 768px) {
+    .tools-shell {
+      padding: 1rem;
+      gap: 1rem;
+    }
+
+    .tools-header {
+      padding: 1rem;
+      border-radius: 18px;
+    }
+
+    .tools-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tool-card {
+      border-radius: 16px;
+    }
   }
 </style>

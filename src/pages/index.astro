@@ -8,105 +8,219 @@ const lang = "ja"; // 日本語ページとして固定
 const artworks = await getCollection("artworks", ({ id }) =>
   id.startsWith(`${lang}/`),
 );
+const shuffleSeed = 20260521;
+
+function hashString(value: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index++) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+const shuffledArtworks = [...artworks].sort((a, b) => {
+  const aHash = hashString(`${a.slug}:${shuffleSeed}`);
+  const bHash = hashString(`${b.slug}:${shuffleSeed}`);
+  if (aHash === bHash) {
+    return a.slug.localeCompare(b.slug);
+  }
+  return aHash - bHash;
+});
+
+const rowCount = 7;
+const rowSize = Math.ceil(shuffledArtworks.length / rowCount);
+const galleryRows = Array.from({ length: rowCount }, (_, index) =>
+  shuffledArtworks.slice(index * rowSize, (index + 1) * rowSize),
+).filter((row) => row.length > 0);
+
+function rotateRow<T>(row: T[], offset: number) {
+  if (row.length < 2) {
+    return row;
+  }
+  const shift = ((offset % row.length) + row.length) % row.length;
+  if (shift === 0) {
+    return row;
+  }
+  return [...row.slice(shift), ...row.slice(0, shift)];
+}
 ---
 <BaseLayout>
-  <section class="justified-gallery" id="gallery-container">
-    {artworks.map((artwork, index) => (
-      <a
-        style={`--width: ${artwork.data.src.width}; --height: ${artwork.data.src.height};`}
-        href={`/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
-        class="gallery-item"
+  <section class="flow-gallery">
+    {galleryRows.map((row, rowIndex) => (
+      <div
+        class:list={[
+          "flow-row",
+          rowIndex % 2 === 0 ? "is-tilt-left" : "is-tilt-right",
+        ]}
+        style={`--delay: ${rowIndex * 120}ms;`}
       >
-        <Image
-          format="webp"
-          src={artwork.data.src}
-          alt={artwork.data.title}
-          height={400}
-          loading={index < 20 ? "eager" : "lazy"}
-        />
-      </a>
+        <div
+          class:list={["flow-track", rowIndex % 2 === 1 && "is-reverse"]}
+          style={`--duration: ${320 + rowIndex * 44}s;`}
+        >
+          {Array.from({ length: 4 }).map((_, groupIndex) => {
+            const groupedRow = rotateRow(row, groupIndex * 2 + rowIndex);
+            return (
+              <div class="flow-group" aria-hidden={groupIndex > 0 ? "true" : undefined}>
+                {groupedRow.map((artwork, itemIndex) => (
+                <a
+                  style={`--width: ${artwork.data.src.width}; --height: ${artwork.data.src.height};`}
+                  href={`/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
+                  class="gallery-item"
+                  tabindex={groupIndex > 0 ? -1 : undefined}
+                >
+                  <Image
+                    format="webp"
+                    src={artwork.data.src}
+                    alt={groupIndex > 0 ? "" : artwork.data.title}
+                    height={560}
+                    loading={
+                      groupIndex === 0 && rowIndex < 3 && itemIndex < 8
+                        ? "eager"
+                        : "lazy"
+                    }
+                  />
+                </a>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     ))}
   </section>
   <AdsenseAd adSlot="8596977871" />
 </BaseLayout>
 <style is:inline>
-  /* 以前のindex.astroのスタイルをそのままコピー */
-  .justified-gallery {
+  .flow-gallery {
     --padding: max(2.5vw, 12px);
     --space: max(2.5vw, 12px);
-    --min-height: clamp(200px, 20vw, 400px);
+    --row-height: clamp(250px, 35vw, 430px);
+    position: relative;
+    isolation: isolate;
     padding: var(--padding);
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: var(--space);
+    overflow: hidden;
+    border-radius: 24px;
+    background: rgb(255 255 255);
   }
-  .justified-gallery a {
-    flex-grow: calc(var(--width) * (100000 / var(--height)));
-    flex-basis: calc(var(--min-height) * (var(--width) / var(--height)));
+
+  .flow-row {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    animation: row-enter 960ms cubic-bezier(0.24, 0.84, 0.3, 1) var(--delay) both;
+  }
+
+  .flow-row.is-tilt-left {
+    transform: perspective(1000px) rotateX(0.22deg) rotateY(-0.7deg);
+  }
+
+  .flow-row.is-tilt-right {
+    transform: perspective(1000px) rotateX(0.22deg) rotateY(0.7deg);
+  }
+
+  .flow-track {
+    width: max-content;
+    display: flex;
+    animation: flow-left var(--duration) linear infinite;
+    will-change: transform;
+  }
+
+  .flow-group {
+    display: flex;
+    gap: var(--space);
+    padding-right: var(--space);
+  }
+
+  .flow-track.is-reverse {
+    animation-direction: reverse;
+  }
+
+  .gallery-item {
+    flex: 0 0 auto;
+    height: var(--row-height);
     aspect-ratio: var(--width) / var(--height);
     overflow: hidden;
-    opacity: 1;
-    transition: all 0.05s ease-in-out;
+    border-radius: 0;
+    background: rgb(236 231 223);
+    transform: translateZ(0);
+    transition: transform 420ms cubic-bezier(0.2, 0.76, 0.32, 1),
+      filter 420ms ease;
   }
-  .justified-gallery a img {
+
+  .gallery-item img {
     display: block;
     object-fit: cover;
     height: 100%;
     width: 100%;
+    filter: saturate(0.88) contrast(1.04) brightness(0.99);
+    transition: transform 900ms ease, filter 420ms ease;
   }
-  .justified-gallery a:focus-visible {
+
+  .gallery-item:hover,
+  .gallery-item:focus-visible {
+    transform: translateY(-3px) scale(1.012);
+    filter: brightness(1.03);
+  }
+
+  .gallery-item:hover img,
+  .gallery-item:focus-visible img {
+    transform: scale(1.03);
+    filter: saturate(0.96) contrast(1.08) brightness(1.01);
+  }
+
+  .gallery-item:focus-visible {
     outline: 3px solid var(--outline);
     outline-offset: 2px;
-    transform: scale(1.05);
     z-index: 1;
-    border-radius: 2px;
-    box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.1);
   }
-  .justified-gallery a.hidden {
-    transition: opacity 0.4s ease-in-out;
-    opacity: 0;
+
+  @keyframes flow-left {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-25%);
+    }
   }
-  .justified-gallery::after {
-    content: " ";
-    flex-grow: 1000000000;
+
+  @keyframes row-enter {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
-  /* ▼▼▼ モバイル対応を追加 ▼▼▼ */
-  @media (max-width: 768px) {
-    .justified-gallery {
-      --min-height: clamp(150px, 25vw, 250px); /* 最小高さを小さくする */
-      --padding: max(1.5vw, 8px); /* 余白を少し減らす */
-      --space: max(1.5vw, 8px);   /* 画像間のスペースを少し減らす */
+
+  @media (prefers-reduced-motion: reduce) {
+    .flow-track {
+      animation: none;
+    }
+
+    .flow-row {
+      animation: none;
+    }
+  }
+
+  @media (width <= 768px) {
+    .flow-gallery {
+      --row-height: clamp(190px, 56vw, 300px);
+      --padding: max(1.5vw, 8px);
+      --space: max(1.5vw, 8px);
+      border-radius: 18px;
+    }
+
+    .flow-row {
+      -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+      mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
     }
   }
 </style>
-<script is:inline>
-  function shuffleArray(array) {
-    let currentIndex = array.length,  randomIndex;
-    while (currentIndex != 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
-    }
-    return array;
-  }
-
-  function shuffleGallery() {
-    // id='gallery-container' を探す
-    const gallery = document.getElementById('gallery-container');
-    if (!gallery) return; // 見つからなければ何もしない
-
-    // class='gallery-item' をすべて探す
-    const items = Array.from(gallery.querySelectorAll('.gallery-item'));
-    const shuffledItems = shuffleArray(items);
-
-    // 要素をDOM上で移動させて並び替える
-    shuffledItems.forEach(item => {
-      gallery.appendChild(item);
-    });
-  }
-  
-  document.addEventListener('astro:page-load', shuffleGallery);
-
-  shuffleGallery();
-</script>
