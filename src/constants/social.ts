@@ -1,4 +1,4 @@
-export const discordUrl = "https://discord.gg/WPmCAhYAn";
+export const discordUrl = "https://discord.gg/haBDgjM2uU";
 
 export const patreonUrl = "https://www.patreon.com/at5fun";
 
