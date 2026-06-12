@@ -11,8 +11,8 @@ export const xAccountUrls = [
 ] as const;
 
 export const xAccountNames = {
-  ja: ["サブ1号", "サブ2号", "メイン", "サブ4号", "サブ5号"],
-  en: ["Sub1", "Sub2", "Main", "Sub4", "Sub5"],
+  ja: ["アダルト", "センシティブ", "メイン（凍結）", "メイン", "サブ"],
+  en: ["NSFW", "SEN", "Main（BANNED）", "MAIN", "SUB"],
 } as const;
 
 export const profileNames = {
