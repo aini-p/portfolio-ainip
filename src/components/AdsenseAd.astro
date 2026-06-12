@@ -13,7 +13,7 @@ const {
   fullWidth = false,
 } = Astro.props; // fullWidthをデフォルトfalse
 ---
-<div class="adsense-ad-container" class:list={{ 'full-width-ad': fullWidth }}>
+<div class="adsense-ad-container" class:list={{ 'full-width-ad': fullWidth, 'standard-ad': !fullWidth }}>
   <ins class="adsbygoogle"
        style={adStyle}
        data-ad-client="ca-pub-2812218267740921"
@@ -30,6 +30,10 @@ const {
     margin: 20px auto; /* 広告の上下に余白を設けて中央寄せ */
     text-align: center;
     max-width: 100%; /* 親要素の幅を超えないようにする */
+  }
+
+  .adsense-ad-container.standard-ad {
+    min-height: 110px;
   }
 
   .adsense-ad-container.full-width-ad {

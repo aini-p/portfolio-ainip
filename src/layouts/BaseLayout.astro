@@ -100,10 +100,6 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <link rel="alternate" hreflang="x-default" href={new URL(jaPath, Astro.site)} /> {/* デフォルトは日本語に */}
     {/* ▲▲▲ ここまで ▲▲▲ */}
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;700&display=swap" rel="stylesheet"> {/* フォントをInterに戻す */}
-
     <title set:html={smartypants(pageTitle, 1)} />
     {/* ... (残りのheadタグは変更なし) ... */}
     {description && <meta name="description" content={smartypants(description, 1)} />}
@@ -126,10 +122,6 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     {!image && <meta name="twitter:card" content="summary" />}
     <meta name="twitter:title" content={smartypants(pageTitle, 1)} />
     {description && <meta name="twitter:description" content={smartypants(description, 1)} />}
-
-    <!-- Google AdSense -->
-    <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2812218267740921"
-         crossorigin="anonymous"></script>
 
     {/* 本番環境 (npm run build) のみで実行する */}
     {import.meta.env.PROD && (
@@ -160,7 +152,11 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
 <style is:global>
   /* ... (styleタグの中身は変更なし) ... */
   *, *::before, *::after { box-sizing: border-box; } * { margin: 0; }
-  html { -webkit-text-size-adjust: 100%; }
+  html {
+    -webkit-text-size-adjust: 100%;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
   body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -174,7 +170,7 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
   p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
   :root {
     color-scheme: light dark; --bg: #ffffff; --bg-dark: #000000; --outline: #ffffff;
-    --font: "Inter", "Noto Sans JP", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* フォントをInterに戻す */
+    --font: "Noto Sans JP", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     --text-light: #617491ff; --text-dark: #d1d5db;
   }
   body {

@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import AdsenseAd from "~/components/AdsenseAd.astro";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
 const lang = "en"; // 英語ページとして固定
@@ -90,7 +89,6 @@ function rotateRow<T>(row: T[], offset: number) {
       </div>
     ))}
   </section>
-  <AdsenseAd adSlot="8596977871" />
 </BaseLayout>
 <style is:inline>
   .flow-gallery {

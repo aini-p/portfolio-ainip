@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import AdsenseAd from "~/components/AdsenseAd.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
@@ -73,7 +72,6 @@ const relatedArtworks = artwork.data.relatedImages
           quality="max"
           style="width: 100%; height: auto;"
         />
-        <AdsenseAd adSlot="7855841926" fullWidth={true} />
       </div>
       <div class="artwork-info">
         <h1>{artwork.data.title}</h1>
@@ -126,7 +124,6 @@ const relatedArtworks = artwork.data.relatedImages
         {/* 関連イラスト */}
         {relatedArtworks.length > 0 && (
           <div class="related-works">
-            <AdsenseAd adSlot="4905144872" />
             <h2>{t['artwork.related']}</h2>
             <div class="thumbnail-grid">
               {relatedArtworks.map((related) => (
@@ -179,9 +176,19 @@ const relatedArtworks = artwork.data.relatedImages
   .related-works { margin-top: 2rem; }
   .related-works h2 { font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 2px solid #ccc; padding-bottom: 0.5rem; }
   .thumbnail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; }
-  .thumbnail-grid a { aspect-ratio: 1 / 1; }
-  .thumbnail-grid img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; transition: transform 0.2s; }
-  .thumbnail-grid img:hover { transform: scale(1.05); }
+  .thumbnail-grid a {
+    display: block;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgb(39 30 18 / 8%);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .thumbnail-grid a:hover,
+  .thumbnail-grid a:focus-visible {
+    transform: scale(1.02);
+    box-shadow: 0 7px 16px rgb(39 30 18 / 12%);
+  }
+  .thumbnail-grid img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
   @media (max-width: 768px) {
     .container {
       padding: 1rem;

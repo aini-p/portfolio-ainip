@@ -1,5 +1,4 @@
 ---
-import AdsenseAd from "~/components/AdsenseAd.astro";
 import {
   discordUrl,
   patreonUrl,
@@ -69,8 +68,6 @@ const xNames = xAccountNames[lang];
         </a>
       </div>
     </section>
-    <AdsenseAd adSlot="8844389887" />
-    <AdsenseAd adSlot="7531308217" />
   </div>
 </BaseLayout>
 <style is:inline>
@@ -138,8 +135,10 @@ const xNames = xAccountNames[lang];
     transition: transform 0.24s ease, box-shadow 0.24s ease;
   }
 
-  .icon-link:hover {
-    transform: translateY(-2px);
+  .icon-link:hover,
+  .icon-link:focus-visible {
+    transform: scale(1.02);
+    box-shadow: 0 8px 18px rgb(39 30 18 / 12%);
   }
 
   .discord-icon img {
@@ -158,13 +157,16 @@ const xNames = xAccountNames[lang];
   }
 
   .x-accounts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    display: flex;
     gap: 0.8rem;
+    overflow-x: auto;
+    padding: 0.45rem 0.45rem 1rem;
+    scrollbar-width: thin;
   }
 
   .x-accounts a {
     display: flex;
+    flex: 0 0 clamp(150px, 18vw, 190px);
     align-items: center;
     gap: 0.7rem;
     padding: 0.7rem 0.8rem;
@@ -173,11 +175,21 @@ const xNames = xAccountNames[lang];
     background: rgb(255 255 255 / 92%);
     text-decoration: none;
     color: inherit;
-    transition: transform 0.24s ease, box-shadow 0.24s ease;
+    transition: box-shadow 0.24s ease;
   }
 
-  .x-accounts a:hover {
-    transform: translateY(-2px);
+  .x-accounts a:hover,
+  .x-accounts a:focus-visible {
+    box-shadow: 0 8px 16px rgb(39 30 18 / 9%);
+  }
+
+  .x-accounts::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .x-accounts::-webkit-scrollbar-thumb {
+    background: rgb(186 180 168 / 75%);
+    border-radius: 999px;
   }
 
   .x-accounts img {
@@ -198,8 +210,10 @@ const xNames = xAccountNames[lang];
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
-  .banner-link:hover img {
-    transform: translateY(-2px);
+  .banner-link:hover img,
+  .banner-link:focus-visible img {
+    transform: scale(1.01);
+    box-shadow: 0 12px 24px rgb(39 30 18 / 12%);
   }
 
   @media (width <= 768px) {
