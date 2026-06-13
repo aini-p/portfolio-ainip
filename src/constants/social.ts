@@ -21,3 +21,5 @@ export const profileNames = {
 } as const;
 
 export const siteCopyrightLabel = `${profileNames.ja}| ${profileNames.en}`;
+
+export const adsenseClientId = "ca-pub-2812218267740921";

@@ -1,0 +1,1352 @@
+---
+export interface Props {
+  bannerSrc?: string;
+  bannerAlt?: string;
+  shareUrl?: string;
+  guardSources: [string, string, string, string];
+  copy: {
+    title: string;
+    lead: string;
+    sourceInput: string;
+    dropHint: string;
+    chooseButton: string;
+    fileHint: string;
+    cropHelp: string;
+    cropPreview: string;
+    cropReset: string;
+    paddingLabel: string;
+    paddingHelp: string;
+    banModeLabel: string;
+    generate: string;
+    download: string;
+    previewSplit: string;
+    statusIdle: string;
+    statusNeedImage: string;
+    statusWorking: string;
+    statusReady: string;
+    statusError: string;
+    noteCrop: string;
+    notePadding: string;
+    noteBan: string;
+    contactLabel: string;
+    contactLinkText: string;
+    contactHref: string;
+    shareButton: string;
+    shareText: string;
+  };
+}
+
+const { copy, bannerSrc, bannerAlt = "", shareUrl, guardSources } = Astro.props;
+const xShareHref = shareUrl
+  ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(copy.shareText)}&url=${encodeURIComponent(shareUrl)}`
+  : undefined;
+---
+
+<section
+  class="tool-shell"
+  data-four-split-tool
+  data-guard-sources={JSON.stringify(guardSources)}
+  data-status-idle={copy.statusIdle}
+  data-status-need-image={copy.statusNeedImage}
+  data-status-working={copy.statusWorking}
+  data-status-ready={copy.statusReady}
+  data-status-error={copy.statusError}
+>
+  <div class="hero-card">
+    {bannerSrc && (
+      <>
+        <img class="hero-banner" src={bannerSrc} alt={bannerAlt} />
+        <div class="hero-overlay" aria-hidden="true"></div>
+      </>
+    )}
+    <div class="hero-content">
+      <p class="eyebrow">4 Split Tool</p>
+      <h1>{copy.title}</h1>
+      <p class="lead">{copy.lead}</p>
+      {xShareHref && (
+        <a class="share-button" href={xShareHref} target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623 5.905-5.623Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          {copy.shareButton}
+        </a>
+      )}
+    </div>
+  </div>
+
+  <div class="workspace-grid">
+    <form class="control-panel">
+      <label class="file-field file-dropzone" data-role="drop-source">
+        <span>{copy.sourceInput}</span>
+        <p class="drop-hint">{copy.dropHint}</p>
+        <button class="browse-button" data-role="browse-source" type="button">{copy.chooseButton}</button>
+        <p class="selected-file" data-role="file-name-source"></p>
+        <img class="input-thumb" data-role="thumb-source" alt="Source image thumbnail" />
+        <input data-role="input-source" type="file" accept="image/png,image/*" />
+      </label>
+
+      <section class="range-block" aria-label="crop controls">
+        <div class="range-header-row">
+          <p class="range-heading">{copy.cropPreview}</p>
+          <button data-role="crop-reset" type="button" class="crop-reset-button">{copy.cropReset}</button>
+        </div>
+        <canvas class="crop-preview-canvas" data-role="crop-preview-canvas" width="640" height="360"></canvas>
+        <p class="help-text">{copy.cropHelp}</p>
+      </section>
+
+      <label class="range-field">
+        <span>{copy.paddingLabel}</span>
+        <input data-role="seam-input" type="number" min="0" max="120" step="1" value="8" />
+        <p class="help-text">{copy.paddingHelp}</p>
+      </label>
+
+      <label class="checkbox-field">
+        <input data-role="ban-checkbox" type="checkbox" checked />
+        <span>{copy.banModeLabel}</span>
+      </label>
+
+      <div class="action-row">
+        <button data-role="generate-button" type="button">{copy.generate}</button>
+        <button data-role="download-button" type="button" disabled>{copy.download}</button>
+      </div>
+
+      <p class="status-text" data-role="status" aria-live="polite">{copy.statusIdle}</p>
+    </form>
+
+    <div class="preview-panel">
+      <div class="preview-card">
+        <p>{copy.previewSplit}</p>
+        <div class="x-like-preview-grid">
+          <img data-role="split-preview-0" alt="Split preview 1" />
+          <img data-role="split-preview-1" alt="Split preview 2" />
+          <img data-role="split-preview-2" alt="Split preview 3" />
+          <img data-role="split-preview-3" alt="Split preview 4" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="notes-panel">
+    <ul class="notes-list">
+      <li>{copy.fileHint}</li>
+      <li>{copy.noteCrop}</li>
+      <li>{copy.notePadding}</li>
+      <li>{copy.noteBan}</li>
+      <li>
+        {copy.contactLabel}
+        <a class="notes-link" href={copy.contactHref}>{copy.contactLinkText}</a>
+      </li>
+    </ul>
+  </section>
+</section>
+
+<style>
+  .tool-shell {
+    --panel-border: color-mix(in srgb, currentcolor 16%, transparent);
+    --panel-bg: color-mix(in srgb, canvas 92%, #f4d6bc 8%);
+    --accent: #d45500;
+
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .hero-card,
+  .control-panel,
+  .preview-card {
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    background: var(--panel-bg);
+    box-shadow: 0 18px 40px rgb(15 23 42 / 8%);
+  }
+
+  .hero-card {
+    position: relative;
+    min-height: 320px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    background: #fff;
+  }
+
+  .hero-banner {
+    position: absolute;
+    inset: 0;
+    left: auto;
+    right: 0;
+    height: 100%;
+    width: auto;
+    max-width: 60%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0 24px 24px 0;
+    display: block;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    background: linear-gradient(
+      to right,
+      #fff 16%,
+      rgb(255 255 255 / 76%) 42%,
+      rgb(255 255 255 / 0%) 74%
+    );
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+    display: grid;
+    gap: 0.5rem;
+    align-self: center;
+    max-width: 68%;
+  }
+
+  .share-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.6rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: #000;
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    width: fit-content;
+    transition: background 0.15s ease;
+  }
+
+  .share-button:hover {
+    background: #1a1a1a;
+  }
+
+  .eyebrow {
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.82;
+  }
+
+  h1 {
+    margin-top: 0;
+    font-size: clamp(1.2rem, 2.7vw, 2rem);
+    line-height: 1.15;
+  }
+
+  .lead {
+    margin-top: 0;
+    max-width: 62ch;
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .control-panel {
+    padding: 1.4rem;
+    display: grid;
+    gap: 1rem;
+    position: sticky;
+    top: 96px;
+  }
+
+  .file-field {
+    display: grid;
+    gap: 0.45rem;
+    position: relative;
+    font-weight: 600;
+    padding: 0.95rem;
+    border: 1px dashed color-mix(in srgb, currentcolor 22%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, canvas 94%, #ffedd5 6%);
+  }
+
+  .file-field input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .drop-hint,
+  .selected-file,
+  .help-text {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 500;
+    opacity: 0.82;
+  }
+
+  .selected-file {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    word-break: break-all;
+  }
+
+  .browse-button {
+    justify-self: start;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, #ffedd5 55%, canvas 45%);
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .browse-button:hover,
+  .browse-button:focus-visible {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #fed7aa 65%, canvas 35%);
+  }
+
+  .input-thumb {
+    display: none;
+    width: 100%;
+    max-height: 200px;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, currentcolor 18%, transparent);
+    object-fit: contain;
+    background: color-mix(in srgb, #e2e8f0 28%, canvas 72%);
+  }
+
+  .input-thumb.is-visible {
+    display: block;
+  }
+
+  .file-dropzone.is-dragover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #fdba74 30%, canvas 70%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .range-block {
+    display: grid;
+    gap: 0.7rem;
+    border: 1px solid color-mix(in srgb, currentcolor 16%, transparent);
+    border-radius: 14px;
+    padding: 0.9rem;
+    background: color-mix(in srgb, canvas 94%, #fff1e0 6%);
+  }
+
+  .range-heading {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .range-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .crop-reset-button {
+    border: 1px solid color-mix(in srgb, currentcolor 20%, transparent);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 70%);
+    padding: 0.34rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .crop-reset-button:hover,
+  .crop-reset-button:focus-visible {
+    border-color: var(--accent);
+  }
+
+  .crop-preview-canvas {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid rgb(148 163 184 / 25%);
+    background: #111;
+    touch-action: none;
+    cursor: crosshair;
+  }
+
+  .range-field {
+    display: grid;
+    gap: 0.45rem;
+    font-weight: 600;
+    border: 1px solid color-mix(in srgb, currentcolor 16%, transparent);
+    border-radius: 14px;
+    padding: 0.9rem;
+    background: color-mix(in srgb, canvas 94%, #fff1e0 6%);
+  }
+
+  .range-field input {
+    width: 100%;
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-weight: 600;
+  }
+
+  .checkbox-field input {
+    inline-size: 1.1rem;
+    block-size: 1.1rem;
+  }
+
+  .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+
+  .action-row button {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.85rem 1.25rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .action-row button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: none;
+  }
+
+  .action-row button:hover:not(:disabled),
+  .action-row button:focus-visible:not(:disabled) {
+    transform: scale(1.01);
+    box-shadow: 0 10px 18px rgb(212 85 0 / 24%);
+  }
+
+  .action-row button[data-role="generate-button"] {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .action-row button[data-role="download-button"] {
+    background: color-mix(in srgb, currentcolor 12%, canvas 88%);
+    color: inherit;
+  }
+
+  .status-text {
+    min-height: 1.6em;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .preview-panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .preview-card {
+    padding: 1rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .preview-card p {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .x-like-preview-grid {
+    --gap: 0.5rem;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap);
+    background: #e5e7eb;
+    padding: var(--gap);
+    border-radius: 16px;
+  }
+
+  .x-like-preview-grid img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    border: 1px solid rgb(148 163 184 / 25%);
+    background: #fff;
+    object-fit: cover;
+  }
+
+  .notes-panel {
+    padding: 1rem 1.2rem 0.2rem;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .notes-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.45rem;
+    opacity: 0.86;
+    font-size: 0.95rem;
+  }
+
+  .notes-link {
+    margin-left: 0.3rem;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  @media (width <= 920px) {
+    .workspace-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .control-panel {
+      position: static;
+    }
+  }
+
+  @media (width <= 640px) {
+    .tool-shell {
+      padding: 1rem;
+    }
+
+    .hero-card {
+      flex-direction: column;
+      align-items: stretch;
+      min-height: unset;
+    }
+
+    .hero-banner {
+      position: relative;
+      inset: auto;
+      max-width: 100%;
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .hero-overlay {
+      display: none;
+    }
+
+    .hero-content {
+      padding: 1.2rem;
+      max-width: 100%;
+    }
+
+    .hero-card,
+    .control-panel,
+    .preview-card {
+      border-radius: 20px;
+    }
+
+    .action-row button {
+      width: 100%;
+    }
+  }
+</style>
+
+<script is:inline>
+  function initFourSplitTool(root) {
+    if (root.dataset.initialized === "true") {
+      return;
+    }
+    root.dataset.initialized = "true";
+
+    const CROP_RATIO = 16 / 9;
+    const sourceInput = root.querySelector('[data-role="input-source"]');
+    const sourceDropzone = root.querySelector('[data-role="drop-source"]');
+    const sourceBrowseButton = root.querySelector('[data-role="browse-source"]');
+    const sourceFileName = root.querySelector('[data-role="file-name-source"]');
+    const sourceThumb = root.querySelector('[data-role="thumb-source"]');
+    const cropResetButton = root.querySelector('[data-role="crop-reset"]');
+    const cropPreviewCanvas = root.querySelector('[data-role="crop-preview-canvas"]');
+    const seamInput = root.querySelector('[data-role="seam-input"]');
+    const banCheckbox = root.querySelector('[data-role="ban-checkbox"]');
+    const generateButton = root.querySelector('[data-role="generate-button"]');
+    const downloadButton = root.querySelector('[data-role="download-button"]');
+    const status = root.querySelector('[data-role="status"]');
+
+    const splitPreviews = [
+      root.querySelector('[data-role="split-preview-0"]'),
+      root.querySelector('[data-role="split-preview-1"]'),
+      root.querySelector('[data-role="split-preview-2"]'),
+      root.querySelector('[data-role="split-preview-3"]'),
+    ];
+
+    const labels = {
+      idle: root.dataset.statusIdle || "",
+      needImage: root.dataset.statusNeedImage || "",
+      working: root.dataset.statusWorking || "",
+      ready: root.dataset.statusReady || "",
+      error: root.dataset.statusError || "",
+    };
+
+    const guardSources = JSON.parse(root.dataset.guardSources || "[]");
+    const previewUrls = {
+      source: "",
+      split: ["", "", "", ""],
+    };
+
+    const state = {
+      splitCanvases: [],
+      banCanvases: [],
+      guardImages: [],
+      sourceImage: null,
+      cropRect: null,
+      drag: {
+        mode: "none",
+        handle: "",
+        pointerId: null,
+        startRect: null,
+        startPoint: null,
+      },
+    };
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function setStatus(message) {
+      if (status) {
+        status.textContent = message;
+      }
+    }
+
+    function setDownloadReady(ready) {
+      if (downloadButton) {
+        downloadButton.disabled = !ready;
+      }
+    }
+
+    function revokeUrl(url) {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    function updateInputWithFile(input, file) {
+      if (!input || !file) {
+        return;
+      }
+
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      input.files = transfer.files;
+    }
+
+    function updateFileLabel(label, file) {
+      if (!label) {
+        return;
+      }
+      label.textContent = file ? file.name : "";
+    }
+
+    function setImagePreview(img, nextUrl) {
+      if (!img) {
+        return;
+      }
+      if (!nextUrl) {
+        img.removeAttribute("src");
+        return;
+      }
+      img.src = nextUrl;
+    }
+
+    function updateSourceThumbnail(file) {
+      revokeUrl(previewUrls.source);
+      previewUrls.source = "";
+
+      if (!file || !sourceThumb) {
+        if (sourceThumb) {
+          sourceThumb.removeAttribute("src");
+          sourceThumb.classList.remove("is-visible");
+        }
+        return;
+      }
+
+      const objectUrl = URL.createObjectURL(file);
+      previewUrls.source = objectUrl;
+      sourceThumb.src = objectUrl;
+      sourceThumb.classList.add("is-visible");
+    }
+
+    function clearSplitPreviews() {
+      previewUrls.split.forEach((url, index) => {
+        revokeUrl(url);
+        previewUrls.split[index] = "";
+      });
+      splitPreviews.forEach((img) => setImagePreview(img, ""));
+    }
+
+    function loadImageFromFile(file) {
+      return new Promise((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(image);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("image-load-failed"));
+        };
+        image.src = objectUrl;
+      });
+    }
+
+    function loadImageFromUrl(url) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error("guard-load-failed"));
+        image.src = url;
+      });
+    }
+
+    async function ensureGuardImagesLoaded() {
+      if (state.guardImages.length === 4) {
+        return state.guardImages;
+      }
+
+      const loadedImages = await Promise.all(guardSources.map((url) => loadImageFromUrl(url)));
+      state.guardImages = loadedImages;
+      return loadedImages;
+    }
+
+    function createCanvas(width, height) {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      return canvas;
+    }
+
+    function drawCover(context, image, targetWidth, targetHeight, offsetY) {
+      const sourceWidth = image.naturalWidth || image.width;
+      const sourceHeight = image.naturalHeight || image.height;
+      const scale = Math.max(targetWidth / sourceWidth, targetHeight / sourceHeight);
+      const drawWidth = sourceWidth * scale;
+      const drawHeight = sourceHeight * scale;
+      const dx = (targetWidth - drawWidth) / 2;
+      const dy = offsetY + (targetHeight - drawHeight) / 2;
+      context.drawImage(image, 0, 0, sourceWidth, sourceHeight, dx, dy, drawWidth, drawHeight);
+    }
+
+    function getDefaultCropRect(image) {
+      const sourceWidth = image.naturalWidth;
+      const sourceHeight = image.naturalHeight;
+      const sourceRatio = sourceWidth / sourceHeight;
+
+      if (sourceRatio >= CROP_RATIO) {
+        const cropHeight = sourceHeight;
+        const cropWidth = cropHeight * CROP_RATIO;
+        return {
+          x: (sourceWidth - cropWidth) / 2,
+          y: 0,
+          width: cropWidth,
+          height: cropHeight,
+        };
+      }
+
+      const cropWidth = sourceWidth;
+      const cropHeight = cropWidth / CROP_RATIO;
+      return {
+        x: 0,
+        y: (sourceHeight - cropHeight) / 2,
+        width: cropWidth,
+        height: cropHeight,
+      };
+    }
+
+    function normalizeCropRect(rect, image) {
+      const minWidth = Math.min(160, image.naturalWidth);
+      const maxWidth = Math.min(image.naturalWidth, image.naturalHeight * CROP_RATIO);
+      const width = clamp(rect.width, minWidth, maxWidth);
+      const height = width / CROP_RATIO;
+      const x = clamp(rect.x, 0, image.naturalWidth - width);
+      const y = clamp(rect.y, 0, image.naturalHeight - height);
+      return { x, y, width, height };
+    }
+
+    function getPreviewGeometry(image) {
+      const scale = Math.min(cropPreviewCanvas.width / image.naturalWidth, cropPreviewCanvas.height / image.naturalHeight);
+      const drawWidth = image.naturalWidth * scale;
+      const drawHeight = image.naturalHeight * scale;
+      const dx = (cropPreviewCanvas.width - drawWidth) / 2;
+      const dy = (cropPreviewCanvas.height - drawHeight) / 2;
+      return { scale, drawWidth, drawHeight, dx, dy };
+    }
+
+    function imagePointFromCanvas(canvasX, canvasY, image, geometry) {
+      const ix = (canvasX - geometry.dx) / geometry.scale;
+      const iy = (canvasY - geometry.dy) / geometry.scale;
+      return {
+        x: clamp(ix, 0, image.naturalWidth),
+        y: clamp(iy, 0, image.naturalHeight),
+      };
+    }
+
+    function getCanvasPointerPosition(event) {
+      const rect = cropPreviewCanvas.getBoundingClientRect();
+      const scaleX = cropPreviewCanvas.width / rect.width;
+      const scaleY = cropPreviewCanvas.height / rect.height;
+      return {
+        x: (event.clientX - rect.left) * scaleX,
+        y: (event.clientY - rect.top) * scaleY,
+      };
+    }
+
+    function canvasRectFromImageRect(rect, geometry) {
+      return {
+        x: geometry.dx + rect.x * geometry.scale,
+        y: geometry.dy + rect.y * geometry.scale,
+        width: rect.width * geometry.scale,
+        height: rect.height * geometry.scale,
+      };
+    }
+
+    function getHandlePoints(canvasRect) {
+      return {
+        nw: { x: canvasRect.x, y: canvasRect.y },
+        ne: { x: canvasRect.x + canvasRect.width, y: canvasRect.y },
+        sw: { x: canvasRect.x, y: canvasRect.y + canvasRect.height },
+        se: { x: canvasRect.x + canvasRect.width, y: canvasRect.y + canvasRect.height },
+      };
+    }
+
+    function findHandleAtPoint(canvasX, canvasY, canvasRect) {
+      const HANDLE_RADIUS = 10;
+      const handles = getHandlePoints(canvasRect);
+      return Object.entries(handles).find(([, point]) => {
+        const dx = canvasX - point.x;
+        const dy = canvasY - point.y;
+        return dx * dx + dy * dy <= HANDLE_RADIUS * HANDLE_RADIUS;
+      })?.[0] || "";
+    }
+
+    function pointInRect(canvasX, canvasY, canvasRect) {
+      return canvasX >= canvasRect.x
+        && canvasX <= canvasRect.x + canvasRect.width
+        && canvasY >= canvasRect.y
+        && canvasY <= canvasRect.y + canvasRect.height;
+    }
+
+    function renderCropPreview() {
+      if (!cropPreviewCanvas) {
+        return;
+      }
+
+      const context = cropPreviewCanvas.getContext("2d");
+      if (!context) {
+        return;
+      }
+
+      context.clearRect(0, 0, cropPreviewCanvas.width, cropPreviewCanvas.height);
+      context.fillStyle = "#09090b";
+      context.fillRect(0, 0, cropPreviewCanvas.width, cropPreviewCanvas.height);
+
+      const image = state.sourceImage;
+      if (!image || !state.cropRect) {
+        return;
+      }
+
+      const geometry = getPreviewGeometry(image);
+      context.drawImage(
+        image,
+        0,
+        0,
+        image.naturalWidth,
+        image.naturalHeight,
+        geometry.dx,
+        geometry.dy,
+        geometry.drawWidth,
+        geometry.drawHeight,
+      );
+
+      const canvasRect = canvasRectFromImageRect(state.cropRect, geometry);
+      context.save();
+      context.fillStyle = "rgb(0 0 0 / 45%)";
+      context.beginPath();
+      context.rect(0, 0, cropPreviewCanvas.width, cropPreviewCanvas.height);
+      context.rect(canvasRect.x, canvasRect.y, canvasRect.width, canvasRect.height);
+      context.fill("evenodd");
+
+      context.strokeStyle = "#fb923c";
+      context.lineWidth = 2;
+      context.strokeRect(canvasRect.x, canvasRect.y, canvasRect.width, canvasRect.height);
+
+      context.fillStyle = "#ffffff";
+      context.strokeStyle = "#fb923c";
+      context.lineWidth = 2;
+      Object.values(getHandlePoints(canvasRect)).forEach((point) => {
+        context.beginPath();
+        context.arc(point.x, point.y, 6, 0, Math.PI * 2);
+        context.fill();
+        context.stroke();
+      });
+      context.restore();
+    }
+
+    function setDefaultCropRect() {
+      if (!state.sourceImage) {
+        state.cropRect = null;
+        return;
+      }
+      state.cropRect = getDefaultCropRect(state.sourceImage);
+    }
+
+    function resizeFromHandle(handle, movingPoint, image, baseRect) {
+      const isEast = handle.includes("e");
+      const isSouth = handle.includes("s");
+      const fixedX = isEast ? baseRect.x : baseRect.x + baseRect.width;
+      const fixedY = isSouth ? baseRect.y : baseRect.y + baseRect.height;
+      const signX = isEast ? 1 : -1;
+      const signY = isSouth ? 1 : -1;
+
+      const maxByX = signX > 0 ? image.naturalWidth - fixedX : fixedX;
+      const maxByY = signY > 0 ? (image.naturalHeight - fixedY) * CROP_RATIO : fixedY * CROP_RATIO;
+      const maxWidth = Math.max(1, Math.min(maxByX, maxByY));
+      const minWidth = Math.min(160, maxWidth);
+
+      const rawWidthX = signX > 0 ? movingPoint.x - fixedX : fixedX - movingPoint.x;
+      const rawWidthY = (signY > 0 ? movingPoint.y - fixedY : fixedY - movingPoint.y) * CROP_RATIO;
+      const width = clamp(Math.max(rawWidthX, rawWidthY), minWidth, maxWidth);
+      const height = width / CROP_RATIO;
+
+      const x = signX > 0 ? fixedX : fixedX - width;
+      const y = signY > 0 ? fixedY : fixedY - height;
+      return { x, y, width, height };
+    }
+
+    function beginCropInteraction(event) {
+      if (!cropPreviewCanvas || !state.sourceImage || !state.cropRect) {
+        return;
+      }
+
+      const geometry = getPreviewGeometry(state.sourceImage);
+      const canvasRect = canvasRectFromImageRect(state.cropRect, geometry);
+      const pointer = getCanvasPointerPosition(event);
+      const canvasX = pointer.x;
+      const canvasY = pointer.y;
+      const handle = findHandleAtPoint(canvasX, canvasY, canvasRect);
+
+      if (!handle && !pointInRect(canvasX, canvasY, canvasRect)) {
+        return;
+      }
+
+      const imagePoint = imagePointFromCanvas(canvasX, canvasY, state.sourceImage, geometry);
+      state.drag.mode = handle ? "resize" : "move";
+      state.drag.handle = handle;
+      state.drag.pointerId = event.pointerId;
+      state.drag.startRect = { ...state.cropRect };
+      state.drag.startPoint = imagePoint;
+      cropPreviewCanvas.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    }
+
+    function moveCropInteraction(event) {
+      if (!cropPreviewCanvas || !state.sourceImage || !state.cropRect) {
+        return;
+      }
+      if (state.drag.mode === "none" || state.drag.pointerId !== event.pointerId) {
+        return;
+      }
+
+      const geometry = getPreviewGeometry(state.sourceImage);
+      const pointer = getCanvasPointerPosition(event);
+      const currentPoint = imagePointFromCanvas(pointer.x, pointer.y, state.sourceImage, geometry);
+      const startPoint = state.drag.startPoint;
+      const startRect = state.drag.startRect;
+      if (!startPoint || !startRect) {
+        return;
+      }
+
+      if (state.drag.mode === "move") {
+        const dx = currentPoint.x - startPoint.x;
+        const dy = currentPoint.y - startPoint.y;
+        const nextRect = {
+          x: clamp(startRect.x + dx, 0, state.sourceImage.naturalWidth - startRect.width),
+          y: clamp(startRect.y + dy, 0, state.sourceImage.naturalHeight - startRect.height),
+          width: startRect.width,
+          height: startRect.height,
+        };
+        state.cropRect = normalizeCropRect(nextRect, state.sourceImage);
+      } else {
+        const nextRect = resizeFromHandle(state.drag.handle, currentPoint, state.sourceImage, startRect);
+        state.cropRect = normalizeCropRect(nextRect, state.sourceImage);
+      }
+
+      renderCropPreview();
+      invalidateGeneratedState();
+    }
+
+    function endCropInteraction(event) {
+      if (!cropPreviewCanvas || state.drag.pointerId !== event.pointerId) {
+        return;
+      }
+
+      state.drag.mode = "none";
+      state.drag.handle = "";
+      state.drag.pointerId = null;
+      state.drag.startRect = null;
+      state.drag.startPoint = null;
+      if (cropPreviewCanvas.hasPointerCapture(event.pointerId)) {
+        cropPreviewCanvas.releasePointerCapture(event.pointerId);
+      }
+    }
+
+    function buildBaseCanvas(sourceImage) {
+      const targetWidth = 1600;
+      const targetHeight = 900;
+      const canvas = createCanvas(targetWidth, targetHeight);
+      const context = canvas.getContext("2d");
+      if (!context) {
+        throw new Error("canvas-context-unavailable");
+      }
+
+      const cropRect = state.cropRect || getDefaultCropRect(sourceImage);
+      context.clearRect(0, 0, targetWidth, targetHeight);
+      context.drawImage(
+        sourceImage,
+        Math.round(cropRect.x),
+        Math.round(cropRect.y),
+        Math.round(cropRect.width),
+        Math.round(cropRect.height),
+        0,
+        0,
+        targetWidth,
+        targetHeight,
+      );
+      return canvas;
+    }
+
+    function extractSplitCanvases(baseCanvas, seamPx) {
+      const panelWidth = Math.floor(baseCanvas.width / 2);
+      const panelHeight = Math.floor(baseCanvas.height / 2);
+      const cutLeft = Math.floor(seamPx / 2);
+      const cutRight = Math.ceil(seamPx / 2);
+      const cutTop = Math.floor(seamPx / 2);
+      const cutBottom = Math.ceil(seamPx / 2);
+
+      const leftWidth = panelWidth - cutLeft;
+      const rightWidth = panelWidth - cutRight;
+      const topHeight = panelHeight - cutTop;
+      const bottomHeight = panelHeight - cutBottom;
+      const splitCanvases = [];
+
+      for (let row = 0; row < 2; row++) {
+        for (let col = 0; col < 2; col++) {
+          const canvas = createCanvas(panelWidth, panelHeight);
+          const context = canvas.getContext("2d");
+          if (!context) {
+            throw new Error("canvas-context-unavailable");
+          }
+
+          const sx = col === 0 ? 0 : panelWidth + cutRight;
+          const sy = row === 0 ? 0 : panelHeight + cutBottom;
+          const sw = col === 0 ? leftWidth : rightWidth;
+          const sh = row === 0 ? topHeight : bottomHeight;
+
+          context.imageSmoothingQuality = "high";
+          context.drawImage(baseCanvas, sx, sy, sw, sh, 0, 0, panelWidth, panelHeight);
+          splitCanvases.push(canvas);
+        }
+      }
+
+      return splitCanvases;
+    }
+
+    function createBanCanvases(splitCanvases, guardImages) {
+      return splitCanvases.map((splitCanvas, index) => {
+        const width = splitCanvas.width;
+        const segmentHeight = splitCanvas.height;
+        const canvas = createCanvas(width, segmentHeight * 5);
+        const context = canvas.getContext("2d");
+        if (!context) {
+          throw new Error("canvas-context-unavailable");
+        }
+
+        const topGuard1 = guardImages[index % guardImages.length];
+        const topGuard2 = guardImages[(index + 1) % guardImages.length];
+        const bottomGuard1 = guardImages[(index + 2) % guardImages.length];
+        const bottomGuard2 = guardImages[(index + 3) % guardImages.length];
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawCover(context, topGuard1, width, segmentHeight, 0);
+        drawCover(context, topGuard2, width, segmentHeight, segmentHeight);
+        context.drawImage(splitCanvas, 0, segmentHeight * 2, width, segmentHeight);
+        drawCover(context, bottomGuard1, width, segmentHeight, segmentHeight * 3);
+        drawCover(context, bottomGuard2, width, segmentHeight, segmentHeight * 4);
+
+        return canvas;
+      });
+    }
+
+    function canvasToBlob(canvas) {
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, "image/png");
+      });
+    }
+
+    function downloadBlob(blob, filename) {
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = filename;
+      link.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(objectUrl);
+      }, 1500);
+    }
+
+    async function showCanvasPreviews(canvases) {
+      for (let index = 0; index < 4; index++) {
+        revokeUrl(previewUrls.split[index]);
+        previewUrls.split[index] = "";
+        setImagePreview(splitPreviews[index], "");
+      }
+
+      for (let index = 0; index < canvases.length; index++) {
+        const blob = await canvasToBlob(canvases[index]);
+        if (!blob) {
+          continue;
+        }
+        const url = URL.createObjectURL(blob);
+        previewUrls.split[index] = url;
+        setImagePreview(splitPreviews[index], url);
+      }
+    }
+
+    async function ensureSourceImageReady() {
+      const sourceFile = sourceInput && sourceInput.files ? sourceInput.files[0] : null;
+      if (!sourceFile) {
+        return null;
+      }
+
+      const image = await loadImageFromFile(sourceFile);
+      state.sourceImage = image;
+      if (!state.cropRect) {
+        setDefaultCropRect();
+      }
+      return image;
+    }
+
+    function getSeamValue() {
+      const raw = seamInput ? Number(seamInput.value) : 0;
+      const safeRaw = Number.isFinite(raw) ? raw : 0;
+      return Math.round(clamp(safeRaw, 0, 120));
+    }
+
+    async function generate() {
+      const sourceImage = await ensureSourceImageReady();
+      if (!sourceImage) {
+        setDownloadReady(false);
+        clearSplitPreviews();
+        setStatus(labels.needImage);
+        return;
+      }
+
+      setStatus(labels.working);
+      setDownloadReady(false);
+
+      try {
+        const baseCanvas = buildBaseCanvas(sourceImage);
+        const seamPx = getSeamValue();
+        const splitCanvases = extractSplitCanvases(baseCanvas, seamPx);
+
+        state.splitCanvases = splitCanvases;
+
+        if (banCheckbox && banCheckbox.checked) {
+          const guards = await ensureGuardImagesLoaded();
+          state.banCanvases = createBanCanvases(splitCanvases, guards);
+        } else {
+          state.banCanvases = [];
+        }
+
+        await showCanvasPreviews(splitCanvases);
+        setDownloadReady(true);
+        setStatus(labels.ready);
+      } catch (_error) {
+        setDownloadReady(false);
+        clearSplitPreviews();
+        setStatus(labels.error);
+      }
+    }
+
+    async function downloadImages() {
+      const useBanMode = Boolean(banCheckbox && banCheckbox.checked);
+      const targets = useBanMode ? state.banCanvases : state.splitCanvases;
+
+      if (!targets.length) {
+        return;
+      }
+
+      const filePrefix = useBanMode ? "four_split_ban_safe" : "four_split";
+      for (let index = 0; index < targets.length; index++) {
+        const blob = await canvasToBlob(targets[index]);
+        if (!blob) {
+          continue;
+        }
+        downloadBlob(blob, `${filePrefix}_${index + 1}.png`);
+      }
+    }
+
+    async function updateSourceFromFile(file) {
+      if (!file) {
+        state.sourceImage = null;
+        state.cropRect = null;
+        renderCropPreview();
+        return;
+      }
+
+      try {
+        const image = await loadImageFromFile(file);
+        state.sourceImage = image;
+        setDefaultCropRect();
+        renderCropPreview();
+      } catch (_error) {
+        state.sourceImage = null;
+        state.cropRect = null;
+        renderCropPreview();
+      }
+    }
+
+    function invalidateGeneratedState() {
+      state.splitCanvases = [];
+      state.banCanvases = [];
+      setDownloadReady(false);
+      clearSplitPreviews();
+      setStatus(labels.idle);
+    }
+
+    function handleDropzone(dropzone, input, label) {
+      if (!dropzone || !input) {
+        return;
+      }
+
+      const onDrag = (event) => {
+        event.preventDefault();
+        dropzone.classList.add("is-dragover");
+      };
+
+      const onDragLeave = () => {
+        dropzone.classList.remove("is-dragover");
+      };
+
+      dropzone.addEventListener("dragenter", onDrag);
+      dropzone.addEventListener("dragover", onDrag);
+      dropzone.addEventListener("dragleave", onDragLeave);
+      dropzone.addEventListener("drop", async (event) => {
+        event.preventDefault();
+        onDragLeave();
+
+        const fileList = event.dataTransfer && event.dataTransfer.files ? event.dataTransfer.files : null;
+        const droppedFile = fileList && fileList.length > 0 ? fileList[0] : null;
+        if (!droppedFile) {
+          return;
+        }
+
+        updateInputWithFile(input, droppedFile);
+        updateFileLabel(label, droppedFile);
+        updateSourceThumbnail(droppedFile);
+        await updateSourceFromFile(droppedFile);
+        invalidateGeneratedState();
+      });
+    }
+
+    if (cropPreviewCanvas) {
+      cropPreviewCanvas.addEventListener("pointerdown", beginCropInteraction);
+      cropPreviewCanvas.addEventListener("pointermove", moveCropInteraction);
+      cropPreviewCanvas.addEventListener("pointerup", endCropInteraction);
+      cropPreviewCanvas.addEventListener("pointercancel", endCropInteraction);
+    }
+
+    if (cropResetButton) {
+      cropResetButton.addEventListener("click", () => {
+        setDefaultCropRect();
+        renderCropPreview();
+        invalidateGeneratedState();
+      });
+    }
+
+    if (sourceInput) {
+      sourceInput.addEventListener("change", async () => {
+        const file = sourceInput.files && sourceInput.files[0] ? sourceInput.files[0] : null;
+        updateFileLabel(sourceFileName, file);
+        updateSourceThumbnail(file);
+        await updateSourceFromFile(file);
+        invalidateGeneratedState();
+      });
+    }
+
+    if (sourceBrowseButton) {
+      sourceBrowseButton.addEventListener("click", () => {
+        if (sourceInput) {
+          sourceInput.click();
+        }
+      });
+    }
+
+    if (seamInput) {
+      seamInput.addEventListener("input", () => {
+        seamInput.value = String(getSeamValue());
+        invalidateGeneratedState();
+      });
+    }
+
+    if (banCheckbox) {
+      banCheckbox.addEventListener("change", () => {
+        invalidateGeneratedState();
+      });
+    }
+
+    if (generateButton) {
+      generateButton.addEventListener("click", generate);
+    }
+
+    if (downloadButton) {
+      downloadButton.addEventListener("click", downloadImages);
+    }
+
+    handleDropzone(sourceDropzone, sourceInput, sourceFileName);
+    clearSplitPreviews();
+    setStatus(labels.idle);
+    renderCropPreview();
+
+    window.addEventListener("beforeunload", () => {
+      revokeUrl(previewUrls.source);
+      clearSplitPreviews();
+    });
+  }
+
+  function bindFourSplitTools() {
+    document.querySelectorAll("[data-four-split-tool]").forEach((root) => {
+      initFourSplitTool(root);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindFourSplitTools, { once: true });
+  } else {
+    bindFourSplitTools();
+  }
+
+  document.addEventListener("astro:page-load", bindFourSplitTools);
+</script>

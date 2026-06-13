@@ -43,6 +43,43 @@ export const ui = {
     "tool.shareButton": "X でシェア",
     "tool.shareText":
       "見え方が切り替わる透過 PNG を作れるブラウザツール「タップ変化画像つくるちゃん」",
+    "tool4.pageTitle": "4分割画像つくるちゃん",
+    "tool4.pageDescription":
+      "画像を16:9に整えて4分割し、Xの4枚投稿向けに見栄えを調整した画像をブラウザ内で作成します。",
+    "tool4.lead":
+      "1枚の画像を16:9にトリミングした上で、Xの4枚投稿向けに中央の切れ目をpx単位でカットした4分割画像を生成します。BAN回避モードでは分割画像の上下に事前素材を結合した縦長版も作成できます。",
+    "tool4.sourceInput": "元画像",
+    "tool4.dropHint": "ここへ画像をドラッグ&ドロップ",
+    "tool4.chooseButton": "画像を選択",
+    "tool4.fileHint": "PNG/JPEGなど一般的な画像形式に対応しています。",
+    "tool4.cropHelp":
+      "枠の中をドラッグで移動、四隅のハンドルをドラッグで拡大縮小できます。比率は16:9に固定されます。",
+    "tool4.cropPreview": "16:9トリミング範囲（四隅ドラッグ調整）",
+    "tool4.cropReset": "中央に戻す",
+    "tool4.paddingLabel": "十字カット量（px）",
+    "tool4.paddingHelp":
+      "指定px分だけ中央の縦横ラインを切り落としてから4分割します。Xの4枚配置時の隙間対策に使えます。",
+    "tool4.banModeLabel":
+      "BAN回避モード（上下2枚ずつガード画像付き縦長版を生成）",
+    "tool4.generate": "4分割を生成",
+    "tool4.download": "画像4枚をダウンロード",
+    "tool4.previewSplit": "4分割プレビュー",
+    "tool4.statusIdle": "画像を選んで生成できます。",
+    "tool4.statusNeedImage": "元画像を選択してください。",
+    "tool4.statusWorking": "生成中...",
+    "tool4.statusReady": "4分割画像を生成しました。",
+    "tool4.statusError":
+      "生成に失敗しました。画像形式やサイズを確認してください。",
+    "tool4.noteCrop": "元画像は中央基準で16:9にトリミングしてから分割します。",
+    "tool4.notePadding":
+      "十字カット量を増やすほど、分割境界で欠けるピクセルが増えて4枚配置時の切れ目が自然になりやすくなります。",
+    "tool4.noteBan":
+      "BAN回避モードでは、分割画像の上下に事前用意した16:9素材を結合し、中央だけが見える縦長画像を出力します。",
+    "tool4.contactLabel": "作者へのお問い合わせはこちら:",
+    "tool4.contactLinkText": "プロフィールページ",
+    "tool4.shareButton": "X でシェア",
+    "tool4.shareText":
+      "16:9の画像を4分割してX投稿向けに整えられる「4分割画像つくるちゃん」",
     "tools.pageTitle": "製作支援ツール一覧",
     "tools.pageDescription":
       "イラスト制作やSNS投稿を支援するWebツールの一覧ページです。ブラウザだけで動作する無料ツールを用途別にまとめています。",
@@ -52,6 +89,9 @@ export const ui = {
     "tools.card.tapTitle": "タップ変化画像つくるちゃん",
     "tools.card.tapDescription":
       "白背景と黒背景で見え方が切り替わる透過 PNG を作成します。",
+    "tools.card.fourTitle": "4分割画像つくるちゃん",
+    "tools.card.fourDescription":
+      "16:9トリミング、パディング補正付き4分割、BAN回避用の縦長合成までまとめて作成します。",
     "tools.open": "ツールを開く",
   },
   en: {
@@ -91,6 +131,45 @@ export const ui = {
     "tool.shareButton": "Share on X",
     "tool.shareText":
       "Tap-Change Image Maker Chan — create a transparent PNG that switches appearance",
+    "tool4.pageTitle": "4-Way Split Image Maker Chan",
+    "tool4.pageDescription":
+      "Crop any image to 16:9, split it into four panels for X multi-image posts, and generate posting-safe tall variants in your browser.",
+    "tool4.lead":
+      "Load one image, crop it to 16:9, then create four panels with a center cross cut in pixels for cleaner X 4-image layouts. BAN-safe mode can also create tall variants with prepared guards.",
+    "tool4.sourceInput": "Source image",
+    "tool4.dropHint": "Drag and drop an image here",
+    "tool4.chooseButton": "Choose image",
+    "tool4.fileHint":
+      "PNG, JPEG, and other common image formats are supported.",
+    "tool4.cropHelp":
+      "Drag inside the frame to move it. Drag any corner handle to resize while keeping a fixed 16:9 ratio.",
+    "tool4.cropPreview": "16:9 crop area (corner-drag)",
+    "tool4.cropReset": "Recenter",
+    "tool4.paddingLabel": "Cross cut amount (px)",
+    "tool4.paddingHelp":
+      "Cuts the center vertical/horizontal seam by the specified pixels before splitting into four images.",
+    "tool4.banModeLabel":
+      "BAN-safe mode (create tall outputs with two guards on top and bottom)",
+    "tool4.generate": "Generate 4-way split",
+    "tool4.download": "Download 4 images",
+    "tool4.previewSplit": "Split preview",
+    "tool4.statusIdle": "Select an image to generate outputs.",
+    "tool4.statusNeedImage": "Please choose a source image.",
+    "tool4.statusWorking": "Generating...",
+    "tool4.statusReady": "4 split images are ready.",
+    "tool4.statusError":
+      "Failed to generate outputs. Check the source image and try again.",
+    "tool4.noteCrop":
+      "The source image is center-cropped to 16:9 before splitting.",
+    "tool4.notePadding":
+      "Larger cross-cut values remove more pixels around the split seam to make gaps feel less obvious in 4-image layouts.",
+    "tool4.noteBan":
+      "BAN-safe mode stacks prepared 16:9 guard images above and below each split panel, so the middle area is emphasized in previews.",
+    "tool4.contactLabel": "Contact the creator here:",
+    "tool4.contactLinkText": "Profile page",
+    "tool4.shareButton": "Share on X",
+    "tool4.shareText":
+      "4-Way Split Image Maker Chan — split a 16:9 image for polished X multi-image posts",
     "tools.pageTitle": "Creator Support Tools",
     "tools.pageDescription":
       "Free browser-based tools that support illustration creation and SNS posting. No installation required — use them right in your browser.",
@@ -100,6 +179,9 @@ export const ui = {
     "tools.card.tapTitle": "Tap-Change Image Maker Chan",
     "tools.card.tapDescription":
       "Create a transparent PNG that switches appearance on white and black backgrounds.",
+    "tools.card.fourTitle": "4-Way Split Image Maker Chan",
+    "tools.card.fourDescription":
+      "Create 16:9-cropped four-way split panels with padding compensation and optional BAN-safe tall composites.",
     "tools.open": "Open tool",
   },
 } as const;

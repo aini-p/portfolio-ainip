@@ -1,0 +1,69 @@
+---
+import FourSplitImageComposer from "~/components/FourSplitImageComposer.astro";
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const lang = "en";
+const t = ui[lang];
+const appJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: t["tool4.pageTitle"],
+  applicationCategory: "MultimediaApplication",
+  operatingSystem: "Web",
+  inLanguage: "en",
+  url: new URL("/en/tools/four-split-image", Astro.site).toString(),
+  description: t["tool4.pageDescription"],
+};
+---
+
+<BaseLayout
+  title={t["tool4.pageTitle"]}
+  description={t["tool4.pageDescription"]}
+  keywords="4-way split, X post, 16:9 crop, image splitter, safe posting"
+  image={{ src: "/images/four_split_guard_1.svg", alt: t["tool4.pageTitle"] }}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
+
+  <FourSplitImageComposer
+    bannerSrc="/images/tap_change_image_chan.jpg"
+    bannerAlt={t["tool4.pageTitle"]}
+    shareUrl={new URL("/en/tools/four-split-image", Astro.site).toString()}
+    guardSources={[
+      "/images/four_split_guard_1.svg",
+      "/images/four_split_guard_2.svg",
+      "/images/four_split_guard_3.svg",
+      "/images/four_split_guard_4.svg",
+    ]}
+    copy={{
+      title: t["tool4.pageTitle"],
+      lead: t["tool4.lead"],
+      sourceInput: t["tool4.sourceInput"],
+      dropHint: t["tool4.dropHint"],
+      chooseButton: t["tool4.chooseButton"],
+      fileHint: t["tool4.fileHint"],
+      cropHelp: t["tool4.cropHelp"],
+      cropPreview: t["tool4.cropPreview"],
+      cropReset: t["tool4.cropReset"],
+      paddingLabel: t["tool4.paddingLabel"],
+      paddingHelp: t["tool4.paddingHelp"],
+      banModeLabel: t["tool4.banModeLabel"],
+      generate: t["tool4.generate"],
+      download: t["tool4.download"],
+      previewSplit: t["tool4.previewSplit"],
+      statusIdle: t["tool4.statusIdle"],
+      statusNeedImage: t["tool4.statusNeedImage"],
+      statusWorking: t["tool4.statusWorking"],
+      statusReady: t["tool4.statusReady"],
+      statusError: t["tool4.statusError"],
+      noteCrop: t["tool4.noteCrop"],
+      notePadding: t["tool4.notePadding"],
+      noteBan: t["tool4.noteBan"],
+      contactLabel: t["tool4.contactLabel"],
+      contactLinkText: t["tool4.contactLinkText"],
+      contactHref: "/en/profile",
+      shareButton: t["tool4.shareButton"],
+      shareText: t["tool4.shareText"],
+    }}
+  />
+</BaseLayout>

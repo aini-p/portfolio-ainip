@@ -1,4 +1,6 @@
 ---
+import { adsenseClientId } from "~/constants/social";
+
 export interface Props {
   adSlot: string;
   adFormat?: "auto" | "fluid" | "rectangle" | "vertical" | "horizontal";
@@ -16,7 +18,7 @@ const {
 <div class="adsense-ad-container" class:list={{ 'full-width-ad': fullWidth, 'standard-ad': !fullWidth }}>
   <ins class="adsbygoogle"
        style={adStyle}
-       data-ad-client="ca-pub-2812218267740921"
+    data-ad-client={adsenseClientId}
        data-ad-slot={adSlot}
        data-ad-format={adFormat}
        data-full-width-responsive="true"></ins>

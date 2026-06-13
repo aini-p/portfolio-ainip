@@ -1,7 +1,7 @@
 ---
 import smartypants from "smartypants";
 import Header from "~/components/header.astro";
-import { profileNames, siteCopyrightLabel } from "~/constants/social";
+import { adsenseClientId, profileNames, siteCopyrightLabel } from "~/constants/social";
 
 export interface Props {
   title?: string;
@@ -15,6 +15,11 @@ export interface Props {
 
 const { title, description, keywords, image } = Astro.props;
 const { lang } = Astro.locals; // ミドルウェアから取得
+const defaultSocialImage = {
+  src: "/images/patreon-banner.png",
+  alt: lang === "ja" ? "メンバーシップバナー" : "Membership banner",
+};
+const socialImage = image ?? defaultSocialImage;
 
 // ▼▼▼ hreflang用のパス生成ロジックを修正 ▼▼▼
 const currentPath = Astro.url.pathname;
@@ -44,6 +49,15 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="google-adsense-account" content={adsenseClientId} />
+    {import.meta.env.PROD && (
+      <script
+        is:inline
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
+        crossorigin="anonymous"
+      ></script>
+    )}
     {/* ▼▼▼ canonical URL を修正 ▼▼▼ */}
     <link rel="canonical" href={new URL(lang === 'ja' ? jaPath : enPath, Astro.site)} />
     {/* ▲▲▲ ここまで ▲▲▲ */}
@@ -110,16 +124,11 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <meta property="og:url" content={new URL(lang === 'ja' ? jaPath : enPath, Astro.site)} />
     <meta property="og:locale" content={lang === 'ja' ? 'ja_JP' : 'en_US'} />
     <meta property="og:site_name" content={siteName} />
-    {image && (
-      <>
-        <meta property="og:image" content={new URL(image.src, Astro.site).toString()} />
-        <meta property="og:image:alt" content={image.alt} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content={new URL(image.src, Astro.site).toString()} />
-        <meta name="twitter:image:alt" content={image.alt} />
-      </>
-    )}
-    {!image && <meta name="twitter:card" content="summary" />}
+    <meta property="og:image" content={new URL(socialImage.src, Astro.site).toString()} />
+    <meta property="og:image:alt" content={socialImage.alt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={new URL(socialImage.src, Astro.site).toString()} />
+    <meta name="twitter:image:alt" content={socialImage.alt} />
     <meta name="twitter:title" content={smartypants(pageTitle, 1)} />
     {description && <meta name="twitter:description" content={smartypants(description, 1)} />}
 
