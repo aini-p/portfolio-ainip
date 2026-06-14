@@ -11,6 +11,8 @@ export const ui = {
     "nav.profile": "プロフィール",
     "nav.tool": "ツール",
     "profile.fansite": "メンバーシップ",
+    "profile.shareButton": "Xでシェア",
+    "profile.shareText": "あと5分。のポートフォリオサイトだよ。",
     "artwork.related": "関連イラスト",
     "tool.pageTitle": "タップ変化画像つくるちゃん",
     "tool.pageDescription":
@@ -99,6 +101,8 @@ export const ui = {
     "nav.profile": "Profile",
     "nav.tool": "Tool",
     "profile.fansite": "Membership",
+    "profile.shareButton": "Share on X",
+    "profile.shareText": "This is At5Fun's portfolio site.",
     "artwork.related": "Related Artworks",
     "tool.pageTitle": "Tap-Change Image Maker Chan",
     "tool.pageDescription":

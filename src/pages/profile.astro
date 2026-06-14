@@ -18,8 +18,16 @@ const profileDescription =
 const profilePageTitle = t["nav.profile"];
 const profileKeywords = "プロフィール, イラスト, AIイラスト, あと5分。";
 const xNames = xAccountNames[lang];
+const pageUrl = new URL("/", Astro.site).toString();
+const shareText = t["profile.shareText"];
+const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(pageUrl)}`;
 ---
-<BaseLayout title={profilePageTitle} description={profileDescription} keywords={profileKeywords}>
+<BaseLayout
+  title={profilePageTitle}
+  description={profileDescription}
+  keywords={profileKeywords}
+  image={{ src: "/images/profile-share-card.png", alt: "プロフィールページのシェアカード画像" }}
+>
   <div class="container">
     <section class="profile-section">
       <img src="/images/icon.png" alt="プロフィールアイコン" class="profile-icon" />
@@ -29,6 +37,12 @@ const xNames = xAccountNames[lang];
         <div class="contact-links">
           <a href={discordUrl} target="_blank" rel="noopener noreferrer" class="icon-link discord-icon" aria-label="Discordで連絡する">
             <img src="/Discord_Symbol_Color/Discord-Symbol-Blurple.svg" alt="Discord" />
+          </a>
+          <a href={xShareUrl} target="_blank" rel="noopener noreferrer" class="x-share-button" aria-label={t["profile.shareButton"]}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623 5.905-5.623Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            <span>{t["profile.shareButton"]}</span>
           </a>
           <!--<a href="https://www.pixiv.net/users/your-id" target="_blank" rel="noopener noreferrer" class="icon-link pixiv-icon" aria-label="Pixivプロフィールを見る">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -195,6 +209,27 @@ const xNames = xAccountNames[lang];
     width: 42px;
     height: 42px;
     border-radius: 10px;
+  }
+
+  .x-share-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: #000;
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    width: fit-content;
+    transition: background 0.15s ease;
+  }
+
+  .x-share-button:hover,
+  .x-share-button:focus-visible {
+    background: #1a1a1a;
   }
 
   .banner-links {
