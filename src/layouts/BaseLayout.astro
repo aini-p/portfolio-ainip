@@ -20,8 +20,8 @@ export interface Props {
 const { title, description, keywords, image } = Astro.props;
 const { lang } = Astro.locals; // ミドルウェアから取得
 const defaultSocialImage = {
-  src: "/images/patreon-banner.png",
-  alt: lang === "ja" ? "メンバーシップバナー" : "Membership banner",
+  src: "/images/profile-share-card.png",
+  alt: lang === "ja" ? "あと5分。ポートフォリオサイト" : "At5Fun portfolio site",
 };
 const socialImage = image ?? defaultSocialImage;
 
