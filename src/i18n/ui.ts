@@ -113,6 +113,8 @@ export const ui = {
     "tool5.rotationLabel": "レイアウト回転（度）",
     "tool5.rotationHelp":
       "レイアウト全体を回転させます。パッキングを再計算して効率的に配置されます。",
+    "tool5.scaleLabel": "画像スケール",
+    "tool5.scaleHelp": "各画像のサイズを拡大縮小します。",
     "tool5.generateScale": "スケール: {scale}%",
     "tool5.generate": "合成画像を生成",
     "tool5.download": "PNG をダウンロード",
@@ -246,6 +248,8 @@ export const ui = {
     "tool5.rotationLabel": "Layout rotation (degrees)",
     "tool5.rotationHelp":
       "Rotate the entire layout. Packing is recalculated for efficient arrangement.",
+    "tool5.scaleLabel": "Image scale",
+    "tool5.scaleHelp": "Enlarge or reduce the size of each image.",
     "tool5.generateScale": "Scale: {scale}%",
     "tool5.generate": "Generate composite",
     "tool5.download": "Download PNG",

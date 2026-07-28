@@ -19,6 +19,8 @@ export interface Props {
     paddingHelp: string;
     rotationLabel: string;
     rotationHelp: string;
+    scaleLabel: string;
+    scaleHelp: string;
     generateScale: string;
     generate: string;
     download: string;
@@ -114,6 +116,13 @@ const xShareHref = shareUrl
         <input data-role="rotation-input" type="range" min="0" max="360" step="1" value="0" />
         <p class="rotation-value" data-role="rotation-value">0°</p>
         <p class="help-text">{copy.rotationHelp}</p>
+      </label>
+
+      <label class="range-field">
+        <span>{copy.scaleLabel}</span>
+        <input data-role="scale-input" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
+        <p class="scale-value" data-role="scale-value">100%</p>
+        <p class="help-text">{copy.scaleHelp}</p>
       </label>
 
       <p class="scale-info" data-role="scale-info"></p>
@@ -408,6 +417,13 @@ const xShareHref = shareUrl
     opacity: 0.8;
   }
 
+  .scale-value {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+
   .resolution-inputs {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -600,6 +616,8 @@ const xShareHref = shareUrl
     const paddingInput = root.querySelector('[data-role="padding-input"]');
     const rotationInput = root.querySelector('[data-role="rotation-input"]');
     const rotationValue = root.querySelector('[data-role="rotation-value"]');
+    const scaleInput = root.querySelector('[data-role="scale-input"]');
+    const scaleValue = root.querySelector('[data-role="scale-value"]');
     const generateButton = root.querySelector('[data-role="generate-button"]');
     const downloadButton = root.querySelector('[data-role="download-button"]');
     const status = root.querySelector('[data-role="status"]');
@@ -618,6 +636,7 @@ const xShareHref = shareUrl
       images: [],
       order: [],
       rotation: 0,
+      scale: 1.0,
       outputCanvas: null,
       previewUrl: "",
     };
@@ -733,11 +752,11 @@ const xShareHref = shareUrl
       return loadedImages;
     }
 
-    function calculateLayout(images, outputWidth, outputHeight, padding, rotation) {
+    function calculateLayout(images, outputWidth, outputHeight, padding, rotation, scale) {
       const totalImages = images.length;
+      if (totalImages === 0) return [];
 
       // 回転角度に応じてレイアウトを調整
-      // 回転によるスケーリング係数を計算（0度:1, 45度:~1.414, 90度:1）
       const rad = (rotation * Math.PI) / 180;
       const rotationScale = Math.abs(Math.cos(rad)) + Math.abs(Math.sin(rad));
       
@@ -745,8 +764,9 @@ const xShareHref = shareUrl
       const effectiveWidth = outputWidth / Math.max(1, rotationScale * 0.7);
       const effectiveHeight = outputHeight / Math.max(1, rotationScale * 0.7);
 
-      let aspectRatios = images.map((img) => img.naturalWidth / img.naturalHeight);
-      let avgAspect = aspectRatios.reduce((a, b) => a + b) / aspectRatios.length;
+      // 各画像のアスペクト比を取得
+      const aspectRatios = images.map((img) => img.naturalWidth / img.naturalHeight);
+      const avgAspect = aspectRatios.reduce((a, b) => a + b) / aspectRatios.length;
 
       // 回転角度に応じて列数を調整
       let colsFactor = 1;
@@ -754,79 +774,80 @@ const xShareHref = shareUrl
         colsFactor = Math.abs(Math.cos(rad));
       }
 
+      // おおよその行数を計算
       let cols = Math.ceil(Math.sqrt(totalImages * avgAspect * colsFactor));
-      let rows = Math.ceil(totalImages / cols);
-
-      let itemWidth = (effectiveWidth - padding * (cols + 1)) / cols;
-      let itemHeight = (effectiveHeight - padding * (rows + 1)) / rows;
-
-      // 出力サイズに合わせてスケール調整
-      const layoutWidth = outputWidth;
-      const layoutHeight = outputHeight;
-      const scaleX = layoutWidth / effectiveWidth;
-      const scaleY = layoutHeight / effectiveHeight;
-      const scale = Math.min(scaleX, scaleY, 1);
-
-      itemWidth *= scale;
-      itemHeight *= scale;
+      
+      // 利用可能な幅
+      const availableWidth = effectiveWidth - padding * (cols + 1);
 
       let positions = [];
       let idx = 0;
-      const centerX = layoutWidth / 2;
-      const centerY = layoutHeight / 2;
-      
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols && idx < totalImages; c++) {
-          let x = padding + c * (itemWidth + padding);
-          let y = padding + r * (itemHeight + padding);
-          
-          // 中央を基準に配置
-          x = centerX - (effectiveWidth * scale) / 2 + x;
-          y = centerY - (effectiveHeight * scale) / 2 + y;
-          
-          let imgIdx = state.order[idx];
-          positions.push({
-            index: imgIdx,
-            x: x,
-            y: y,
-            width: itemWidth,
-            height: itemHeight,
-          });
+      let y = padding;
+      const centerX = outputWidth / 2;
+      const centerY = outputHeight / 2;
+
+      while (idx < totalImages) {
+        // 現在の行に入る画像を決定
+        let rowImages = [];
+        let rowTotalAspect = 0;
+
+        for (let i = 0; i < cols && idx < totalImages; i++) {
+          rowImages.push(idx);
+          rowTotalAspect += aspectRatios[state.order[idx]];
           idx++;
         }
+
+        // 行の高さを計算（アスペクト比を保つ）
+        let rowHeight = availableWidth / rowTotalAspect;
+        // スケール値を適用
+        rowHeight = rowHeight * scale;
+
+        // 各画像をこの行に配置
+        let x = padding;
+        for (let i = 0; i < rowImages.length; i++) {
+          const imgIdx = state.order[rowImages[i]];
+          const imgAspect = aspectRatios[imgIdx];
+          let imgWidth = rowHeight * imgAspect;
+
+          // 中央を基準に配置
+          const finalX = centerX - (effectiveWidth * 0.85) / 2 + x;
+          const finalY = centerY - (effectiveHeight * 0.85) / 2 + y;
+
+          positions.push({
+            index: imgIdx,
+            x: finalX,
+            y: finalY,
+            width: imgWidth,
+            height: rowHeight,
+          });
+
+          x += imgWidth + padding;
+        }
+
+        y += rowHeight + padding;
       }
 
       return positions;
     }
 
     function drawImage(ctx, image, x, y, width, height) {
+      // 元の画像のアスペクト比を保ったまま描画
       const srcW = image.naturalWidth;
       const srcH = image.naturalHeight;
       const srcRatio = srcW / srcH;
-      const dstRatio = width / height;
 
-      let drawW, drawH, drawX, drawY;
-      if (srcRatio > dstRatio) {
-        drawH = height;
-        drawW = drawH * srcRatio;
-        drawX = x - (drawW - width) / 2;
-        drawY = y;
-      } else {
-        drawW = width;
-        drawH = drawW / srcRatio;
-        drawX = x;
-        drawY = y - (drawH - height) / 2;
-      }
+      // 領域の高さを基準に、元の画像のアスペクト比を保った幅を計算
+      const baseHeight = height;
+      const baseWidth = baseHeight * srcRatio;
 
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(x, y, width, height);
-      ctx.clip();
-      ctx.drawImage(image, 0, 0, srcW, srcH, drawX, drawY, drawW, drawH);
-      ctx.restore();
+      // 領域の中央を基準に配置
+      const drawX = x + (width - baseWidth) / 2;
+      const drawY = y + (height - baseHeight) / 2;
+
+      ctx.drawImage(image, 0, 0, srcW, srcH, drawX, drawY, baseWidth, baseHeight);
     }
 
-    function renderToCanvas(images, width, height, padding, rotation) {
+    function renderToCanvas(images, width, height, padding, rotation, scale) {
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
@@ -838,7 +859,7 @@ const xShareHref = shareUrl
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, width, height);
 
-      const positions = calculateLayout(images, width, height, padding, rotation);
+      const positions = calculateLayout(images, width, height, padding, rotation, scale);
       positions.forEach((pos) => {
         drawImage(ctx, images[pos.index], pos.x, pos.y, pos.width, pos.height);
       });
@@ -887,7 +908,8 @@ const xShareHref = shareUrl
           640,
           360,
           parseInt(paddingInput.value) || 8,
-          state.rotation
+          state.rotation,
+          state.scale
         );
         ctx.drawImage(tempCanvas, 0, 0, previewW, previewH);
       } catch (err) {
@@ -911,7 +933,7 @@ const xShareHref = shareUrl
           return;
         }
 
-        state.outputCanvas = renderToCanvas(state.images, width, height, padding, state.rotation);
+        state.outputCanvas = renderToCanvas(state.images, width, height, padding, state.rotation, state.scale);
 
         revokeUrl(state.previewUrl);
         state.previewUrl = state.outputCanvas.toDataURL("image/png");
@@ -1004,6 +1026,22 @@ const xShareHref = shareUrl
           state.rotation = parseInt(target.value) || 0;
           if (rotationValue) {
             rotationValue.textContent = `${state.rotation}°`;
+          }
+          // 回転を変更したら生成ボタンを有効化して再生成を促す
+          if (state.images.length >= 2) {
+            setGenerateReady(true);
+          }
+        }
+      });
+    }
+
+    if (scaleInput) {
+      scaleInput.addEventListener("input", (e) => {
+        const target = e.target;
+        if (target) {
+          state.scale = parseFloat(target.value) || 1.0;
+          if (scaleValue) {
+            scaleValue.textContent = `${Math.round(state.scale * 100)}%`;
           }
           drawPreview();
         }
