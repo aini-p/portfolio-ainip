@@ -94,6 +94,46 @@ export const ui = {
     "tools.card.fourTitle": "4分割画像つくるちゃん",
     "tools.card.fourDescription":
       "16:9トリミング、パディング補正付き4分割、BAN回避用の縦長合成までまとめて作成します。",
+    "tool5.pageTitle": "ランダムパック画像つくるちゃん",
+    "tool5.pageDescription":
+      "複数の画像をランダムに並び替えて、指定の解像度とパディングで一枚に詰め込めるツールです。ブラウザ内でサクッと作成できます。",
+    "tool5.lead":
+      "複数の画像をアップロードすると、ランダムに配置して指定の出力解像度（最大2K）に詰め込んだ合成画像を生成します。異なる解像度の画像も自動的に最適化されます。",
+    "tool5.imagesInput": "配置する画像",
+    "tool5.dropHint": "ここへ画像をドラッグ&ドロップ",
+    "tool5.chooseButton": "画像を選択",
+    "tool5.fileHint": "PNG/JPEGなど複数の画像形式に対応しています。",
+    "tool5.imageCount": "選択済み: {count}枚",
+    "tool5.removeImage": "削除",
+    "tool5.shuffleButton": "ランダム並び替え",
+    "tool5.resolutionLabel": "出力解像度",
+    "tool5.resolutionHelp": "最大2K（2560x1440）まで指定できます。",
+    "tool5.paddingLabel": "パディング（px）",
+    "tool5.paddingHelp": "各画像の周りに指定px分の余白を入れます。",
+    "tool5.rotationLabel": "レイアウト回転（度）",
+    "tool5.rotationHelp":
+      "レイアウト全体を回転させます。パッキングを再計算して効率的に配置されます。",
+    "tool5.generateScale": "スケール: {scale}%",
+    "tool5.generate": "合成画像を生成",
+    "tool5.download": "PNG をダウンロード",
+    "tool5.preview": "プレビュー",
+    "tool5.statusIdle": "画像を選んで生成できます。",
+    "tool5.statusNeedImages": "2枚以上の画像を選択してください。",
+    "tool5.statusWorking": "生成中...",
+    "tool5.statusReady": "合成画像を生成しました。ダウンロードできます。",
+    "tool5.statusError":
+      "生成に失敗しました。画像を確認して再度お試しください。",
+    "tool5.noteOptimization":
+      "異なる解像度の画像は自動的に最適化され、全体のサイズバランスが取れるように調整されます。",
+    "tool5.notePadding": "パディングを増やすと、各画像の間隔が広がります。",
+    "tool5.contactLabel": "作者へのお問い合わせはこちら:",
+    "tool5.contactLinkText": "プロフィールページ",
+    "tool5.shareButton": "X でシェア",
+    "tool5.shareText":
+      "複数画像をランダムに詰め込める「ランダムパック画像つくるちゃん」",
+    "tools.card.packTitle": "ランダムパック画像つくるちゃん",
+    "tools.card.packDescription":
+      "複数の画像をランダムに並び替えて、指定の解像度とパディングで一枚に詰め込みます。",
     "tools.open": "ツールを開く",
   },
   en: {
@@ -186,6 +226,48 @@ export const ui = {
     "tools.card.fourTitle": "4-Way Split Image Maker Chan",
     "tools.card.fourDescription":
       "Create 16:9-cropped four-way split panels with padding compensation and optional BAN-safe tall composites.",
+    "tool5.pageTitle": "Random Pack Image Maker Chan",
+    "tool5.pageDescription":
+      "Randomly arrange and pack multiple images into a single output at your chosen resolution (up to 2K) with custom padding.",
+    "tool5.lead":
+      "Upload multiple images and they'll be randomly arranged and packed into a composite at your specified output resolution (up to 2K × 1440). Images of different sizes are automatically optimized to maintain visual balance.",
+    "tool5.imagesInput": "Images to arrange",
+    "tool5.dropHint": "Drag and drop images here",
+    "tool5.chooseButton": "Choose images",
+    "tool5.fileHint":
+      "PNG, JPEG, and other common image formats are supported.",
+    "tool5.imageCount": "Selected: {count} image(s)",
+    "tool5.removeImage": "Remove",
+    "tool5.shuffleButton": "Shuffle randomly",
+    "tool5.resolutionLabel": "Output resolution",
+    "tool5.resolutionHelp": "You can specify up to 2K (2560×1440).",
+    "tool5.paddingLabel": "Padding (px)",
+    "tool5.paddingHelp": "Adds a margin around each image.",
+    "tool5.rotationLabel": "Layout rotation (degrees)",
+    "tool5.rotationHelp":
+      "Rotate the entire layout. Packing is recalculated for efficient arrangement.",
+    "tool5.generateScale": "Scale: {scale}%",
+    "tool5.generate": "Generate composite",
+    "tool5.download": "Download PNG",
+    "tool5.preview": "Preview",
+    "tool5.statusIdle": "Choose images to generate the composite.",
+    "tool5.statusNeedImages": "Please select at least 2 images.",
+    "tool5.statusWorking": "Generating...",
+    "tool5.statusReady": "Composite image is ready to download.",
+    "tool5.statusError":
+      "Failed to generate the composite. Check your images and try again.",
+    "tool5.noteOptimization":
+      "Images of different resolutions are automatically optimized so the overall size balance is maintained.",
+    "tool5.notePadding":
+      "Larger padding values increase the spacing between images.",
+    "tool5.contactLabel": "Contact the creator here:",
+    "tool5.contactLinkText": "Profile page",
+    "tool5.shareButton": "Share on X",
+    "tool5.shareText":
+      "Random Pack Image Maker Chan — arrange and pack multiple images into a composite",
+    "tools.card.packTitle": "Random Pack Image Maker Chan",
+    "tools.card.packDescription":
+      "Randomly arrange multiple images and pack them into a composite at your chosen resolution with custom padding.",
     "tools.open": "Open tool",
   },
 } as const;
