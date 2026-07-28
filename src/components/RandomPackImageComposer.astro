@@ -113,7 +113,7 @@ const xShareHref = shareUrl
 
       <label class="range-field">
         <span>{copy.rotationLabel}</span>
-        <input data-role="rotation-input" type="range" min="0" max="360" step="1" value="0" />
+        <input data-role="rotation-input" type="range" min="-180" max="180" step="1" value="0" />
         <p class="rotation-value" data-role="rotation-value">0°</p>
         <p class="help-text">{copy.rotationHelp}</p>
       </label>
@@ -659,6 +659,14 @@ const xShareHref = shareUrl
       }
     }
 
+    function invalidateGeneratedOutput() {
+      state.outputCanvas = null;
+      setDownloadReady(false);
+      if (state.files.length >= 2) {
+        setGenerateReady(true);
+      }
+    }
+
     function revokeUrl(url) {
       if (url) {
         URL.revokeObjectURL(url);
@@ -706,6 +714,7 @@ const xShareHref = shareUrl
       state.files.splice(index, 1);
       state.images.splice(index, 1);
       state.order.splice(index, 1);
+      invalidateGeneratedOutput();
       updateFileLabel();
       renderImageList();
     }
@@ -719,6 +728,7 @@ const xShareHref = shareUrl
         const j = Math.floor(Math.random() * (i + 1));
         [state.order[i], state.order[j]] = [state.order[j], state.order[i]];
       }
+      invalidateGeneratedOutput();
     }
 
     function loadImageFromFile(file) {
@@ -756,76 +766,62 @@ const xShareHref = shareUrl
       const totalImages = images.length;
       if (totalImages === 0) return [];
 
-      // 回転角度に応じてレイアウトを調整
       const rad = (rotation * Math.PI) / 180;
-      const rotationScale = Math.abs(Math.cos(rad)) + Math.abs(Math.sin(rad));
-      
-      // 回転を考慮した有効な幅と高さ
-      const effectiveWidth = outputWidth / Math.max(1, rotationScale * 0.7);
-      const effectiveHeight = outputHeight / Math.max(1, rotationScale * 0.7);
 
-      // 各画像のアスペクト比を取得
       const aspectRatios = images.map((img) => img.naturalWidth / img.naturalHeight);
       const avgAspect = aspectRatios.reduce((a, b) => a + b) / aspectRatios.length;
 
-      // 回転角度に応じて列数を調整
       let colsFactor = 1;
-      if (rotation !== 0 && rotation !== 180) {
+      if (rotation !== 0 && rotation !== 180 && rotation !== -180) {
         colsFactor = Math.abs(Math.cos(rad));
       }
 
-      // おおよその行数を計算
-      let cols = Math.ceil(Math.sqrt(totalImages * avgAspect * colsFactor));
-      
-      // 利用可能な幅
-      const availableWidth = effectiveWidth - padding * (cols + 1);
-
-      let positions = [];
+      const cols = Math.max(1, Math.ceil(Math.sqrt(totalImages * avgAspect * colsFactor)));
+      // 外周余白は持たず、画像間のパディングだけ維持する
+      const availableWidth = Math.max(1, outputWidth - padding * (cols - 1));
+      const rows = [];
       let idx = 0;
-      let y = padding;
-      const centerX = outputWidth / 2;
-      const centerY = outputHeight / 2;
 
       while (idx < totalImages) {
-        // 現在の行に入る画像を決定
-        let rowImages = [];
+        const rowImageIndexes = [];
         let rowTotalAspect = 0;
 
         for (let i = 0; i < cols && idx < totalImages; i++) {
-          rowImages.push(idx);
-          rowTotalAspect += aspectRatios[state.order[idx]];
+          const orderIndex = state.order[idx];
+          rowImageIndexes.push(orderIndex);
+          rowTotalAspect += aspectRatios[orderIndex];
           idx++;
         }
 
-        // 行の高さを計算（アスペクト比を保つ）
-        let rowHeight = availableWidth / rowTotalAspect;
-        // スケール値を適用
-        rowHeight = rowHeight * scale;
+        const rowHeight = (availableWidth / Math.max(rowTotalAspect, 0.001)) * scale;
+        const widths = rowImageIndexes.map((imgIdx) => rowHeight * aspectRatios[imgIdx]);
+        const rowWidth = widths.reduce((sum, width) => sum + width, 0);
+        rows.push({ rowImageIndexes, rowHeight, widths, rowWidth });
+      }
 
-        // 各画像をこの行に配置
-        let x = padding;
-        for (let i = 0; i < rowImages.length; i++) {
-          const imgIdx = state.order[rowImages[i]];
-          const imgAspect = aspectRatios[imgIdx];
-          let imgWidth = rowHeight * imgAspect;
+      const totalHeight =
+        rows.reduce((sum, row) => sum + row.rowHeight, 0) + padding * Math.max(rows.length - 1, 0);
+      let y = (outputHeight - totalHeight) / 2;
+      const positions = [];
 
-          // 中央を基準に配置
-          const finalX = centerX - (effectiveWidth * 0.85) / 2 + x;
-          const finalY = centerY - (effectiveHeight * 0.85) / 2 + y;
+      rows.forEach((row) => {
+        const rowBoxWidth = row.rowWidth + padding * Math.max(row.rowImageIndexes.length - 1, 0);
+        let x = (outputWidth - rowBoxWidth) / 2;
 
+        row.rowImageIndexes.forEach((imgIdx, rowIndex) => {
+          const imgWidth = row.widths[rowIndex];
           positions.push({
             index: imgIdx,
-            x: finalX,
-            y: finalY,
+            x,
+            y,
             width: imgWidth,
-            height: rowHeight,
+            height: row.rowHeight,
           });
-
           x += imgWidth + padding;
-        }
+        });
 
-        y += rowHeight + padding;
-      }
+        y += row.rowHeight + padding;
+      });
 
       return positions;
     }
@@ -860,35 +856,47 @@ const xShareHref = shareUrl
       ctx.fillRect(0, 0, width, height);
 
       const positions = calculateLayout(images, width, height, padding, rotation, scale);
+      if (rotation !== 0) {
+        ctx.save();
+        ctx.translate(width / 2, height / 2);
+        ctx.rotate((rotation * Math.PI) / 180);
+        ctx.translate(-width / 2, -height / 2);
+      }
+
       positions.forEach((pos) => {
         drawImage(ctx, images[pos.index], pos.x, pos.y, pos.width, pos.height);
       });
 
-      // 回転を適用
       if (rotation !== 0) {
-        const rotatedCanvas = document.createElement("canvas");
-        rotatedCanvas.width = width;
-        rotatedCanvas.height = height;
-        const rotatedCtx = rotatedCanvas.getContext("2d");
-        if (!rotatedCtx) {
-          throw new Error("Failed to get canvas context");
-        }
-
-        rotatedCtx.fillStyle = "#ffffff";
-        rotatedCtx.fillRect(0, 0, width, height);
-        rotatedCtx.translate(width / 2, height / 2);
-        rotatedCtx.rotate((rotation * Math.PI) / 180);
-        rotatedCtx.translate(-width / 2, -height / 2);
-        rotatedCtx.drawImage(canvas, 0, 0);
-
-        return rotatedCanvas;
+        ctx.restore();
       }
 
       return canvas;
     }
 
+    function getOutputSize() {
+      const width = Math.min(Math.max(parseInt(resWidthInput.value) || 1920, 320), 2560);
+      const height = Math.min(Math.max(parseInt(resHeightInput.value) || 1080, 180), 1440);
+      return { width, height };
+    }
+
+    function syncPreviewCanvasSize() {
+      if (!previewCanvas) {
+        return;
+      }
+      const { width, height } = getOutputSize();
+      previewCanvas.width = width;
+      previewCanvas.height = height;
+    }
+
     function drawPreview() {
-      if (!previewCanvas || state.images.length === 0) {
+      if (!previewCanvas) {
+        return;
+      }
+
+      syncPreviewCanvasSize();
+
+      if (state.images.length === 0) {
         return;
       }
 
@@ -903,10 +911,11 @@ const xShareHref = shareUrl
       ctx.fillRect(0, 0, previewW, previewH);
 
       try {
+        const { width, height } = getOutputSize();
         const tempCanvas = renderToCanvas(
           state.images,
-          640,
-          360,
+          width,
+          height,
           parseInt(paddingInput.value) || 8,
           state.rotation,
           state.scale
@@ -923,8 +932,7 @@ const xShareHref = shareUrl
       setDownloadReady(false);
 
       try {
-        const width = Math.min(parseInt(resWidthInput.value) || 1920, 2560);
-        const height = Math.min(parseInt(resHeightInput.value) || 1080, 1440);
+        const { width, height } = getOutputSize();
         const padding = Math.max(parseInt(paddingInput.value) || 8, 0);
 
         state.images = await loadAllImages();
@@ -970,6 +978,7 @@ const xShareHref = shareUrl
 
       state.order = state.files.map((_, i) => i);
       shuffleOrder();
+      invalidateGeneratedOutput();
       updateFileLabel();
       renderImageList();
       setStatus(state.files.length >= 2 ? labels.idle : labels.needImages);
@@ -1027,10 +1036,7 @@ const xShareHref = shareUrl
           if (rotationValue) {
             rotationValue.textContent = `${state.rotation}°`;
           }
-          // 回転を変更したら生成ボタンを有効化して再生成を促す
-          if (state.images.length >= 2) {
-            setGenerateReady(true);
-          }
+          invalidateGeneratedOutput();
         }
       });
     }
@@ -1043,8 +1049,30 @@ const xShareHref = shareUrl
           if (scaleValue) {
             scaleValue.textContent = `${Math.round(state.scale * 100)}%`;
           }
+          invalidateGeneratedOutput();
           drawPreview();
         }
+      });
+    }
+
+    if (resWidthInput) {
+      resWidthInput.addEventListener("input", () => {
+        invalidateGeneratedOutput();
+        drawPreview();
+      });
+    }
+
+    if (resHeightInput) {
+      resHeightInput.addEventListener("input", () => {
+        invalidateGeneratedOutput();
+        drawPreview();
+      });
+    }
+
+    if (paddingInput) {
+      paddingInput.addEventListener("input", () => {
+        invalidateGeneratedOutput();
+        drawPreview();
       });
     }
 
@@ -1062,6 +1090,7 @@ const xShareHref = shareUrl
       });
     }
 
+    syncPreviewCanvasSize();
     setStatus(labels.idle);
   }
 
