@@ -150,9 +150,11 @@ export const ui = {
     "tool6.removeImage": "削除",
     "tool6.clearAll": "すべてクリア",
     "tool6.autoNumberLabel": "ファイル名を自動採番する（001.jpg, 002.jpg …）",
-    "tool6.autoNumberHelp": "ZIPダウンロード時のファイル名を連番に変更します。PDFには影響しません。",
+    "tool6.autoNumberHelp":
+      "ZIPダウンロード時のファイル名を連番に変更します。PDFには影響しません。",
     "tool6.stripMetaLabel": "埋め込み画像のメタ情報を削除する",
-    "tool6.stripMetaHelp": "有効時は再エンコードしてEXIFなどのメタ情報を除去します。",
+    "tool6.stripMetaHelp":
+      "有効時は再エンコードしてEXIFなどのメタ情報を除去します。",
     "tool6.convertJpgLabel": "埋め込み画像をJPGに変換する",
     "tool6.convertJpgHelp": "PDFへの埋め込みとZIP出力時にJPG化を適用します。",
     "tool6.jpgQualityLabel": "JPG圧縮品質",
@@ -164,14 +166,17 @@ export const ui = {
     "tool6.statusNeedImages": "画像を1枚以上追加してください。",
     "tool6.statusWorking": "生成中...",
     "tool6.statusReady": "PDFを生成しました。ダウンロードできます。",
-    "tool6.statusError": "生成に失敗しました。画像を確認して再度お試しください。",
+    "tool6.statusError":
+      "生成に失敗しました。画像を確認して再度お試しください。",
     "tool6.noteJpeg": "透過PNGは白背景に変換してからPDFに埋め込みます。",
     "tool6.noteOrder": "リスト内をドラッグして画像の順番を変更できます。",
-    "tool6.noteZip": "ZIPには元画像がそのまま（または採番後の名前で）格納されます。",
+    "tool6.noteZip":
+      "ZIPには元画像がそのまま（または採番後の名前で）格納されます。",
     "tool6.contactLabel": "作者へのお問い合わせはこちら:",
     "tool6.contactLinkText": "プロフィールページ",
     "tool6.shareButton": "X でシェア",
-    "tool6.shareText": "画像をまとめてPDFに連結できるブラウザツール「画像PDF連結つくるちゃん」",
+    "tool6.shareText":
+      "画像をまとめてPDFに連結できるブラウザツール「画像PDF連結つくるちゃん」",
     "tools.card.pdfTitle": "画像PDF連結つくるちゃん",
     "tools.card.pdfDescription":
       "複数の画像をまとめて1つのPDFに連結します。フォルダ丸ごとのドロップやZIPダウンロードにも対応しています。",
@@ -343,8 +348,7 @@ export const ui = {
     "tool6.statusNeedImages": "Please add at least one image.",
     "tool6.statusWorking": "Generating...",
     "tool6.statusReady": "PDF is ready to download.",
-    "tool6.statusError":
-      "Failed to generate. Check your images and try again.",
+    "tool6.statusError": "Failed to generate. Check your images and try again.",
     "tool6.noteJpeg":
       "Transparent PNGs are composited on a white background before embedding in the PDF.",
     "tool6.noteOrder": "Drag items in the list to reorder pages.",
