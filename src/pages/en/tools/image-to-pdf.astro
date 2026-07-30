@@ -1,0 +1,66 @@
+---
+import ImageToPdfComposer from "~/components/ImageToPdfComposer.astro";
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const lang = "en";
+const t = ui[lang];
+const appJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: t["tool6.pageTitle"],
+  applicationCategory: "MultimediaApplication",
+  operatingSystem: "Web",
+  inLanguage: "en",
+  url: new URL("/en/tools/image-to-pdf", Astro.site).toString(),
+  description: t["tool6.pageDescription"],
+};
+---
+
+<BaseLayout
+  title={t["tool6.pageTitle"]}
+  description={t["tool6.pageDescription"]}
+  keywords="image to pdf, concatenate images, pdf generator, folder drop, zip download, auto-numbering, browser tool"
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
+
+  <ImageToPdfComposer
+    shareUrl={new URL("/en/tools/image-to-pdf", Astro.site).toString()}
+    copy={{
+      title: t["tool6.pageTitle"],
+      lead: t["tool6.lead"],
+      imagesInput: t["tool6.imagesInput"],
+      dropHint: t["tool6.dropHint"],
+      chooseButton: t["tool6.chooseButton"],
+      chooseFolderButton: t["tool6.chooseFolderButton"],
+      fileHint: t["tool6.fileHint"],
+      imageCount: t["tool6.imageCount"],
+      removeImage: t["tool6.removeImage"],
+      clearAll: t["tool6.clearAll"],
+      autoNumberLabel: t["tool6.autoNumberLabel"],
+      autoNumberHelp: t["tool6.autoNumberHelp"],
+      stripMetaLabel: t["tool6.stripMetaLabel"],
+      stripMetaHelp: t["tool6.stripMetaHelp"],
+      convertJpgLabel: t["tool6.convertJpgLabel"],
+      convertJpgHelp: t["tool6.convertJpgHelp"],
+      jpgQualityLabel: t["tool6.jpgQualityLabel"],
+      jpgQualityValue: t["tool6.jpgQualityValue"],
+      generate: t["tool6.generate"],
+      downloadPdf: t["tool6.downloadPdf"],
+      downloadZip: t["tool6.downloadZip"],
+      statusIdle: t["tool6.statusIdle"],
+      statusNeedImages: t["tool6.statusNeedImages"],
+      statusWorking: t["tool6.statusWorking"],
+      statusReady: t["tool6.statusReady"],
+      statusError: t["tool6.statusError"],
+      noteJpeg: t["tool6.noteJpeg"],
+      noteOrder: t["tool6.noteOrder"],
+      noteZip: t["tool6.noteZip"],
+      contactLabel: t["tool6.contactLabel"],
+      contactLinkText: t["tool6.contactLinkText"],
+      contactHref: new URL("/en/profile", Astro.site).toString(),
+      shareButton: t["tool6.shareButton"],
+      shareText: t["tool6.shareText"],
+    }}
+  />
+</BaseLayout>

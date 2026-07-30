@@ -1,0 +1,1313 @@
+---
+export interface Props {
+  bannerSrc?: string;
+  bannerAlt?: string;
+  shareUrl?: string;
+  copy: {
+    title: string;
+    lead: string;
+    imagesInput: string;
+    dropHint: string;
+    chooseButton: string;
+    chooseFolderButton: string;
+    fileHint: string;
+    imageCount: string;
+    removeImage: string;
+    clearAll: string;
+    autoNumberLabel: string;
+    autoNumberHelp: string;
+    stripMetaLabel: string;
+    stripMetaHelp: string;
+    convertJpgLabel: string;
+    convertJpgHelp: string;
+    jpgQualityLabel: string;
+    jpgQualityValue: string;
+    generate: string;
+    downloadPdf: string;
+    downloadZip: string;
+    statusIdle: string;
+    statusNeedImages: string;
+    statusWorking: string;
+    statusReady: string;
+    statusError: string;
+    noteJpeg: string;
+    noteOrder: string;
+    noteZip: string;
+    contactLabel: string;
+    contactLinkText: string;
+    contactHref: string;
+    shareButton: string;
+    shareText: string;
+  };
+}
+
+const { copy, bannerSrc, bannerAlt = "", shareUrl } = Astro.props;
+const xShareHref = shareUrl
+  ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(copy.shareText)}&url=${encodeURIComponent(shareUrl)}`
+  : undefined;
+---
+
+<section
+  class="tool-shell"
+  data-pdf-tool
+  data-status-idle={copy.statusIdle}
+  data-status-need-images={copy.statusNeedImages}
+  data-status-working={copy.statusWorking}
+  data-status-ready={copy.statusReady}
+  data-status-error={copy.statusError}
+  data-image-count-tpl={copy.imageCount}
+  data-remove-label={copy.removeImage}
+  data-jpg-quality-value-tpl={copy.jpgQualityValue}
+>
+  <div class="hero-card">
+    {bannerSrc && (
+      <>
+        <img class="hero-banner" src={bannerSrc} alt={bannerAlt} />
+        <div class="hero-overlay" aria-hidden="true"></div>
+      </>
+    )}
+    <div class="hero-content">
+      <p class="eyebrow">Image to PDF Tool</p>
+      <h1>{copy.title}</h1>
+      <p class="lead">{copy.lead}</p>
+      {xShareHref && (
+        <a class="share-button" href={xShareHref} target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623 5.905-5.623Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          {copy.shareButton}
+        </a>
+      )}
+    </div>
+  </div>
+
+  <div class="workspace-grid">
+    <form class="control-panel">
+      <div class="file-field file-dropzone" data-role="drop-zone">
+        <span class="field-label">{copy.imagesInput}</span>
+        <p class="drop-hint">{copy.dropHint}</p>
+        <div class="browse-row">
+          <button class="browse-button" data-role="browse-files" type="button">{copy.chooseButton}</button>
+          <button class="browse-button" data-role="browse-folder" type="button">{copy.chooseFolderButton}</button>
+        </div>
+        <input data-role="input-files" type="file" accept="image/*" multiple />
+        <input data-role="input-folder" type="file" accept="image/*" multiple {...{"webkitdirectory": ""}} />
+      </div>
+
+      <div class="option-row">
+        <label class="toggle-label">
+          <input class="toggle-check" data-role="auto-number" type="checkbox" checked />
+          <span>{copy.autoNumberLabel}</span>
+        </label>
+        <p class="help-text">{copy.autoNumberHelp}</p>
+      </div>
+
+      <div class="option-row">
+        <label class="toggle-label">
+          <input class="toggle-check" data-role="strip-meta" type="checkbox" checked />
+          <span>{copy.stripMetaLabel}</span>
+        </label>
+        <p class="help-text">{copy.stripMetaHelp}</p>
+      </div>
+
+      <div class="option-row">
+        <label class="toggle-label">
+          <input class="toggle-check" data-role="convert-jpg" type="checkbox" checked />
+          <span>{copy.convertJpgLabel}</span>
+        </label>
+        <p class="help-text">{copy.convertJpgHelp}</p>
+      </div>
+
+      <div class="quality-row">
+        <div class="quality-head">
+          <span>{copy.jpgQualityLabel}</span>
+          <span class="quality-value" data-role="jpg-quality-value">{copy.jpgQualityValue.replace("{quality}", "92")}</span>
+        </div>
+        <input
+          class="quality-slider"
+          data-role="jpg-quality"
+          type="range"
+          min="40"
+          max="100"
+          step="1"
+          value="92"
+        />
+      </div>
+
+      <div class="list-header">
+        <p class="image-count" data-role="image-count"></p>
+        <button class="clear-button" data-role="clear-all" type="button" disabled>{copy.clearAll}</button>
+      </div>
+
+      <ol class="image-list" data-role="image-list" aria-label={copy.imagesInput}></ol>
+
+      <div class="action-row">
+        <button class="action-button primary" data-role="generate" type="button" disabled>{copy.generate}</button>
+      </div>
+
+      <div class="action-row">
+        <button class="action-button" data-role="download-pdf" type="button" disabled>{copy.downloadPdf}</button>
+        <button class="action-button" data-role="download-zip" type="button" disabled>{copy.downloadZip}</button>
+      </div>
+
+      <p class="status-text" data-role="status" aria-live="polite">{copy.statusIdle}</p>
+    </form>
+
+    <div class="preview-panel">
+      <div class="preview-card">
+        <div class="thumb-grid" data-role="thumb-grid"></div>
+        <p class="preview-empty" data-role="preview-empty">{copy.statusIdle}</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="notes-panel">
+    <ul class="notes-list">
+      <li>{copy.fileHint}</li>
+      <li>{copy.noteJpeg}</li>
+      <li>{copy.noteOrder}</li>
+      <li>{copy.noteZip}</li>
+      <li>
+        {copy.contactLabel}
+        <a class="notes-link" href={copy.contactHref}>{copy.contactLinkText}</a>
+      </li>
+    </ul>
+  </section>
+</section>
+
+<style>
+  .tool-shell {
+    --panel-border: color-mix(in srgb, currentcolor 16%, transparent);
+    --panel-bg: color-mix(in srgb, canvas 92%, #c9e4fa 8%);
+    --accent: #1a6eb5;
+
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  /* ── Hero ── */
+  .hero-card,
+  .control-panel,
+  .preview-card {
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    background: var(--panel-bg);
+    box-shadow: 0 18px 40px rgb(15 23 42 / 8%);
+  }
+
+  .hero-card {
+    position: relative;
+    min-height: 320px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    background: #fff;
+  }
+
+  .hero-banner {
+    position: absolute;
+    inset: 0;
+    left: auto;
+    right: 0;
+    height: 100%;
+    width: auto;
+    max-width: 60%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0 24px 24px 0;
+    display: block;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    background: linear-gradient(
+      to right,
+      #fff 16%,
+      rgb(255 255 255 / 76%) 42%,
+      rgb(255 255 255 / 0%) 74%
+    );
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+    display: grid;
+    gap: 0.5rem;
+    align-self: center;
+    max-width: 68%;
+  }
+
+  .share-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.6rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: #000;
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    width: fit-content;
+    transition: background 0.15s ease;
+  }
+
+  .share-button:hover { background: #1a1a1a; }
+
+  .eyebrow {
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.82;
+  }
+
+  h1 {
+    margin-top: 0;
+    font-size: clamp(1.2rem, 2.7vw, 2rem);
+    line-height: 1.15;
+  }
+
+  .lead {
+    margin-top: 0;
+    max-width: 62ch;
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  /* ── Workspace grid ── */
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .control-panel {
+    padding: 1.4rem;
+    display: grid;
+    gap: 1rem;
+    position: sticky;
+    top: 96px;
+  }
+
+  /* ── Drop zone ── */
+  .file-field {
+    display: grid;
+    gap: 0.45rem;
+    position: relative;
+    padding: 0.95rem;
+    border: 1px dashed color-mix(in srgb, currentcolor 22%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, canvas 94%, #dbeafe 6%);
+  }
+
+  .file-field input[type="file"] {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .field-label {
+    font-weight: 600;
+  }
+
+  .drop-hint {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 500;
+    opacity: 0.82;
+  }
+
+  .browse-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .browse-button {
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, #dbeafe 55%, canvas 45%);
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .browse-button:hover,
+  .browse-button:focus-visible {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #bfdbfe 65%, canvas 35%);
+  }
+
+  .file-dropzone.is-dragover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #93c5fd 25%, canvas 75%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  /* ── Options ── */
+  .option-row {
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .toggle-check {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .help-text {
+    margin: 0;
+    font-size: 0.8rem;
+    opacity: 0.72;
+  }
+
+  .quality-row {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .quality-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .quality-value {
+    color: var(--accent);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .quality-slider {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+
+  .quality-slider:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* ── List header ── */
+  .list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 1.6rem;
+  }
+
+  .image-count {
+    margin: 0;
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+
+  .clear-button {
+    border: 0;
+    background: transparent;
+    color: #dc2626;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+  }
+
+  .clear-button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .clear-button:hover:not(:disabled) {
+    background: color-mix(in srgb, #ef4444 15%, transparent);
+  }
+
+  /* ── Image list ── */
+  .image-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.45rem;
+    max-height: 400px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .image-list:empty { display: none; }
+
+  .image-item {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 0.6rem;
+    background: color-mix(in srgb, #fff 85%, canvas 15%);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    border: 1px solid transparent;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .image-item.is-dragging {
+    opacity: 0.4;
+    border-color: var(--accent);
+  }
+
+  .image-item.drag-over {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #dbeafe 60%, #fff 40%);
+  }
+
+  .item-names {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .item-numbered {
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .item-original {
+    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .item-remove {
+    border: 0;
+    background: color-mix(in srgb, #ef4444 25%, transparent);
+    color: #dc2626;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .item-remove:hover {
+    background: color-mix(in srgb, #ef4444 45%, transparent);
+  }
+
+  /* ── Actions ── */
+  .action-row {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .action-button {
+    flex: 1;
+    min-width: 0;
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    background: color-mix(in srgb, #dbeafe 45%, canvas 55%);
+    color: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .action-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .action-button:hover:not(:disabled),
+  .action-button:focus-visible:not(:disabled) {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #bfdbfe 65%, canvas 35%);
+  }
+
+  .action-button.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+  }
+
+  .action-button.primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent) 85%, #000 15%);
+  }
+
+  .status-text {
+    margin: 0;
+    font-size: 0.84rem;
+    font-weight: 600;
+    min-height: 1.4em;
+  }
+
+  /* ── Preview panel ── */
+  .preview-panel { min-width: 0; }
+
+  .preview-card {
+    padding: 1.2rem;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .thumb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .thumb-grid:empty { display: none; }
+
+  .thumb-item {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f0f0f0;
+    border: 1px solid var(--panel-border);
+  }
+
+  .thumb-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .thumb-item .thumb-num {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.2rem 0.4rem;
+    background: rgb(0 0 0 / 55%);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .preview-empty {
+    color: color-mix(in srgb, currentcolor 50%, transparent);
+    font-size: 0.9rem;
+    align-self: center;
+    margin: auto;
+  }
+
+  .preview-empty:not([hidden]) ~ .thumb-grid,
+  .thumb-grid:not(:empty) ~ .preview-empty {
+    display: none;
+  }
+
+  /* ── Notes ── */
+  .notes-panel {
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    background: var(--panel-bg);
+    padding: 1.2rem 1.5rem;
+  }
+
+  .notes-list {
+    margin: 0;
+    padding: 0 0 0 1.2rem;
+    display: grid;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    opacity: 0.88;
+    line-height: 1.65;
+  }
+
+  .notes-link { color: var(--accent); }
+
+  /* ── Responsive ── */
+  @media (width <= 860px) {
+    .tool-shell { padding: 1rem; }
+
+    .workspace-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .control-panel { position: static; }
+
+    .hero-card { min-height: 200px; }
+    .hero-banner { display: none; }
+    .hero-overlay { display: none; }
+    .hero-content { max-width: 100%; }
+  }
+</style>
+
+<script>
+  (() => {
+    // ── Utilities ────────────────────────────────────────────────────
+    function u16le(n: number): Uint8Array {
+      return new Uint8Array([n & 0xff, (n >> 8) & 0xff]);
+    }
+    function u32le(n: number): Uint8Array {
+      const v = n >>> 0;
+      return new Uint8Array([v & 0xff, (v >> 8) & 0xff, (v >> 16) & 0xff, (v >> 24) & 0xff]);
+    }
+    function concatBytes(arrays: Uint8Array[]): Uint8Array {
+      let total = 0;
+      for (const a of arrays) total += a.length;
+      const out = new Uint8Array(total);
+      let off = 0;
+      for (const a of arrays) { out.set(a, off); off += a.length; }
+      return out;
+    }
+
+    // ── CRC-32 ───────────────────────────────────────────────────────
+    const CRC_TABLE = (() => {
+      const t = new Uint32Array(256);
+      for (let i = 0; i < 256; i++) {
+        let c = i;
+        for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+        t[i] = c;
+      }
+      return t;
+    })();
+
+    function crc32(buf: Uint8Array): number {
+      let crc = 0xffffffff;
+      for (let i = 0; i < buf.length; i++) crc = (crc >>> 8) ^ CRC_TABLE[(crc ^ buf[i]) & 0xff];
+      return (crc ^ 0xffffffff) >>> 0;
+    }
+
+    // ── ZIP builder (stored, no compression) ─────────────────────────
+    function buildZip(files: { name: string; data: Uint8Array }[]): Uint8Array {
+      const enc = new TextEncoder();
+      const localParts: Uint8Array[] = [];
+      const centralParts: Uint8Array[] = [];
+      let localOffset = 0;
+
+      for (const file of files) {
+        const nameBytes = enc.encode(file.name);
+        const crc = crc32(file.data);
+        const sz = file.data.length;
+
+        const localHeader = concatBytes([
+          new Uint8Array([0x50, 0x4b, 0x03, 0x04]),
+          u16le(20), u16le(0), u16le(0),
+          u16le(0), u16le(0),
+          u32le(crc), u32le(sz), u32le(sz),
+          u16le(nameBytes.length), u16le(0),
+          nameBytes,
+        ]);
+        localParts.push(localHeader, file.data);
+
+        centralParts.push(concatBytes([
+          new Uint8Array([0x50, 0x4b, 0x01, 0x02]),
+          u16le(20), u16le(20), u16le(0), u16le(0),
+          u16le(0), u16le(0),
+          u32le(crc), u32le(sz), u32le(sz),
+          u16le(nameBytes.length), u16le(0), u16le(0),
+          u16le(0), u16le(0), u32le(0),
+          u32le(localOffset),
+          nameBytes,
+        ]));
+
+        localOffset += localHeader.length + sz;
+      }
+
+      const centralDir = concatBytes(centralParts);
+      const eocd = concatBytes([
+        new Uint8Array([0x50, 0x4b, 0x05, 0x06]),
+        u16le(0), u16le(0),
+        u16le(files.length), u16le(files.length),
+        u32le(centralDir.length),
+        u32le(localOffset),
+        u16le(0),
+      ]);
+
+      return concatBytes([...localParts, centralDir, eocd]);
+    }
+
+    // ── PDF builder (JPEG per page) ───────────────────────────────────
+    function buildPdf(pages: { jpegBytes: Uint8Array; width: number; height: number }[]): Uint8Array {
+      const enc = new TextEncoder();
+      const parts: Uint8Array[] = [];
+      let pos = 0;
+      const offsets: number[] = [];
+
+      function push(data: string | Uint8Array): void {
+        const bytes = typeof data === "string" ? enc.encode(data) : data;
+        parts.push(bytes);
+        pos += bytes.length;
+      }
+
+      const n = pages.length;
+      const totalObjs = 2 + n * 3;
+
+      push("%PDF-1.4\n%\xFF\xFF\xFF\xFF\n");
+
+      // Object 1: Catalog
+      offsets[1] = pos;
+      push("1 0 obj\n<</Type /Catalog /Pages 2 0 R>>\nendobj\n");
+
+      // Object 2: Pages
+      const kids = pages.map((_, i) => `${3 + i * 3} 0 R`).join(" ");
+      offsets[2] = pos;
+      push(`2 0 obj\n<</Type /Pages /Kids [${kids}] /Count ${n}>>\nendobj\n`);
+
+      for (let i = 0; i < n; i++) {
+        const { jpegBytes, width, height } = pages[i];
+        const pageId = 3 + i * 3;
+        const contentId = pageId + 1;
+        const imgId = pageId + 2;
+
+        const streamStr = `q ${width} 0 0 ${height} 0 0 cm /Im${i} Do Q`;
+        const streamBytes = enc.encode(streamStr);
+
+        // Page object
+        offsets[pageId] = pos;
+        push(`${pageId} 0 obj\n`);
+        push(
+          `<</Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}]` +
+          ` /Resources <</XObject <</Im${i} ${imgId} 0 R>>>>` +
+          ` /Contents ${contentId} 0 R>>\n`
+        );
+        push("endobj\n");
+
+        // Content stream
+        offsets[contentId] = pos;
+        push(`${contentId} 0 obj\n<</Length ${streamBytes.length}>>\nstream\n`);
+        push(streamBytes);
+        push("\nendstream\nendobj\n");
+
+        // Image XObject
+        offsets[imgId] = pos;
+        push(`${imgId} 0 obj\n`);
+        push(
+          `<</Type /XObject /Subtype /Image /Width ${width} /Height ${height}` +
+          ` /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length}>>\n`
+        );
+        push("stream\n");
+        push(jpegBytes);
+        push("\nendstream\nendobj\n");
+      }
+
+      // xref
+      const xrefOffset = pos;
+      push(`xref\n0 ${totalObjs + 1}\n`);
+      push("0000000000 65535 f \n");
+      for (let i = 1; i <= totalObjs; i++) {
+        push(`${String(offsets[i]).padStart(10, "0")} 00000 n \n`);
+      }
+
+      push(`trailer\n<</Size ${totalObjs + 1} /Root 1 0 R>>\n`);
+      push(`startxref\n${xrefOffset}\n%%EOF\n`);
+
+      return concatBytes(parts);
+    }
+
+    // ── Image processing helpers ──────────────────────────────────────
+    function extensionFromMime(mime: string): string {
+      if (mime === "image/png") return ".png";
+      if (mime === "image/webp") return ".webp";
+      return ".jpg";
+    }
+
+    function replaceExtension(name: string, newExt: string): string {
+      const dot = name.lastIndexOf(".");
+      if (dot <= 0) return `${name}${newExt}`;
+      return `${name.slice(0, dot)}${newExt}`;
+    }
+
+    function normalizeCanvasMime(type: string): "image/png" | "image/jpeg" | "image/webp" {
+      if (type === "image/png") return "image/png";
+      if (type === "image/webp") return "image/webp";
+      return "image/jpeg";
+    }
+
+    async function drawToCanvas(file: File): Promise<{ canvas: HTMLCanvasElement; width: number; height: number }> {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) { URL.revokeObjectURL(url); reject(new Error("canvas ctx")); return; }
+          ctx.drawImage(img, 0, 0);
+          URL.revokeObjectURL(url);
+          resolve({ canvas, width: img.naturalWidth, height: img.naturalHeight });
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("img load")); };
+        img.src = url;
+      });
+    }
+
+    async function canvasToBytes(
+      canvas: HTMLCanvasElement,
+      mime: "image/png" | "image/jpeg" | "image/webp",
+      quality: number
+    ): Promise<Uint8Array> {
+      return new Promise((resolve, reject) => {
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("toBlob"));
+              return;
+            }
+            blob.arrayBuffer().then((buf) => resolve(new Uint8Array(buf))).catch(reject);
+          },
+          mime,
+          mime === "image/jpeg" || mime === "image/webp" ? quality : undefined
+        );
+      });
+    }
+
+    async function reencodeImage(
+      file: File,
+      targetMime: "image/png" | "image/jpeg" | "image/webp",
+      quality: number,
+      fillWhite: boolean
+    ): Promise<{ bytes: Uint8Array; width: number; height: number; mime: "image/png" | "image/jpeg" | "image/webp" }> {
+      const { canvas: srcCanvas, width, height } = await drawToCanvas(file);
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("canvas ctx");
+      if (fillWhite) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+      }
+      ctx.drawImage(srcCanvas, 0, 0);
+      const bytes = await canvasToBytes(canvas, targetMime, quality);
+      return { bytes, width, height, mime: targetMime };
+    }
+
+    async function fileToPdfJpeg(
+      file: File,
+      options: { stripMetadata: boolean; convertToJpg: boolean; jpgQuality: number }
+    ): Promise<{ jpegBytes: Uint8Array; width: number; height: number }> {
+      if (file.type === "image/jpeg" && !options.stripMetadata && !options.convertToJpg) {
+        const { width, height } = await drawToCanvas(file);
+        return { jpegBytes: new Uint8Array(await file.arrayBuffer()), width, height };
+      }
+
+      const converted = await reencodeImage(
+        file,
+        "image/jpeg",
+        options.convertToJpg ? options.jpgQuality : 0.92,
+        true
+      );
+      return { jpegBytes: converted.bytes, width: converted.width, height: converted.height };
+    }
+
+    async function fileToZipPayload(
+      file: File,
+      options: { stripMetadata: boolean; convertToJpg: boolean; jpgQuality: number }
+    ): Promise<{ data: Uint8Array; extension: string }> {
+      if (options.convertToJpg) {
+        const converted = await reencodeImage(file, "image/jpeg", options.jpgQuality, true);
+        return { data: converted.bytes, extension: ".jpg" };
+      }
+
+      if (options.stripMetadata) {
+        const targetMime = normalizeCanvasMime(file.type);
+        const converted = await reencodeImage(file, targetMime, options.jpgQuality, false);
+        return { data: converted.bytes, extension: extensionFromMime(converted.mime) };
+      }
+
+      return {
+        data: new Uint8Array(await file.arrayBuffer()),
+        extension: (() => {
+          const dot = file.name.lastIndexOf(".");
+          return dot > 0 ? file.name.slice(dot) : extensionFromMime(normalizeCanvasMime(file.type));
+        })(),
+      };
+    }
+
+    // ── Read folder entries recursively ──────────────────────────────
+    async function collectFilesFromEntry(entry: FileSystemEntry): Promise<File[]> {
+      if (entry.isFile) {
+        const fe = entry as FileSystemFileEntry;
+        return new Promise((resolve) => fe.file((f) => resolve(f.type.startsWith("image/") ? [f] : []), () => resolve([])));
+      }
+      if (entry.isDirectory) {
+        const de = entry as FileSystemDirectoryEntry;
+        const reader = de.createReader();
+        const allEntries: FileSystemEntry[] = [];
+        await new Promise<void>((resolve, reject) => {
+          function readBatch() {
+            reader.readEntries((batch) => {
+              if (batch.length === 0) { resolve(); return; }
+              allEntries.push(...batch);
+              readBatch();
+            }, reject);
+          }
+          readBatch();
+        });
+        const nested = await Promise.all(allEntries.map(collectFilesFromEntry));
+        return nested.flat().sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+      }
+      return [];
+    }
+
+    // ── Trigger download ──────────────────────────────────────────────
+    function triggerDownload(bytes: Uint8Array, filename: string): void {
+      const blob = new Blob([bytes] as BlobPart[], { type: filename.endsWith(".pdf") ? "application/pdf" : "application/zip" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    }
+
+    // ── Component state ───────────────────────────────────────────────
+    interface ImageEntry {
+      id: string;
+      file: File;
+      thumbUrl: string;
+    }
+
+    let entries: ImageEntry[] = [];
+    let pdfBytes: Uint8Array | null = null;
+    let zipFiles: { name: string; data: Uint8Array }[] | null = null;
+    let dragSrcId: string | null = null;
+
+    // ── Bootstrap for each tool instance ─────────────────────────────
+    for (const root of document.querySelectorAll<HTMLElement>("[data-pdf-tool]")) {
+      const q = <T extends Element>(sel: string) => root.querySelector<T>(sel);
+
+      const dropZone     = q<HTMLDivElement>('[data-role="drop-zone"]')!;
+      const inputFiles   = q<HTMLInputElement>('[data-role="input-files"]')!;
+      const inputFolder  = q<HTMLInputElement>('[data-role="input-folder"]')!;
+      const browseFiles  = q<HTMLButtonElement>('[data-role="browse-files"]')!;
+      const browseFolder = q<HTMLButtonElement>('[data-role="browse-folder"]')!;
+      const autoNumber   = q<HTMLInputElement>('[data-role="auto-number"]')!;
+      const stripMeta    = q<HTMLInputElement>('[data-role="strip-meta"]')!;
+      const convertJpg   = q<HTMLInputElement>('[data-role="convert-jpg"]')!;
+      const jpgQuality   = q<HTMLInputElement>('[data-role="jpg-quality"]')!;
+      const jpgQualityValue = q<HTMLElement>('[data-role="jpg-quality-value"]')!;
+      const imageCount   = q<HTMLParagraphElement>('[data-role="image-count"]')!;
+      const clearAll     = q<HTMLButtonElement>('[data-role="clear-all"]')!;
+      const imageList    = q<HTMLOListElement>('[data-role="image-list"]')!;
+      const generateBtn  = q<HTMLButtonElement>('[data-role="generate"]')!;
+      const dlPdfBtn     = q<HTMLButtonElement>('[data-role="download-pdf"]')!;
+      const dlZipBtn     = q<HTMLButtonElement>('[data-role="download-zip"]')!;
+      const statusEl     = q<HTMLParagraphElement>('[data-role="status"]')!;
+      const thumbGrid    = q<HTMLDivElement>('[data-role="thumb-grid"]')!;
+      const previewEmpty = q<HTMLParagraphElement>('[data-role="preview-empty"]')!;
+
+      const IDLE          = root.dataset.statusIdle ?? "";
+      const NEED_IMAGES   = root.dataset.statusNeedImages ?? "";
+      const WORKING       = root.dataset.statusWorking ?? "";
+      const READY         = root.dataset.statusReady ?? "";
+      const ERROR_MSG     = root.dataset.statusError ?? "";
+      const COUNT_TPL     = root.dataset.imageCountTpl ?? "{count}";
+      const REMOVE_LABEL  = root.dataset.removeLabel ?? "×";
+      const JPG_QUALITY_TPL = root.dataset.jpgQualityValueTpl ?? "{quality}";
+
+      function setStatus(msg: string): void { statusEl.textContent = msg; }
+
+      function numberedName(idx: number, file: File, extOverride?: string): string {
+        const ext = extOverride ?? (file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")) : ".jpg");
+        return `${String(idx + 1).padStart(3, "0")}${ext}`;
+      }
+
+      function currentDisplayName(idx: number, file: File): string {
+        const extOverride = convertJpg.checked ? ".jpg" : undefined;
+        if (autoNumber.checked) return numberedName(idx, file, extOverride);
+        return extOverride ? replaceExtension(file.name, extOverride) : file.name;
+      }
+
+      function updateQualityUi(): void {
+        jpgQualityValue.textContent = JPG_QUALITY_TPL.replace("{quality}", jpgQuality.value);
+        jpgQuality.disabled = !convertJpg.checked;
+      }
+
+      function renderList(): void {
+        pdfBytes = null;
+        zipFiles = null;
+        dlPdfBtn.disabled = true;
+        dlZipBtn.disabled = true;
+
+        const hasItems = entries.length > 0;
+
+        imageCount.textContent = COUNT_TPL.replace("{count}", String(entries.length));
+        clearAll.disabled = !hasItems;
+        generateBtn.disabled = !hasItems;
+
+        // Render list items
+        imageList.innerHTML = "";
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const li = document.createElement("li");
+          li.className = "image-item";
+          li.draggable = true;
+          li.dataset.id = entry.id;
+
+          const names = document.createElement("div");
+          names.className = "item-names";
+          const firstLine = document.createElement("span");
+          firstLine.className = "item-numbered";
+          firstLine.textContent = currentDisplayName(i, entry.file);
+          names.appendChild(firstLine);
+          if (currentDisplayName(i, entry.file) !== entry.file.name) {
+            const origSpan = document.createElement("span");
+            origSpan.className = "item-original";
+            origSpan.textContent = entry.file.name;
+            names.appendChild(origSpan);
+          }
+
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "item-remove";
+          removeBtn.textContent = REMOVE_LABEL;
+          removeBtn.addEventListener("click", () => {
+            URL.revokeObjectURL(entry.thumbUrl);
+            entries = entries.filter((e) => e.id !== entry.id);
+            renderList();
+            renderThumbs();
+            setStatus(entries.length === 0 ? IDLE : NEED_IMAGES);
+          });
+
+          // Drag-to-reorder
+          li.addEventListener("dragstart", (e) => {
+            dragSrcId = entry.id;
+            li.classList.add("is-dragging");
+            e.dataTransfer!.effectAllowed = "move";
+          });
+          li.addEventListener("dragend", () => {
+            dragSrcId = null;
+            li.classList.remove("is-dragging");
+          });
+          li.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            e.dataTransfer!.dropEffect = "move";
+            li.classList.add("drag-over");
+          });
+          li.addEventListener("dragleave", () => li.classList.remove("drag-over"));
+          li.addEventListener("drop", (e) => {
+            e.preventDefault();
+            li.classList.remove("drag-over");
+            if (!dragSrcId || dragSrcId === entry.id) return;
+            const srcIdx = entries.findIndex((x) => x.id === dragSrcId);
+            const dstIdx = entries.findIndex((x) => x.id === entry.id);
+            if (srcIdx < 0 || dstIdx < 0) return;
+            const [moved] = entries.splice(srcIdx, 1);
+            entries.splice(dstIdx, 0, moved);
+            renderList();
+            renderThumbs();
+          });
+
+          li.appendChild(names);
+          li.appendChild(removeBtn);
+          imageList.appendChild(li);
+        }
+
+        setStatus(hasItems ? NEED_IMAGES : IDLE);
+      }
+
+      function renderThumbs(): void {
+        thumbGrid.innerHTML = "";
+        if (entries.length === 0) {
+          previewEmpty.hidden = false;
+          return;
+        }
+        previewEmpty.hidden = true;
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i];
+          const item = document.createElement("div");
+          item.className = "thumb-item";
+          const img = document.createElement("img");
+          img.src = entry.thumbUrl;
+          img.alt = entry.file.name;
+          const label = document.createElement("span");
+          label.className = "thumb-num";
+          label.textContent = currentDisplayName(i, entry.file);
+          item.appendChild(img);
+          item.appendChild(label);
+          thumbGrid.appendChild(item);
+        }
+      }
+
+      async function addFiles(files: File[]): Promise<void> {
+        const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+        if (imageFiles.length === 0) return;
+        for (const file of imageFiles) {
+          const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+          const thumbUrl = URL.createObjectURL(file);
+          entries.push({ id, file, thumbUrl });
+        }
+        renderList();
+        renderThumbs();
+      }
+
+      // ── File input events ─────────────────────────────────────────
+      browseFiles.addEventListener("click", () => inputFiles.click());
+      browseFolder.addEventListener("click", () => inputFolder.click());
+
+      inputFiles.addEventListener("change", () => {
+        if (inputFiles.files) addFiles(Array.from(inputFiles.files));
+        inputFiles.value = "";
+      });
+      inputFolder.addEventListener("change", () => {
+        if (inputFolder.files) addFiles(Array.from(inputFolder.files));
+        inputFolder.value = "";
+      });
+
+      // ── Drag-and-drop onto drop zone ──────────────────────────────
+      dropZone.addEventListener("dragover", (e) => {
+        // Only highlight for external drops (files), not internal list reorder
+        if (e.dataTransfer?.types.includes("Files")) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "copy";
+          dropZone.classList.add("is-dragover");
+        }
+      });
+      dropZone.addEventListener("dragleave", (e) => {
+        if (!dropZone.contains(e.relatedTarget as Node)) {
+          dropZone.classList.remove("is-dragover");
+        }
+      });
+      dropZone.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("is-dragover");
+        if (!e.dataTransfer) return;
+        const items = Array.from(e.dataTransfer.items);
+        const allFiles: File[] = [];
+        for (const item of items) {
+          if (item.kind !== "file") continue;
+          const entry = item.webkitGetAsEntry?.();
+          if (entry) {
+            const files = await collectFilesFromEntry(entry);
+            allFiles.push(...files);
+          } else {
+            const f = item.getAsFile();
+            if (f) allFiles.push(f);
+          }
+        }
+        allFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+        await addFiles(allFiles);
+      });
+
+      // ── Auto-number toggle ────────────────────────────────────────
+      autoNumber.addEventListener("change", () => {
+        renderList();
+        renderThumbs();
+      });
+
+      stripMeta.addEventListener("change", () => {
+        renderList();
+      });
+
+      convertJpg.addEventListener("change", () => {
+        updateQualityUi();
+        renderList();
+        renderThumbs();
+      });
+
+      jpgQuality.addEventListener("input", () => {
+        updateQualityUi();
+        renderList();
+      });
+
+      // ── Clear all ─────────────────────────────────────────────────
+      clearAll.addEventListener("click", () => {
+        for (const e of entries) URL.revokeObjectURL(e.thumbUrl);
+        entries = [];
+        pdfBytes = null;
+        zipFiles = null;
+        renderList();
+        renderThumbs();
+        setStatus(IDLE);
+      });
+
+      // ── Generate PDF ──────────────────────────────────────────────
+      generateBtn.addEventListener("click", async () => {
+        if (entries.length === 0) { setStatus(NEED_IMAGES); return; }
+        generateBtn.disabled = true;
+        dlPdfBtn.disabled = true;
+        dlZipBtn.disabled = true;
+        setStatus(WORKING);
+        try {
+          const pages: { jpegBytes: Uint8Array; width: number; height: number }[] = [];
+          const zipEntries: { name: string; data: Uint8Array }[] = [];
+          const useNum = autoNumber.checked;
+          const processing = {
+            stripMetadata: stripMeta.checked,
+            convertToJpg: convertJpg.checked,
+            jpgQuality: Number(jpgQuality.value) / 100,
+          };
+
+          for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            const jpeg = await fileToPdfJpeg(entry.file, processing);
+            pages.push(jpeg);
+
+            const zipPayload = await fileToZipPayload(entry.file, processing);
+            const name = useNum
+              ? numberedName(i, entry.file, zipPayload.extension)
+              : replaceExtension(entry.file.name, zipPayload.extension);
+            zipEntries.push({ name, data: zipPayload.data });
+          }
+
+          pdfBytes = buildPdf(pages);
+          zipFiles = zipEntries;
+
+          dlPdfBtn.disabled = false;
+          dlZipBtn.disabled = false;
+          setStatus(READY);
+        } catch {
+          setStatus(ERROR_MSG);
+        } finally {
+          generateBtn.disabled = entries.length === 0;
+        }
+      });
+
+      // ── Download PDF ──────────────────────────────────────────────
+      dlPdfBtn.addEventListener("click", () => {
+        if (pdfBytes) triggerDownload(pdfBytes, "images.pdf");
+      });
+
+      // ── Download ZIP ──────────────────────────────────────────────
+      dlZipBtn.addEventListener("click", () => {
+        if (zipFiles) triggerDownload(buildZip(zipFiles), "images.zip");
+      });
+
+      // Initial render
+      updateQualityUi();
+      renderList();
+      renderThumbs();
+    }
+  })();
+</script>

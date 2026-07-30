@@ -136,6 +136,45 @@ export const ui = {
     "tools.card.packTitle": "ランダムパック画像つくるちゃん",
     "tools.card.packDescription":
       "複数の画像をランダムに並び替えて、指定の解像度とパディングで一枚に詰め込みます。",
+    "tool6.pageTitle": "画像PDF連結つくるちゃん",
+    "tool6.pageDescription":
+      "複数の画像をドロップするだけで、1枚ずつページに配置したPDFをブラウザ内で生成できます。フォルダ丸ごとの読み込みとZIPダウンロードにも対応しています。",
+    "tool6.lead":
+      "画像ファイルやフォルダをドロップすると、ドロップした順番でPDFに連結します。ファイル名の自動採番やZIP形式でのダウンロードにも対応しています。",
+    "tool6.imagesInput": "追加する画像 / フォルダ",
+    "tool6.dropHint": "ここへ画像またはフォルダをドラッグ&ドロップ",
+    "tool6.chooseButton": "画像ファイルを選択",
+    "tool6.chooseFolderButton": "フォルダを選択",
+    "tool6.fileHint": "PNG / JPEG など主要な画像形式に対応しています。",
+    "tool6.imageCount": "{count}枚の画像",
+    "tool6.removeImage": "削除",
+    "tool6.clearAll": "すべてクリア",
+    "tool6.autoNumberLabel": "ファイル名を自動採番する（001.jpg, 002.jpg …）",
+    "tool6.autoNumberHelp": "ZIPダウンロード時のファイル名を連番に変更します。PDFには影響しません。",
+    "tool6.stripMetaLabel": "埋め込み画像のメタ情報を削除する",
+    "tool6.stripMetaHelp": "有効時は再エンコードしてEXIFなどのメタ情報を除去します。",
+    "tool6.convertJpgLabel": "埋め込み画像をJPGに変換する",
+    "tool6.convertJpgHelp": "PDFへの埋め込みとZIP出力時にJPG化を適用します。",
+    "tool6.jpgQualityLabel": "JPG圧縮品質",
+    "tool6.jpgQualityValue": "品質: {quality}",
+    "tool6.generate": "PDFを生成",
+    "tool6.downloadPdf": "PDFをダウンロード",
+    "tool6.downloadZip": "ZIPをダウンロード",
+    "tool6.statusIdle": "画像を追加して生成できます。",
+    "tool6.statusNeedImages": "画像を1枚以上追加してください。",
+    "tool6.statusWorking": "生成中...",
+    "tool6.statusReady": "PDFを生成しました。ダウンロードできます。",
+    "tool6.statusError": "生成に失敗しました。画像を確認して再度お試しください。",
+    "tool6.noteJpeg": "透過PNGは白背景に変換してからPDFに埋め込みます。",
+    "tool6.noteOrder": "リスト内をドラッグして画像の順番を変更できます。",
+    "tool6.noteZip": "ZIPには元画像がそのまま（または採番後の名前で）格納されます。",
+    "tool6.contactLabel": "作者へのお問い合わせはこちら:",
+    "tool6.contactLinkText": "プロフィールページ",
+    "tool6.shareButton": "X でシェア",
+    "tool6.shareText": "画像をまとめてPDFに連結できるブラウザツール「画像PDF連結つくるちゃん」",
+    "tools.card.pdfTitle": "画像PDF連結つくるちゃん",
+    "tools.card.pdfDescription":
+      "複数の画像をまとめて1つのPDFに連結します。フォルダ丸ごとのドロップやZIPダウンロードにも対応しています。",
     "tools.open": "ツールを開く",
   },
   en: {
@@ -272,6 +311,53 @@ export const ui = {
     "tools.card.packTitle": "Random Pack Image Maker Chan",
     "tools.card.packDescription":
       "Randomly arrange multiple images and pack them into a composite at your chosen resolution with custom padding.",
+    "tool6.pageTitle": "Image to PDF Maker Chan",
+    "tool6.pageDescription":
+      "Drop images or entire folders to generate a multi-page PDF in your browser. ZIP download is also supported.",
+    "tool6.lead":
+      "Drop image files or folders to concatenate them into a single PDF in the order they were added. Auto-numbering and ZIP download are also available.",
+    "tool6.imagesInput": "Images / Folder to add",
+    "tool6.dropHint": "Drag and drop images or a folder here",
+    "tool6.chooseButton": "Choose image files",
+    "tool6.chooseFolderButton": "Choose folder",
+    "tool6.fileHint":
+      "PNG, JPEG, and other common image formats are supported.",
+    "tool6.imageCount": "{count} image(s)",
+    "tool6.removeImage": "Remove",
+    "tool6.clearAll": "Clear all",
+    "tool6.autoNumberLabel": "Auto-number filenames (001.jpg, 002.jpg …)",
+    "tool6.autoNumberHelp":
+      "Renames files to sequential numbers on ZIP download. Does not affect the PDF.",
+    "tool6.stripMetaLabel": "Remove metadata from embedded images",
+    "tool6.stripMetaHelp":
+      "When enabled, images are re-encoded to remove EXIF and other metadata.",
+    "tool6.convertJpgLabel": "Convert embedded images to JPG",
+    "tool6.convertJpgHelp":
+      "Applies JPG conversion for PDF embedding and ZIP output.",
+    "tool6.jpgQualityLabel": "JPG compression quality",
+    "tool6.jpgQualityValue": "Quality: {quality}",
+    "tool6.generate": "Generate PDF",
+    "tool6.downloadPdf": "Download PDF",
+    "tool6.downloadZip": "Download ZIP",
+    "tool6.statusIdle": "Add images to get started.",
+    "tool6.statusNeedImages": "Please add at least one image.",
+    "tool6.statusWorking": "Generating...",
+    "tool6.statusReady": "PDF is ready to download.",
+    "tool6.statusError":
+      "Failed to generate. Check your images and try again.",
+    "tool6.noteJpeg":
+      "Transparent PNGs are composited on a white background before embedding in the PDF.",
+    "tool6.noteOrder": "Drag items in the list to reorder pages.",
+    "tool6.noteZip":
+      "The ZIP contains the original images (optionally renamed with auto-numbering).",
+    "tool6.contactLabel": "Contact the creator here:",
+    "tool6.contactLinkText": "Profile page",
+    "tool6.shareButton": "Share on X",
+    "tool6.shareText":
+      "Image to PDF Maker Chan — concatenate multiple images into a single PDF in your browser",
+    "tools.card.pdfTitle": "Image to PDF Maker Chan",
+    "tools.card.pdfDescription":
+      "Concatenate multiple images into a single PDF. Supports folder drop and ZIP download.",
     "tools.open": "Open tool",
   },
 } as const;
