@@ -1,6 +1,10 @@
 export const discordUrl = "https://discord.gg/haBDgjM2uU";
 
-export const patreonUrl = "https://www.patreon.com/at5fun";
+export const patreonUrl = "https://www.patreon.com/AtGoFun";
+
+// メンバーシップへの直接登録導線（記事詳細ページの主要CTAから使用）
+export const patreonMembershipUrl =
+  "https://www.patreon.com/AtGoFun/membership";
 
 export const xAccountUrls = [
   "https://x.com/at5fun_01",

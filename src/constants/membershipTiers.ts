@@ -16,7 +16,7 @@ export const membershipTiers: MembershipTier[] = [
       ja: ["広告非表示", "限定壁紙のダウンロード"],
       en: ["Ad-free browsing", "Exclusive wallpaper downloads"],
     },
-    patreonTierUrl: "https://www.patreon.com/at5fun",
+    patreonTierUrl: "https://www.patreon.com/AtGoFun/membership",
   },
   {
     id: "tier2",
@@ -30,7 +30,7 @@ export const membershipTiers: MembershipTier[] = [
         "Exclusive Discord role",
       ],
     },
-    patreonTierUrl: "https://www.patreon.com/at5fun",
+    patreonTierUrl: "https://www.patreon.com/AtGoFun/membership",
   },
   {
     id: "tier3",
@@ -48,6 +48,6 @@ export const membershipTiers: MembershipTier[] = [
         "Access to process archives",
       ],
     },
-    patreonTierUrl: "https://www.patreon.com/at5fun",
+    patreonTierUrl: "https://www.patreon.com/AtGoFun/membership",
   },
 ];

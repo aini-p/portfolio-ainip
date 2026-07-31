@@ -1,13 +1,13 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import CommentSection from "~/components/CommentSection.astro";
-import JustifiedGallery from "~/components/JustifiedGallery.astro";
 import LikeButton from "~/components/LikeButton.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
-import { patreonUrl as sitePatreonUrl } from "~/constants/social";
+import { patreonMembershipUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -35,10 +35,6 @@ export async function getStaticPaths() {
 const { artwork } = Astro.props;
 const { Content } = await artwork.render();
 const t = ui[lang];
-const hasPatreonUrl =
-  artwork.data.patreonUrl &&
-  artwork.data.patreonUrl !== "None" &&
-  artwork.data.patreonUrl !== "";
 
 const allCharacters = getArtworkCharacters(artwork);
 const primaryCharacter = getPrimaryCharacter(artwork);
@@ -50,9 +46,6 @@ const pageUrl = new URL(
   `/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`,
   Astro.site,
 ).toString();
-const membershipUrl = hasPatreonUrl
-  ? (artwork.data.patreonUrl as string)
-  : sitePatreonUrl;
 
 const allArtworks = await getCollection("artworks", ({ id }) =>
   id.startsWith(`${lang}/`),
@@ -141,32 +134,22 @@ const relatedArtworks = artwork.data.relatedImages
         <ShareButtons lang={lang} url={pageUrl} text={artwork.data.title} />
       </div>
 
-      {hasPatreonUrl && artwork.data.patreonEmbedImageUrl && (
-        <a href={artwork.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="patreon-link">
-          <Image
-            src={artwork.data.patreonEmbedImageUrl}
-            alt="Support on Patreon"
-            width={800}
-            height={200}
-            format="webp"
-          />
-        </a>
-      )}
-
       {hasBody && <div class="artwork-body"><Content /></div>}
 
-      <JustifiedGallery images={portfolioImages} eagerCount={2} />
+      <ArticleImageStack images={portfolioImages} groupId="portfolio" eagerCount={2} />
 
       {sampleImages.length > 0 && (
         <div class="membership-transition">
-          <i class="ti ti-lock" aria-hidden="true"></i>
-          {t["artwork.membershipTransition"]}
+          <p><i class="ti ti-lock" aria-hidden="true"></i> {t["artwork.membershipTransition"]}</p>
+          <p class="membership-unfiltered">{t["artwork.membershipUnfiltered"]}</p>
         </div>
       )}
 
-      {sampleImages.length > 0 && <JustifiedGallery images={sampleImages} eagerCount={0} />}
+      {sampleImages.length > 0 && (
+        <ArticleImageStack images={sampleImages} groupId="sample" eagerCount={0} />
+      )}
 
-      <a href={membershipUrl} target="_blank" rel="noopener noreferrer" class="membership-cta">
+      <a href={patreonMembershipUrl} target="_blank" rel="noopener noreferrer" class="membership-cta">
         <span class="membership-cta-text">
           <strong>{t["artwork.membershipCta"]}</strong>
           <i class="ti ti-external-link" aria-hidden="true"></i>
@@ -310,22 +293,18 @@ const relatedArtworks = artwork.data.relatedImages
     gap: 0.75rem;
   }
 
-  .patreon-link img { width: 100%; border-radius: var(--radius-md); transition: transform 0.2s; }
-  .patreon-link:hover img { transform: scale(1.02); }
-
   .membership-transition {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    display: grid;
+    gap: 0.35rem;
     padding: 0.9rem 1.1rem;
     border-radius: var(--radius-md);
     background: var(--accent-soft);
     border: 0.5px solid var(--accent);
     color: var(--text-primary);
-    font-size: 0.92rem;
-    font-weight: 600;
   }
+  .membership-transition p { margin: 0; font-size: 0.92rem; font-weight: 600; }
   .membership-transition i { color: var(--heart); font-size: 16px; }
+  .membership-unfiltered { color: var(--text-secondary); font-weight: 500 !important; font-size: 0.85rem !important; }
 
   .membership-cta {
     display: flex;

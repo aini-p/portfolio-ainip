@@ -9,6 +9,7 @@ import { patreonUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import { getHeaderImage } from "~/utils/artwork";
+import { toPathSafeSlug } from "~/utils/slug";
 
 const lang = "ja";
 const t = ui[lang];
@@ -43,6 +44,26 @@ const categoryRails = categories
   .filter((rail) => rail.items.length > 0);
 
 const recommendArtworks = sortedByDate.slice(0, 3);
+
+// 作品別セクション: シリーズごとの件数と最新作をまとめる
+const seriesMap = new Map<
+  string,
+  { count: number; latest: (typeof sortedByDate)[number] }
+>();
+for (const artwork of sortedByDate) {
+  const series = artwork.data.series;
+  if (!series) continue;
+  const existing = seriesMap.get(series);
+  if (existing) {
+    existing.count += 1;
+  } else {
+    seriesMap.set(series, { count: 1, latest: artwork });
+  }
+}
+const seriesList = [...seriesMap.entries()]
+  .map(([name, data]) => ({ name, count: data.count, latest: data.latest }))
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 12);
 
 // クライアント側の検索・いいねランキング表示用に、全作品の軽量インデックスを埋め込む
 const searchIndex = await Promise.all(
@@ -106,6 +127,27 @@ const searchIndex = await Promise.all(
         </Rail>
       ))}
 
+      {seriesList.length > 0 && (
+        <Rail title={t["home.seriesHeading"]}>
+          {seriesList.map((series) => (
+            <ArtworkCard
+              href={`/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`}
+              title={series.name}
+              subtitle={`${series.count}${t["home.seriesCountSuffix"]}`}
+              image={getHeaderImage(series.latest)}
+            />
+          ))}
+        </Rail>
+      )}
+
+      <a class="promo-banner promo-banner-membership" href={patreonUrl} target="_blank" rel="noopener noreferrer">
+        <div class="promo-copy">
+          <h2>{t["home.membershipHeading"]}</h2>
+          <p>{t["home.membershipBody"]}</p>
+          <span class="promo-cta">{t["home.membershipCta"]} <i class="ti ti-external-link" aria-hidden="true"></i></span>
+        </div>
+      </a>
+
       {featuredDoujinshi && (
         <a class="promo-banner" href="/doujinshi">
           <img src="/images/placeholder-doujinshi.svg" alt="" aria-hidden="true" class="promo-glyph" />
@@ -142,14 +184,6 @@ const searchIndex = await Promise.all(
           <h2>{t["home.toolsHeading"]}</h2>
           <p>{t["home.toolsBody"]}</p>
           <span class="promo-cta">{t["home.toolsCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
-        </div>
-      </a>
-
-      <a class="promo-banner promo-banner-membership" href={patreonUrl} target="_blank" rel="noopener noreferrer">
-        <div class="promo-copy">
-          <h2>{t["home.membershipHeading"]}</h2>
-          <p>{t["home.membershipBody"]}</p>
-          <span class="promo-cta">{t["home.membershipCta"]} <i class="ti ti-external-link" aria-hidden="true"></i></span>
         </div>
       </a>
     </div>

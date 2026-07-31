@@ -23,6 +23,8 @@ export const ui = {
     "artwork.paidSamplesCta": "続きはメンバーシップで",
     "artwork.membershipTransition":
       "ここから下はメンバーシップ会員向けのサンプル画像です",
+    "artwork.membershipUnfiltered":
+      "メンバーシップ会員なら塗りつぶし無しで見られます！",
     "artwork.membershipCta": "メンバーシップに登録する",
     "artwork.membershipMoreLink": "メンバーシップについて詳しく見る",
     "sidebar.moreByCharacter": "の他のイラスト",
@@ -46,6 +48,8 @@ export const ui = {
     "home.searchPlaceholder": "作品タイトル・キャラクター名で検索",
     "home.ranking": "いいねランキング",
     "home.latest": "最新の投稿",
+    "home.seriesHeading": "作品別",
+    "home.seriesCountSuffix": "件",
     "home.doujinshiHeading": "同人誌、はじめました",
     "home.doujinshiBody":
       "描き下ろしを収録した同人誌を制作しています。サンプルや購入方法はこちらから。",
@@ -272,6 +276,8 @@ export const ui = {
     "artwork.paidSamplesCta": "See the rest with membership",
     "artwork.membershipTransition":
       "Everything below is a membership-only sample preview",
+    "artwork.membershipUnfiltered":
+      "Members see the unfiltered version — no sample glow overlay!",
     "artwork.membershipCta": "Join the membership",
     "artwork.membershipMoreLink": "Learn more about membership",
     "sidebar.moreByCharacter": " — more artwork",
@@ -295,6 +301,8 @@ export const ui = {
     "home.searchPlaceholder": "Search by title or character",
     "home.ranking": "Like ranking",
     "home.latest": "Latest posts",
+    "home.seriesHeading": "By series",
+    "home.seriesCountSuffix": " works",
     "home.doujinshiHeading": "New: doujinshi",
     "home.doujinshiBody":
       "We publish doujinshi with exclusive artwork. Check out samples and where to buy.",
