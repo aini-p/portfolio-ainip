@@ -1,11 +1,7 @@
 ---
 import smartypants from "smartypants";
 import Header from "~/components/header.astro";
-import {
-  adsenseClientId,
-  profileNames,
-  siteCopyrightLabel,
-} from "~/constants/social";
+import { profileNames, siteCopyrightLabel } from "~/constants/social";
 
 export interface Props {
   title?: string;
@@ -54,15 +50,6 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="google-adsense-account" content={adsenseClientId} />
-    {import.meta.env.PROD && (
-      <script
-        is:inline
-        async
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
-        crossorigin="anonymous"
-      ></script>
-    )}
     {/* ▼▼▼ canonical URL を修正 ▼▼▼ */}
     <link rel="canonical" href={new URL(lang === 'ja' ? jaPath : enPath, Astro.site)} />
     {/* ▲▲▲ ここまで ▲▲▲ */}
@@ -111,7 +98,8 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <link rel="icon" type="image/png" sizes="24x24" href="/icon-24x24.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/icon-32x32.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#17141c" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css" />
 
     {/* ▼▼▼ hreflangのURLを修正 ▼▼▼ */}
     <link rel="alternate" hreflang="ja" href={new URL(jaPath, Astro.site)} />
@@ -183,18 +171,43 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
   input, button, textarea, select { font: inherit; }
   p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
   :root {
-    color-scheme: light dark; --bg: #ffffff; --bg-dark: #000000; --outline: #ffffff;
+    color-scheme: dark;
     --font: "Noto Sans JP", system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    --text-light: #617491ff; --text-dark: #d1d5db;
+
+    --bg-page: #17141c;
+    --bg-elevated: #1f1b27;
+    --bg-elevated-2: #241e2e;
+    --border-subtle: #2a2532;
+    --border-strong: #362e44;
+
+    --text-primary: #ede9f5;
+    --text-secondary: #a79fc0;
+    --text-muted: #6b6478;
+
+    --accent: #7f4ab7;
+    --accent-strong: #9b63d6;
+    --accent-soft: #2a2036;
+    --heart: #f0997b;
+    --outline: var(--accent-strong);
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
   }
   body {
-    background-color: light-dark(var(--bg), var(--bg-dark));
+    background-color: var(--bg-page);
     font-family: var(--font);
-    font-weight: 300; /* フォントウェイトを200に戻す */
-    color: light-dark(var(--text-light), var(--text-dark));
-    letter-spacing: 0.05em; /* 文字間隔を0.05emに戻す */
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: 0.05em;
   }
-  h1, h2 { font-weight: 300; } /* 見出しウェイトを200に戻す */
+  h1, h2 { font-weight: 300; }
   main {
     padding-top: 80px;
     flex-grow: 1; /* メインコンテンツが残りのスペースをすべて埋める */
@@ -203,12 +216,9 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     width: 100%;
     padding: 2rem 1rem;
     font-size: 1.0rem;
-    color: light-dark(var(--text-light, #888), var(--text-dark, #777));
-    opacity: 0.8;
-    
-    /* 変更前: text-align: center; */
-    
-    /* 変更後: Flexboxで中央揃え */
+    color: var(--text-muted);
+
+    /* Flexboxで中央揃え */
     display: flex;
     justify-content: center;
   }

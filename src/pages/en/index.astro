@@ -1,224 +1,429 @@
 ---
-import { Image } from "astro:assets";
+import { getImage } from "astro:assets";
 import { getCollection } from "astro:content";
+import ArtworkCard from "~/components/ArtworkCard.astro";
+import Rail from "~/components/Rail.astro";
+import { categories } from "~/constants/categories";
+import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
+import { patreonUrl } from "~/constants/social";
+import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getHeaderImage } from "~/utils/artwork";
 
-const lang = "en"; // 英語ページとして固定
+const lang = "en";
+const t = ui[lang];
+
 const artworks = await getCollection("artworks", ({ id }) =>
   id.startsWith(`${lang}/`),
 );
-const shuffleSeed = 20260521;
+const doujinshiList = await getCollection("doujinshi", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
+const featuredDoujinshi = doujinshiList[0];
 
-function hashString(value: string) {
-  let hash = 2166136261;
-  for (let index = 0; index < value.length; index++) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
+function toSlug(fullSlug: string) {
+  return fullSlug.replace(`${lang}/`, "");
 }
 
-const shuffledArtworks = [...artworks].sort((a, b) => {
-  const aHash = hashString(`${a.slug}:${shuffleSeed}`);
-  const bHash = hashString(`${b.slug}:${shuffleSeed}`);
-  if (aHash === bHash) {
-    return a.slug.localeCompare(b.slug);
-  }
-  return aHash - bHash;
-});
-
-const rowCount = 7;
-const rowSize = Math.ceil(shuffledArtworks.length / rowCount);
-const galleryRows = Array.from({ length: rowCount }, (_, index) =>
-  shuffledArtworks.slice(index * rowSize, (index + 1) * rowSize),
-).filter((row) => row.length > 0);
-
-function rotateRow<T>(row: T[], offset: number) {
-  if (row.length < 2) {
-    return row;
-  }
-  const shift = ((offset % row.length) + row.length) % row.length;
-  if (shift === 0) {
-    return row;
-  }
-  return [...row.slice(shift), ...row.slice(0, shift)];
+function toHref(fullSlug: string) {
+  return `/en/gallery/${toSlug(fullSlug)}`;
 }
+
+const sortedByDate = [...artworks].sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+
+const latestArtworks = sortedByDate.slice(0, 12);
+
+const categoryRails = categories
+  .map((category) => ({
+    ...category,
+    items: sortedByDate.filter(category.match).slice(0, 12),
+  }))
+  .filter((rail) => rail.items.length > 0);
+
+const recommendArtworks = sortedByDate.slice(0, 3);
+
+const searchIndex = await Promise.all(
+  artworks.map(async (artwork) => {
+    const optimized = await getImage({
+      src: getHeaderImage(artwork),
+      width: 480,
+      format: "webp",
+    });
+    return {
+      slug: toSlug(artwork.slug),
+      title: artwork.data.title,
+      thumb: optimized.src,
+      characters: [
+        artwork.data.main_character,
+        ...(artwork.data.sub_characters ?? []),
+      ].filter(Boolean),
+      series: artwork.data.series,
+      keywords: artwork.data.keywords ?? [],
+    };
+  }),
+);
 ---
 <BaseLayout>
-  <section class="flow-gallery">
-    {galleryRows.map((row, rowIndex) => (
-      <div
-        class:list={[
-          "flow-row",
-          rowIndex % 2 === 0 ? "is-tilt-left" : "is-tilt-right",
-        ]}
-        style={`--delay: ${rowIndex * 120}ms;`}
-      >
-        <div
-          class:list={["flow-track", rowIndex % 2 === 1 && "is-reverse"]}
-          style={`--duration: ${320 + rowIndex * 44}s;`}
-        >
-          {Array.from({ length: 4 }).map((_, groupIndex) => {
-            const groupedRow = rotateRow(row, groupIndex * 2 + rowIndex);
-            return (
-              <div class="flow-group" aria-hidden={groupIndex > 0 ? "true" : undefined}>
-                {groupedRow.map((artwork, itemIndex) => (
-                <a
-                  style={`--width: ${artwork.data.src.width}; --height: ${artwork.data.src.height};`}
-                  href={`/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
-                  class="gallery-item"
-                  tabindex={groupIndex > 0 ? -1 : undefined}
-                >
-                  <Image
-                    format="webp"
-                    src={artwork.data.src}
-                    alt={groupIndex > 0 ? "" : artwork.data.title}
-                    height={560}
-                    loading={
-                      groupIndex === 0 && rowIndex < 3 && itemIndex < 8
-                        ? "eager"
-                        : "lazy"
-                    }
-                  />
-                </a>
-                ))}
-              </div>
-            );
-          })}
+  <div class="home">
+    <div class="search-bar">
+      <i class="ti ti-search" aria-hidden="true"></i>
+      <input type="search" id="artwork-search" placeholder={t["home.searchPlaceholder"]} />
+    </div>
+
+    <p class="search-empty" id="search-empty" hidden>{t["home.noResults"]}</p>
+    <div class="search-results-grid" id="search-results" hidden></div>
+
+    <div id="rails-view" class="rails-view">
+      <Rail title={t["home.ranking"]} icon="ti ti-flame">
+        <div id="ranking-rail" class="ranking-rail"></div>
+      </Rail>
+
+      <Rail title={t["home.latest"]}>
+        {latestArtworks.map((artwork, index) => (
+          <ArtworkCard
+            href={toHref(artwork.slug)}
+            title={artwork.data.title}
+            image={getHeaderImage(artwork)}
+            slug={toSlug(artwork.slug)}
+            eager={index < 4}
+          />
+        ))}
+      </Rail>
+
+      {categoryRails.map((rail) => (
+        <Rail title={rail.label[lang]}>
+          {rail.items.map((artwork) => (
+            <ArtworkCard
+              href={toHref(artwork.slug)}
+              title={artwork.data.title}
+              image={getHeaderImage(artwork)}
+              slug={toSlug(artwork.slug)}
+            />
+          ))}
+        </Rail>
+      ))}
+
+      {featuredDoujinshi && (
+        <a class="promo-banner" href="/en/doujinshi">
+          <img src="/images/placeholder-doujinshi.svg" alt="" aria-hidden="true" class="promo-glyph" />
+          <div class="promo-copy">
+            <h2>{t["home.doujinshiHeading"]}</h2>
+            <p>{t["home.doujinshiBody"]}</p>
+            <span class="promo-cta">{t["home.doujinshiCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+          </div>
+        </a>
+      )}
+
+      <Rail title={t["home.recommendHeading"]} seeMoreHref="/en/recommend" seeMoreLabel={t["home.recommendHeading"]}>
+        {recommendArtworks.map((artwork) => (
+          <ArtworkCard
+            href={toHref(artwork.slug)}
+            title={artwork.data.title}
+            image={getHeaderImage(artwork)}
+            slug={toSlug(artwork.slug)}
+          />
+        ))}
+        {fanzaAffiliateItems.map((item) => (
+          <a class="artwork-card affiliate-card" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
+            <div class="thumb">
+              <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+              <span class="affiliate-label">PR</span>
+            </div>
+            <p class="card-title">{item.title[lang]}</p>
+          </a>
+        ))}
+      </Rail>
+
+      <a class="promo-banner promo-banner-tools" href="/en/tools">
+        <div class="promo-copy">
+          <h2>{t["home.toolsHeading"]}</h2>
+          <p>{t["home.toolsBody"]}</p>
+          <span class="promo-cta">{t["home.toolsCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
         </div>
-      </div>
-    ))}
-  </section>
+      </a>
+
+      <a class="promo-banner promo-banner-membership" href={patreonUrl} target="_blank" rel="noopener noreferrer">
+        <div class="promo-copy">
+          <h2>{t["home.membershipHeading"]}</h2>
+          <p>{t["home.membershipBody"]}</p>
+          <span class="promo-cta">{t["home.membershipCta"]} <i class="ti ti-external-link" aria-hidden="true"></i></span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <script is:inline type="application/json" id="artworks-index" set:html={JSON.stringify(searchIndex)} />
 </BaseLayout>
-<style is:inline>
-  .flow-gallery {
-    --padding: max(2.5vw, 12px);
-    --space: max(2.5vw, 12px);
-    --row-height: clamp(250px, 35vw, 430px);
-    position: relative;
-    isolation: isolate;
-    padding: var(--padding);
+
+<script>
+  interface IndexEntry {
+    slug: string;
+    title: string;
+    thumb: string;
+    characters: string[];
+    series: string;
+    keywords: string[];
+  }
+
+  const API_BASE = import.meta.env.PUBLIC_API_BASE as string | undefined;
+
+  const indexScript = document.getElementById("artworks-index");
+  const searchIndex: IndexEntry[] = indexScript ? JSON.parse(indexScript.textContent ?? "[]") : [];
+  const indexBySlug = new Map(searchIndex.map((entry) => [entry.slug, entry]));
+
+  function buildCard(entry: IndexEntry) {
+    const a = document.createElement("a");
+    a.className = "artwork-card";
+    a.href = `/en/gallery/${entry.slug}`;
+    a.innerHTML = `
+      <div class="thumb">
+        <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
+      </div>
+      <p class="card-title">${entry.title}</p>
+    `;
+    return a;
+  }
+
+  const searchInput = document.getElementById("artwork-search") as HTMLInputElement | null;
+  const railsView = document.getElementById("rails-view");
+  const resultsGrid = document.getElementById("search-results");
+  const emptyMessage = document.getElementById("search-empty");
+
+  searchInput?.addEventListener("input", () => {
+    const query = searchInput.value.trim().toLowerCase();
+
+    if (!query) {
+      railsView?.removeAttribute("hidden");
+      resultsGrid?.setAttribute("hidden", "true");
+      emptyMessage?.setAttribute("hidden", "true");
+      return;
+    }
+
+    const matches = searchIndex.filter((entry) => {
+      const haystack = [entry.title, entry.series, ...entry.characters, ...entry.keywords]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(query);
+    });
+
+    railsView?.setAttribute("hidden", "true");
+    if (resultsGrid) {
+      resultsGrid.innerHTML = "";
+      matches.forEach((entry) => resultsGrid.append(buildCard(entry)));
+      resultsGrid.removeAttribute("hidden");
+    }
+    if (emptyMessage) {
+      emptyMessage.toggleAttribute("hidden", matches.length > 0);
+    }
+  });
+
+  async function loadRanking() {
+    const rankingRail = document.getElementById("ranking-rail");
+    const rankingSection = rankingRail?.closest("section");
+    if (!rankingRail || !rankingSection || !API_BASE) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/likes/ranking?limit=10`);
+      const data = await res.json();
+      const ranking: { slug: string; count: number }[] = data.ranking ?? [];
+      const resolved = ranking
+        .map((row) => ({ row, entry: indexBySlug.get(row.slug) }))
+        .filter((item): item is { row: { slug: string; count: number }; entry: IndexEntry } =>
+          Boolean(item.entry),
+        );
+
+      if (resolved.length === 0) return;
+
+      resolved.forEach(({ row, entry }, index) => {
+        const card = buildCard(entry);
+        const badge = document.createElement("span");
+        badge.className = "rank-badge";
+        badge.textContent = String(index + 1);
+        card.prepend(badge);
+        const likeBadge = document.createElement("span");
+        likeBadge.className = "like-badge";
+        likeBadge.innerHTML = `<i class="ti ti-heart" aria-hidden="true"></i> ${row.count}`;
+        card.querySelector(".thumb")?.append(likeBadge);
+        rankingRail.append(card);
+      });
+      rankingSection.removeAttribute("hidden");
+    } catch {
+      // ranking unavailable: keep the rail hidden
+    }
+  }
+
+  document.getElementById("ranking-rail")?.closest("section")?.setAttribute("hidden", "true");
+  loadRanking();
+</script>
+
+<style is:global>
+  [hidden] {
+    display: none !important;
+  }
+
+  .home {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.25rem 1.25rem 3rem;
     display: grid;
-    gap: var(--space);
-    overflow: hidden;
-    border-radius: 24px;
-    background: rgb(255 255 255);
+    gap: 2.25rem;
   }
 
-  .flow-row {
-    overflow: hidden;
-    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-    animation: row-enter 960ms cubic-bezier(0.24, 0.84, 0.3, 1) var(--delay) both;
-  }
-
-  .flow-row.is-tilt-left {
-    transform: perspective(1000px) rotateX(0.22deg) rotateY(-0.7deg);
-  }
-
-  .flow-row.is-tilt-right {
-    transform: perspective(1000px) rotateX(0.22deg) rotateY(0.7deg);
-  }
-
-  .flow-track {
-    width: max-content;
+  .search-bar {
     display: flex;
-    animation: flow-left var(--duration) linear infinite;
-    will-change: transform;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg-elevated);
   }
 
-  .flow-group {
+  .search-bar i {
+    color: var(--text-muted);
+    font-size: 18px;
+  }
+
+  .search-bar input {
+    flex: 1;
+    border: none;
+    background: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    outline: none;
+  }
+
+  .search-bar input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .search-empty {
+    color: var(--text-muted);
+    text-align: center;
+    margin: 0;
+  }
+
+  .search-results-grid,
+  .ranking-rail {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .ranking-rail {
+    grid-auto-flow: column;
+    grid-auto-columns: 150px;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+  }
+
+  .rails-view {
+    display: grid;
+    gap: 2.25rem;
+  }
+
+  .rank-badge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 55%);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .affiliate-card .thumb {
+    background: var(--bg-elevated-2);
+  }
+
+  .affiliate-label {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .promo-banner {
     display: flex;
-    gap: var(--space);
-    padding-right: var(--space);
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+    text-decoration: none;
+    transition: border-color 0.2s ease;
   }
 
-  .flow-track.is-reverse {
-    animation-direction: reverse;
+  .promo-banner:hover,
+  .promo-banner:focus-visible {
+    border-color: var(--accent-strong);
   }
 
-  .gallery-item {
-    flex: 0 0 auto;
-    height: var(--row-height);
-    aspect-ratio: var(--width) / var(--height);
-    overflow: hidden;
-    border-radius: 0;
-    background: rgb(236 231 223);
-    transform: translateZ(0);
-    transition: transform 420ms cubic-bezier(0.2, 0.76, 0.32, 1),
-      filter 420ms ease;
-  }
-
-  .gallery-item img {
-    display: block;
+  .promo-glyph {
+    width: 96px;
+    height: 72px;
     object-fit: cover;
-    height: 100%;
-    width: 100%;
-    filter: saturate(0.88) contrast(1.04) brightness(0.99);
-    transition: transform 900ms ease, filter 420ms ease;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
   }
 
-  .gallery-item:hover,
-  .gallery-item:focus-visible {
-    transform: translateY(-3px) scale(1.012);
-    filter: brightness(1.03);
+  .promo-copy h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text-primary);
   }
 
-  .gallery-item:hover img,
-  .gallery-item:focus-visible img {
-    transform: scale(1.03);
-    filter: saturate(0.96) contrast(1.08) brightness(1.01);
+  .promo-copy p {
+    margin: 0 0 0.6rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
   }
 
-  .gallery-item:focus-visible {
-    outline: 3px solid var(--outline);
-    outline-offset: 2px;
-    z-index: 1;
+  .promo-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
   }
 
-  @keyframes flow-left {
-    from {
-      transform: translateX(0);
-    }
-
-    to {
-      transform: translateX(-25%);
-    }
-  }
-
-  @keyframes row-enter {
-    from {
-      opacity: 0;
-      transform: translateY(18px) scale(0.98);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .flow-track {
-      animation: none;
-    }
-
-    .flow-row {
-      animation: none;
-    }
+  .promo-banner-membership {
+    background: var(--accent-soft);
+    border-color: var(--accent);
   }
 
   @media (width <= 768px) {
-    .flow-gallery {
-      --row-height: clamp(190px, 56vw, 300px);
-      --padding: max(1.5vw, 8px);
-      --space: max(1.5vw, 8px);
-      border-radius: 18px;
+    .home {
+      padding: 1rem 1rem 2rem;
+      gap: 1.75rem;
     }
 
-    .flow-row {
-      -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
-      mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+    .promo-banner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .promo-glyph {
+      width: 100%;
+      height: 120px;
     }
   }
 </style>

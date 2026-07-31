@@ -1,0 +1,156 @@
+---
+import { membershipTiers } from "~/constants/membershipTiers";
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const lang = "ja";
+const t = ui[lang];
+---
+<BaseLayout title={t["membership.pageTitle"]} description={t["membership.pageDescription"]}>
+  <div class="membership-shell">
+    <header class="membership-header">
+      <h1>{t["membership.heading"]}</h1>
+      <p>{t["membership.lead"]}</p>
+    </header>
+
+    <div class="tier-grid">
+      {membershipTiers.map((tier, index) => (
+        <div class:list={["tier-card", { "tier-featured": index === 1 }]}>
+          {index === 1 && <span class="tier-badge">Popular</span>}
+          <h2>{tier.name[lang]}</h2>
+          <p class="tier-price">{tier.price}</p>
+          <ul>
+            {tier.features[lang].map((feature) => (
+              <li><i class="ti ti-check" aria-hidden="true"></i> {feature}</li>
+            ))}
+          </ul>
+          <a href={tier.patreonTierUrl} target="_blank" rel="noopener noreferrer" class="tier-cta">
+            {t["membership.tierCta"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style is:inline>
+  .membership-shell {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 1.25rem;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .membership-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.7rem, 3.4vw, 2.35rem);
+    color: var(--text-primary);
+  }
+
+  .membership-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 65ch;
+  }
+
+  .tier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    align-items: stretch;
+  }
+
+  .tier-card {
+    position: relative;
+    display: grid;
+    gap: 0.9rem;
+    align-content: start;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+  }
+
+  .tier-featured {
+    border: 2px solid var(--accent-strong);
+    background: var(--accent-soft);
+  }
+
+  .tier-badge {
+    position: absolute;
+    top: -12px;
+    right: 1.25rem;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  .tier-card h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .tier-price {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .tier-card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .tier-card li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .tier-card li i {
+    color: var(--heart);
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .tier-cta {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    padding: 0.65rem 1.2rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-decoration: none;
+  }
+
+  .tier-cta:hover {
+    background: var(--accent-strong);
+  }
+
+  @media (width <= 860px) {
+    .tier-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (width <= 768px) {
+    .membership-shell { padding: 1rem; gap: 1.5rem; }
+  }
+</style>

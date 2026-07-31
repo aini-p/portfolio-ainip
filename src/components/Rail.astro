@@ -1,0 +1,97 @@
+---
+export interface Props {
+  title: string;
+  icon?: string;
+  seeMoreHref?: string;
+  seeMoreLabel?: string;
+}
+
+const { title, icon, seeMoreHref, seeMoreLabel } = Astro.props;
+---
+<section class="rail">
+  <div class="rail-head">
+    <h2>
+      {icon && <i class={icon} aria-hidden="true"></i>}
+      {title}
+    </h2>
+    {seeMoreHref && seeMoreLabel && (
+      <a class="see-more" href={seeMoreHref}>
+        {seeMoreLabel}
+        <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      </a>
+    )}
+  </div>
+  <div class="rail-track">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .rail {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .rail-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .rail-head h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .rail-head h2 i {
+    color: var(--heart);
+    font-size: 1rem;
+  }
+
+  .see-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .see-more:hover {
+    color: var(--text-primary);
+  }
+
+  .rail-track {
+    display: flex;
+    gap: 0.85rem;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+    scroll-snap-type: x proximity;
+  }
+
+  .rail-track > :global(*) {
+    scroll-snap-align: start;
+  }
+
+  .rail-track::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .rail-track::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 999px;
+  }
+
+  @media (width <= 768px) {
+    .rail-head h2 {
+      font-size: 0.95rem;
+    }
+  }
+</style>

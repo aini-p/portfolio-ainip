@@ -1,0 +1,173 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const lang = "en";
+const t = ui[lang];
+
+export async function getStaticPaths() {
+  const items = await getCollection("doujinshi", ({ id }) =>
+    id.startsWith("en/"),
+  );
+  return items.map((item) => ({
+    params: { slug: item.slug.replace(/^en\//, "") },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+const { Content } = await item.render();
+---
+<BaseLayout title={item.data.title} description={item.data.description}>
+  <div class="lp">
+    <a class="back-link" href="/en/doujinshi">{t["doujinshi.backToList"]}</a>
+
+    <header class="lp-hero">
+      <div class="package-frame">
+        <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={640} />
+      </div>
+      <div class="lp-intro">
+        <h1>{item.data.title}</h1>
+        <p>{item.data.description}</p>
+      </div>
+    </header>
+
+    <div class="lp-body"><Content /></div>
+
+    {item.data.sampleImages && item.data.sampleImages.length > 0 && (
+      <section class="lp-samples">
+        <h2>{t["doujinshi.sampleHeading"]}</h2>
+        <div class="samples-grid">
+          {item.data.sampleImages.map((image) => (
+            <Image src={image} alt="" format="webp" width={480} />
+          ))}
+        </div>
+      </section>
+    )}
+
+    <section class="lp-buy">
+      <h2>{t["doujinshi.buyHeading"]}</h2>
+      <div class="buy-buttons">
+        {item.data.fanzaUrl && (
+          <a href={item.data.fanzaUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-fanza">
+            {t["doujinshi.fanzaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+          </a>
+        )}
+        {item.data.patreonUrl && (
+          <a href={item.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="buy-btn buy-patreon">
+            {t["doujinshi.patreonButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+          </a>
+        )}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style is:inline>
+  .lp {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 1.25rem;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .back-link {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--text-primary); }
+
+  .lp-hero {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .package-frame {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg-elevated);
+  }
+  .package-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .lp-intro h1 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+    color: var(--text-primary);
+  }
+  .lp-intro p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  .lp-body { line-height: 1.85; color: var(--text-secondary); }
+
+  .lp-samples h2,
+  .lp-buy h2 {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .samples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.85rem;
+  }
+  .samples-grid img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+  }
+
+  .lp-buy {
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--accent-soft);
+    border: 0.5px solid var(--accent);
+  }
+
+  .buy-buttons {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .buy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.75rem 1.4rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+  }
+
+  .buy-fanza {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+  }
+  .buy-fanza:hover { border-color: var(--accent-strong); }
+
+  .buy-patreon {
+    background: var(--accent);
+    color: #fff;
+  }
+  .buy-patreon:hover { background: var(--accent-strong); }
+
+  @media (width <= 768px) {
+    .lp { padding: 1rem; gap: 1.5rem; }
+    .lp-hero { grid-template-columns: 1fr; }
+  }
+</style>

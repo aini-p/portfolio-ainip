@@ -1,0 +1,11 @@
+name = "at5fun-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "at5fun-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# Cloudflare Turnstile を有効化する場合のみ設定する（未設定ならコメント投稿の検証はスキップされる）
+# wrangler secret put TURNSTILE_SECRET

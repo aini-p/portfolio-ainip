@@ -1,0 +1,291 @@
+---
+import { ui } from "~/i18n/ui";
+
+export interface Props {
+  slug: string;
+  lang: "ja" | "en";
+}
+
+const { slug, lang } = Astro.props;
+const t = ui[lang];
+---
+<section class="comment-section" data-slug={slug} data-lang={lang}>
+  <h2>{t["comments.heading"]}</h2>
+  <ul class="comment-list">
+    <li class="comment-empty">{t["comments.loading"]}</li>
+  </ul>
+  <form class="comment-form">
+    <input type="text" name="author" maxlength="50" placeholder={t["comments.namePlaceholder"]} />
+    <textarea name="body" required maxlength="1000" rows="3" placeholder={t["comments.bodyPlaceholder"]}></textarea>
+    <div class="comment-form-footer">
+      <p class="comment-status" role="status"></p>
+      <button type="submit">{t["comments.submit"]}</button>
+    </div>
+  </form>
+</section>
+
+<script>
+  const API_BASE = import.meta.env.PUBLIC_API_BASE as string | undefined;
+
+  interface CommentRow {
+    author: string;
+    body: string;
+    created_at: string;
+  }
+
+  function formatDate(iso: string, lang: string) {
+    try {
+      return new Date(iso).toLocaleDateString(lang === "en" ? "en-US" : "ja-JP", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return iso;
+    }
+  }
+
+  function renderComments(list: HTMLUListElement, comments: CommentRow[], lang: string, emptyLabel: string, anonymousLabel: string) {
+    list.innerHTML = "";
+    if (comments.length === 0) {
+      const li = document.createElement("li");
+      li.className = "comment-empty";
+      li.textContent = emptyLabel;
+      list.append(li);
+      return;
+    }
+    for (const comment of comments) {
+      const li = document.createElement("li");
+      li.className = "comment-item";
+
+      const meta = document.createElement("div");
+      meta.className = "comment-meta";
+      const author = document.createElement("span");
+      author.className = "comment-author";
+      author.textContent = comment.author || anonymousLabel;
+      const date = document.createElement("span");
+      date.className = "comment-date";
+      date.textContent = formatDate(comment.created_at, lang);
+      meta.append(author, date);
+
+      const body = document.createElement("p");
+      body.className = "comment-body";
+      body.textContent = comment.body;
+
+      li.append(meta, body);
+      list.append(li);
+    }
+  }
+
+  async function initSection(section: HTMLElement) {
+    const slug = section.dataset.slug;
+    const lang = section.dataset.lang ?? "ja";
+    const list = section.querySelector<HTMLUListElement>(".comment-list");
+    const form = section.querySelector<HTMLFormElement>(".comment-form");
+    const status = section.querySelector<HTMLParagraphElement>(".comment-status");
+    if (!slug || !list || !form || !status) return;
+
+    const emptyLabel = lang === "en" ? "No comments yet." : "まだコメントはありません。";
+    const anonymousLabel = lang === "en" ? "Anonymous" : "名無しさん";
+
+    if (!API_BASE) {
+      renderComments(list, [], lang, emptyLabel, anonymousLabel);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/comments/${encodeURIComponent(slug)}`);
+      const data = await res.json();
+      renderComments(list, data.comments ?? [], lang, emptyLabel, anonymousLabel);
+    } catch {
+      renderComments(list, [], lang, emptyLabel, anonymousLabel);
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!API_BASE) return;
+
+      const formData = new FormData(form);
+      const author = String(formData.get("author") ?? "").trim();
+      const body = String(formData.get("body") ?? "").trim();
+      if (!body) return;
+
+      const submitButton = form.querySelector<HTMLButtonElement>("button[type=submit]");
+      submitButton?.setAttribute("disabled", "true");
+      status.textContent = lang === "en" ? "Posting..." : "送信中...";
+
+      try {
+        const res = await fetch(`${API_BASE}/comments/${encodeURIComponent(slug)}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ author, body, lang }),
+        });
+
+        if (res.status === 429) {
+          status.textContent =
+            lang === "en" ? "Please wait a moment before posting again." : "少し時間をおいてから投稿してください。";
+          return;
+        }
+        if (!res.ok) {
+          status.textContent =
+            lang === "en"
+              ? "Couldn't post your comment. Please try again later."
+              : "投稿に失敗しました。時間をおいて再度お試しください。";
+          return;
+        }
+
+        const data = await res.json();
+        const empty = list.querySelector(".comment-empty");
+        empty?.remove();
+
+        const li = document.createElement("li");
+        li.className = "comment-item";
+        const meta = document.createElement("div");
+        meta.className = "comment-meta";
+        const authorSpan = document.createElement("span");
+        authorSpan.className = "comment-author";
+        authorSpan.textContent = data.author || anonymousLabel;
+        const dateSpan = document.createElement("span");
+        dateSpan.className = "comment-date";
+        dateSpan.textContent = formatDate(data.created_at, lang);
+        meta.append(authorSpan, dateSpan);
+        const bodyP = document.createElement("p");
+        bodyP.className = "comment-body";
+        bodyP.textContent = data.body;
+        li.append(meta, bodyP);
+        list.prepend(li);
+
+        form.reset();
+        status.textContent = "";
+      } catch {
+        status.textContent =
+          lang === "en"
+            ? "Couldn't post your comment. Please try again later."
+            : "投稿に失敗しました。時間をおいて再度お試しください。";
+      } finally {
+        submitButton?.removeAttribute("disabled");
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>(".comment-section").forEach(initSection);
+</script>
+
+<style>
+  .comment-section {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .comment-section h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .comment-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .comment-empty {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .comment-item {
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.9rem;
+    background: var(--bg-elevated);
+  }
+
+  .comment-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .comment-author {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+  }
+
+  .comment-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .comment-body {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+  }
+
+  .comment-form {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .comment-form input,
+  .comment-form textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .comment-form input:focus,
+  .comment-form textarea:focus {
+    outline: none;
+    border-color: var(--accent-strong);
+  }
+
+  .comment-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .comment-status {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .comment-form button {
+    padding: 0.55rem 1.3rem;
+    border-radius: 999px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .comment-form button:hover,
+  .comment-form button:focus-visible {
+    background: var(--accent-strong);
+  }
+
+  .comment-form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+</style>

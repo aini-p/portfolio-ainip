@@ -1,4 +1,5 @@
 ---
+import ShareButtons from "~/components/ShareButtons.astro";
 import {
   discordUrl,
   patreonUrl,
@@ -19,8 +20,6 @@ const profilePageTitle = t["nav.profile"];
 const profileKeywords = "プロフィール, イラスト, AIイラスト, あと5分。";
 const xNames = xAccountNames[lang];
 const pageUrl = new URL("/", Astro.site).toString();
-const shareText = t["profile.shareText"];
-const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(pageUrl)}`;
 ---
 <BaseLayout
   title={profilePageTitle}
@@ -38,17 +37,9 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
           <a href={discordUrl} target="_blank" rel="noopener noreferrer" class="icon-link discord-icon" aria-label="Discordで連絡する">
             <img src="/Discord_Symbol_Color/Discord-Symbol-Blurple.svg" alt="Discord" />
           </a>
-          <a href={xShareUrl} target="_blank" rel="noopener noreferrer" class="x-share-button" aria-label={t["profile.shareButton"]}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623 5.905-5.623Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-            <span>{t["profile.shareButton"]}</span>
-          </a>
-          <!--<a href="https://www.pixiv.net/users/your-id" target="_blank" rel="noopener noreferrer" class="icon-link pixiv-icon" aria-label="Pixivプロフィールを見る">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="20" font-weight="bold">P</text>
-            </svg>
-          </a>-->
+        </div>
+        <div class="share-row">
+          <ShareButtons lang={lang} url={pageUrl} text={t["profile.shareText"]} />
         </div>
       </div>
     </section>
@@ -73,7 +64,7 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
         </a>
       </div>
     </section>
-    <section class="links-section">
+    <section class="links-section membership-section">
       <h2>{t['profile.fansite']}</h2>
       <div class="banner-links">
         <a href={patreonUrl} target="_blank" rel="noopener noreferrer" class="banner-link">
@@ -94,14 +85,10 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
 
   .profile-section,
   .links-section {
-    border: 1px solid rgb(226 223 214);
-    border-radius: 22px;
-    background: rgb(255 255 255);
-  }
-
-  .profile-section {
-    border: none;
-    background: rgb(255 255 255);
+    min-width: 0;
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
   }
 
   .profile-section {
@@ -122,18 +109,24 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
   .profile-text h1 {
     margin: 0 0 0.65rem;
     font-size: clamp(1.7rem, 3.5vw, 2.25rem);
+    color: var(--text-primary);
   }
 
   .profile-text p {
     margin: 0;
-    font-size: 1.08rem;
+    font-size: 1.05rem;
     line-height: 1.85;
+    color: var(--text-secondary);
   }
 
   .contact-links {
     display: flex;
     gap: 0.8rem;
     margin-top: 1.05rem;
+  }
+
+  .share-row {
+    margin-top: 0.9rem;
   }
 
   .icon-link {
@@ -143,15 +136,15 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    border: 1px solid rgb(222 218 208);
-    background: rgb(247 245 239);
-    transition: transform 0.24s ease, box-shadow 0.24s ease;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg-elevated-2);
+    transition: transform 0.24s ease, border-color 0.24s ease;
   }
 
   .icon-link:hover,
   .icon-link:focus-visible {
     transform: scale(1.02);
-    box-shadow: 0 8px 18px rgb(39 30 18 / 12%);
+    border-color: var(--accent-strong);
   }
 
   .discord-icon img {
@@ -165,8 +158,10 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
 
   h2 {
     margin: 0 0 1rem;
-    font-size: 1.35rem;
+    font-size: 1.3rem;
+    font-weight: 500;
     letter-spacing: 0.02em;
+    color: var(--text-primary);
   }
 
   .x-accounts {
@@ -183,17 +178,17 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
     align-items: center;
     gap: 0.7rem;
     padding: 0.7rem 0.8rem;
-    border-radius: 14px;
-    border: 1px solid rgb(226 223 214);
-    background: rgb(255 255 255 / 92%);
+    border-radius: var(--radius-md);
+    border: 0.5px solid var(--border-subtle);
+    background: var(--bg-elevated-2);
     text-decoration: none;
-    color: inherit;
-    transition: box-shadow 0.24s ease;
+    color: var(--text-primary);
+    transition: border-color 0.24s ease;
   }
 
   .x-accounts a:hover,
   .x-accounts a:focus-visible {
-    box-shadow: 0 8px 16px rgb(39 30 18 / 9%);
+    border-color: var(--accent-strong);
   }
 
   .x-accounts::-webkit-scrollbar {
@@ -201,7 +196,7 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
   }
 
   .x-accounts::-webkit-scrollbar-thumb {
-    background: rgb(186 180 168 / 75%);
+    background: var(--border-strong);
     border-radius: 999px;
   }
 
@@ -211,25 +206,9 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
     border-radius: 10px;
   }
 
-  .x-share-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    margin-top: 0;
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    background: #000;
-    color: #fff;
-    font-size: 0.88rem;
-    font-weight: 600;
-    text-decoration: none;
-    width: fit-content;
-    transition: background 0.15s ease;
-  }
-
-  .x-share-button:hover,
-  .x-share-button:focus-visible {
-    background: #1a1a1a;
+  .membership-section {
+    background: var(--accent-soft);
+    border-color: var(--accent);
   }
 
   .banner-links {
@@ -239,15 +218,13 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
 
   .banner-link img {
     width: 100%;
-    border-radius: 14px;
-    border: 1px solid rgb(223 218 206);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: var(--radius-md);
+    transition: transform 0.3s ease;
   }
 
   .banner-link:hover img,
   .banner-link:focus-visible img {
     transform: scale(1.01);
-    box-shadow: 0 12px 24px rgb(39 30 18 / 12%);
   }
 
   @media (width <= 768px) {

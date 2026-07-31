@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="420" viewBox="0 0 560 420">
+  <rect width="560" height="420" fill="#241e2e"/>
+  <rect x="1" y="1" width="558" height="418" fill="none" stroke="#362e44" stroke-width="2"/>
+  <text x="280" y="200" fill="#a79fc0" font-family="sans-serif" font-size="24" text-anchor="middle">Package Image</text>
+  <text x="280" y="234" fill="#6b6478" font-family="sans-serif" font-size="16" text-anchor="middle">560 x 420 placeholder</text>
+</svg>

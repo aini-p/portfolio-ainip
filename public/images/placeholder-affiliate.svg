@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240">
+  <rect width="320" height="240" fill="#3a4a5b"/>
+  <rect x="1" y="1" width="318" height="238" fill="none" stroke="#362e44" stroke-width="2"/>
+  <text x="160" y="115" fill="#e6f1fb" font-family="sans-serif" font-size="16" text-anchor="middle">FANZA affiliate</text>
+  <text x="160" y="140" fill="#b5d4f4" font-family="sans-serif" font-size="13" text-anchor="middle">placeholder banner</text>
+</svg>

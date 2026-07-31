@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Cloudflare Worker (worker/)
+worker/node_modules/
+worker/.wrangler/
