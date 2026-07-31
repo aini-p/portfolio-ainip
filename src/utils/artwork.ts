@@ -37,3 +37,14 @@ export function getArtworkCharacters(artwork: Artwork): string[] {
 export function getPrimaryCharacter(artwork: Artwork): string | undefined {
   return artwork.data.main_character ?? artwork.data.characters?.[0];
 }
+
+// SNSシェアカード用の画像。patreonEmbedImageUrl（タイトル・ロゴ焼き込み済み）があれば優先し、
+// なければheaderImageにフォールバックする
+export function getShareImage(artwork: Artwork) {
+  return artwork.data.patreonEmbedImageUrl ?? getHeaderImage(artwork);
+}
+
+// 会員向けに公開される総画像枚数（ポートフォリオ＋サンプル）
+export function getTotalImageCount(artwork: Artwork) {
+  return getPortfolioImages(artwork).length + getSampleImages(artwork).length;
+}

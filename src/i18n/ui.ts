@@ -21,14 +21,16 @@ export const ui = {
     "artwork.related": "関連イラスト",
     "artwork.paidSamples": "有料画像サンプル",
     "artwork.paidSamplesCta": "続きはメンバーシップで",
-    "artwork.membershipTransition":
-      "ここから下はメンバーシップ会員向けのサンプル画像です",
-    "artwork.membershipUnfiltered":
-      "メンバーシップ会員なら塗りつぶし無しで見られます！",
+    "artwork.imageCountSuffix": "枚",
+    "artwork.introSample":
+      "この記事の画像はメンバーシップ会員向けのサンプルです。",
     "artwork.membershipCta": "メンバーシップに登録する",
     "artwork.membershipMoreLink": "メンバーシップについて詳しく見る",
+    "artwork.membershipCtaLead":
+      "続きが気になる方は、メンバーシップでいつでもご覧いただけます。",
     "sidebar.moreByCharacter": "の他のイラスト",
     "sidebar.moreBySeries": "の他のイラスト",
+    "sidebar.doujinshiBySeries": "の同人誌",
     "sidebar.recommend": "こちらもおすすめ",
     "share.x": "Xでシェア",
     "share.copy": "リンクをコピー",
@@ -274,14 +276,16 @@ export const ui = {
     "artwork.related": "Related Artworks",
     "artwork.paidSamples": "Paid sample images",
     "artwork.paidSamplesCta": "See the rest with membership",
-    "artwork.membershipTransition":
-      "Everything below is a membership-only sample preview",
-    "artwork.membershipUnfiltered":
-      "Members see the unfiltered version — no sample glow overlay!",
+    "artwork.imageCountSuffix": " images",
+    "artwork.introSample":
+      "The images in this article are membership-only preview samples.",
     "artwork.membershipCta": "Join the membership",
     "artwork.membershipMoreLink": "Learn more about membership",
+    "artwork.membershipCtaLead":
+      "Want to see more? Join the membership to view it anytime.",
     "sidebar.moreByCharacter": " — more artwork",
     "sidebar.moreBySeries": " — more artwork",
+    "sidebar.doujinshiBySeries": " doujinshi",
     "sidebar.recommend": "You might also like",
     "share.x": "Share on X",
     "share.copy": "Copy link",

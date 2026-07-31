@@ -56,6 +56,8 @@ const doujinshiCollection = defineCollection({
       packageImage: image(),
       sampleImages: z.array(image()).optional(),
       description: z.string(),
+      // artworksのseriesと一致させることで、記事詳細ページの「同タイトルの同人誌」枠に表示される
+      series: z.string().optional(),
       fanzaUrl: z.string().url().optional(),
       patreonUrl: z.string().url().optional(),
       keywords: z.array(z.string()).optional(),

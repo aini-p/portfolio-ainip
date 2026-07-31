@@ -1,5 +1,5 @@
 ---
-import { Image } from "astro:assets";
+import { getImage, Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
@@ -7,6 +7,7 @@ import CommentSection from "~/components/CommentSection.astro";
 import LikeButton from "~/components/LikeButton.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
+import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { patreonMembershipUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
@@ -14,8 +15,9 @@ import {
   getArtworkCharacters,
   getHeaderImage,
   getPortfolioImages,
-  getPrimaryCharacter,
   getSampleImages,
+  getShareImage,
+  getTotalImageCount,
 } from "~/utils/artwork";
 import { toPathSafeSlug } from "~/utils/slug";
 
@@ -37,9 +39,9 @@ const { Content } = await artwork.render();
 const t = ui[lang];
 
 const allCharacters = getArtworkCharacters(artwork);
-const primaryCharacter = getPrimaryCharacter(artwork);
 const portfolioImages = getPortfolioImages(artwork);
 const sampleImages = getSampleImages(artwork);
+const totalImageCount = getTotalImageCount(artwork);
 const hasBody = Boolean(artwork.body?.trim().length);
 
 const pageUrl = new URL(
@@ -47,22 +49,15 @@ const pageUrl = new URL(
   Astro.site,
 ).toString();
 
+const shareImage = await getImage({
+  src: getShareImage(artwork),
+  format: "webp",
+  width: 1200,
+});
+
 const allArtworks = await getCollection("artworks", ({ id }) =>
   id.startsWith(`${lang}/`),
 );
-
-const relatedByCharacter = primaryCharacter
-  ? allArtworks
-      .filter(
-        (a) =>
-          a.slug !== artwork.slug &&
-          getArtworkCharacters(a).includes(primaryCharacter),
-      )
-      .sort(
-        (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
-      )
-      .slice(0, 6)
-  : [];
 
 const relatedBySeries = artwork.data.series
   ? allArtworks
@@ -75,9 +70,11 @@ const relatedBySeries = artwork.data.series
       .slice(0, 6)
   : [];
 
-const recommendDoujinshi = (
-  await getCollection("doujinshi", ({ id }) => id.startsWith(`${lang}/`))
-).slice(0, 2);
+const sameSeriesDoujinshi = artwork.data.series
+  ? (
+      await getCollection("doujinshi", ({ id }) => id.startsWith(`${lang}/`))
+    ).filter((d) => d.data.series === artwork.data.series)
+  : [];
 
 const relatedArtworks = artwork.data.relatedImages
   ? await getCollection("artworks", ({ id, slug }) => {
@@ -90,10 +87,15 @@ const relatedArtworks = artwork.data.relatedImages
     })
   : [];
 ---
-<BaseLayout title={artwork.data.title} description={artwork.data.description} keywords={artwork.data.keywords.join(', ')}>
+<BaseLayout
+  title={artwork.data.title}
+  description={artwork.data.description}
+  keywords={artwork.data.keywords.join(', ')}
+  image={{ src: shareImage.src, alt: artwork.data.title }}
+>
   <div class="detail-shell">
     <article class="main-column">
-      <h1>{artwork.data.title}</h1>
+      <h1>{artwork.data.title} <span class="image-count">（{totalImageCount}{t["artwork.imageCountSuffix"]}）</span></h1>
 
       <div class="hero-frame">
         <Image
@@ -136,26 +138,34 @@ const relatedArtworks = artwork.data.relatedImages
 
       {hasBody && <div class="artwork-body"><Content /></div>}
 
-      <ArticleImageStack images={portfolioImages} groupId="portfolio" eagerCount={2} />
-
-      {sampleImages.length > 0 && (
-        <div class="membership-transition">
-          <p><i class="ti ti-lock" aria-hidden="true"></i> {t["artwork.membershipTransition"]}</p>
-          <p class="membership-unfiltered">{t["artwork.membershipUnfiltered"]}</p>
+      <div class="membership-intro">
+        <div class="membership-intro-copy">
+          <p class="membership-intro-lead"><i class="ti ti-lock-open" aria-hidden="true"></i> {t["artwork.introSample"]}</p>
+          <p class="membership-intro-detail">
+            会員なら全{totalImageCount}枚を塗りつぶし無しでご覧いただけます。
+          </p>
         </div>
-      )}
+        <a href="/membership" class="membership-intro-link">
+          {t["artwork.membershipMoreLink"]} <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <ArticleImageStack images={portfolioImages} groupId="portfolio" eagerCount={2} />
 
       {sampleImages.length > 0 && (
         <ArticleImageStack images={sampleImages} groupId="sample" eagerCount={0} />
       )}
 
-      <a href={patreonMembershipUrl} target="_blank" rel="noopener noreferrer" class="membership-cta">
-        <span class="membership-cta-text">
-          <strong>{t["artwork.membershipCta"]}</strong>
-          <i class="ti ti-external-link" aria-hidden="true"></i>
-        </span>
-      </a>
-      <a href="/membership" class="membership-more-link">{t["artwork.membershipMoreLink"]}</a>
+      <div class="membership-outro">
+        <p class="membership-cta-lead">{t["artwork.membershipCtaLead"]}</p>
+        <a href={patreonMembershipUrl} target="_blank" rel="noopener noreferrer" class="membership-cta">
+          <span class="membership-cta-text">
+            <strong>{t["artwork.membershipCta"]}</strong>
+            <i class="ti ti-external-link" aria-hidden="true"></i>
+          </span>
+        </a>
+        <a href="/membership" class="membership-more-link">{t["artwork.membershipMoreLink"]}</a>
+      </div>
 
       {relatedArtworks.length > 0 && (
         <div class="related-works">
@@ -175,18 +185,29 @@ const relatedArtworks = artwork.data.relatedImages
     </article>
 
     <aside class="sidebar-column">
-      {primaryCharacter && relatedByCharacter.length > 0 && (
+      {artwork.data.series && sameSeriesDoujinshi.length > 0 && (
         <SidebarSection
-          title={`${primaryCharacter}${t["sidebar.moreByCharacter"]}`}
-          href={`/gallery/character/${encodeURIComponent(toPathSafeSlug(primaryCharacter))}`}
+          title={`${artwork.data.series}${t["sidebar.doujinshiBySeries"]}`}
+          href="/doujinshi"
         >
-          {relatedByCharacter.map((related) => (
-            <ArtworkCard
-              href={`/gallery/${related.slug.replace(`${lang}/`, '')}`}
-              title={related.data.title}
-              image={getHeaderImage(related)}
-              slug={related.slug.replace(`${lang}/`, '')}
-            />
+          {sameSeriesDoujinshi.map((item) => (
+            <a class="recommend-card" href={`/doujinshi/${item.slug.replace(`${lang}/`, '')}`}>
+              <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={240} />
+            </a>
+          ))}
+        </SidebarSection>
+      )}
+
+      {fanzaAffiliateItems.length > 0 && (
+        <SidebarSection title={t["sidebar.recommend"]} href="/recommend">
+          {fanzaAffiliateItems.map((item) => (
+            <a class="artwork-card affiliate-card" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
+              <div class="thumb">
+                <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+                <span class="affiliate-label">PR</span>
+              </div>
+              <p class="card-title">{item.title[lang]}</p>
+            </a>
           ))}
         </SidebarSection>
       )}
@@ -203,16 +224,6 @@ const relatedArtworks = artwork.data.relatedImages
               image={getHeaderImage(related)}
               slug={related.slug.replace(`${lang}/`, '')}
             />
-          ))}
-        </SidebarSection>
-      )}
-
-      {recommendDoujinshi.length > 0 && (
-        <SidebarSection title={t["sidebar.recommend"]} href="/recommend">
-          {recommendDoujinshi.map((item) => (
-            <a class="recommend-card" href={`/doujinshi/${item.slug.replace(`${lang}/`, '')}`}>
-              <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={240} />
-            </a>
           ))}
         </SidebarSection>
       )}
@@ -267,6 +278,7 @@ const relatedArtworks = artwork.data.relatedImages
   }
 
   h1 { font-size: 2.0rem; margin: 0; color: var(--text-primary); }
+  .image-count { font-size: 1.1rem; font-weight: 400; color: var(--text-muted); }
   .artwork-body { line-height: 1.85; color: var(--text-secondary); }
 
   .artwork-meta {
@@ -293,20 +305,52 @@ const relatedArtworks = artwork.data.relatedImages
     gap: 0.75rem;
   }
 
-  .membership-transition {
-    display: grid;
-    gap: 0.35rem;
-    padding: 0.9rem 1.1rem;
+  .membership-intro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1rem 1.2rem;
     border-radius: var(--radius-md);
     background: var(--accent-soft);
     border: 0.5px solid var(--accent);
     color: var(--text-primary);
   }
-  .membership-transition p { margin: 0; font-size: 0.92rem; font-weight: 600; }
-  .membership-transition i { color: var(--heart); font-size: 16px; }
-  .membership-unfiltered { color: var(--text-secondary); font-weight: 500 !important; font-size: 0.85rem !important; }
+  .membership-intro-copy { display: grid; gap: 0.3rem; }
+  .membership-intro-lead { margin: 0; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+  .membership-intro-lead i { color: var(--heart); font-size: 16px; }
+  .membership-intro-detail { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+  .membership-intro-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--accent);
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .membership-intro-link:hover { background: var(--accent); color: #fff; }
+
+  .membership-outro {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+  }
+  .membership-cta-lead {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: center;
+  }
 
   .membership-cta {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -350,6 +394,19 @@ const relatedArtworks = artwork.data.relatedImages
     background: var(--bg-elevated-2);
   }
   .recommend-card img { width: 100%; height: 100%; object-fit: cover; }
+
+  .affiliate-card .thumb { background: var(--bg-elevated-2); position: relative; }
+  .affiliate-label {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
 
   @media (max-width: 960px) {
     .detail-shell { grid-template-columns: 1fr; }
