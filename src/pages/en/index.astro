@@ -8,7 +8,11 @@ import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { patreonUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import { getHeaderImage } from "~/utils/artwork";
+import {
+  formatImageCountLabel,
+  getHeaderImage,
+  getTotalImageCount,
+} from "~/utils/artwork";
 import { toPathSafeSlug } from "~/utils/slug";
 
 const lang = "en";
@@ -76,6 +80,7 @@ const searchIndex = await Promise.all(
       slug: toSlug(artwork.slug),
       title: artwork.data.title,
       thumb: optimized.src,
+      imageCount: getTotalImageCount(artwork),
       characters: [
         artwork.data.main_character,
         ...(artwork.data.sub_characters ?? []),
@@ -109,6 +114,7 @@ const searchIndex = await Promise.all(
             image={getHeaderImage(artwork)}
             slug={toSlug(artwork.slug)}
             eager={index < 4}
+            countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
           />
         ))}
       </Rail>
@@ -121,6 +127,7 @@ const searchIndex = await Promise.all(
               title={artwork.data.title}
               image={getHeaderImage(artwork)}
               slug={toSlug(artwork.slug)}
+              countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
             />
           ))}
         </Rail>
@@ -165,6 +172,7 @@ const searchIndex = await Promise.all(
             title={artwork.data.title}
             image={getHeaderImage(artwork)}
             slug={toSlug(artwork.slug)}
+            countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
           />
         ))}
         {fanzaAffiliateItems.map((item) => (
@@ -196,6 +204,7 @@ const searchIndex = await Promise.all(
     slug: string;
     title: string;
     thumb: string;
+    imageCount: number;
     characters: string[];
     series: string;
     keywords: string[];
@@ -215,7 +224,10 @@ const searchIndex = await Promise.all(
       <div class="thumb">
         <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
       </div>
-      <p class="card-title">${entry.title}</p>
+      <div class="card-title-row">
+        <p class="card-title">${entry.title}</p>
+        <span class="card-count">(${entry.imageCount} images)</span>
+      </div>
     `;
     return a;
   }

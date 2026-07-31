@@ -44,7 +44,19 @@ export function getShareImage(artwork: Artwork) {
   return artwork.data.patreonEmbedImageUrl ?? getHeaderImage(artwork);
 }
 
-// 会員向けに公開される総画像枚数（ポートフォリオ＋サンプル）
+// メンバーシップ向けの実際の投稿枚数（Patreon側のFree+Paidグループ実数）。
+// 未設定の旧形式記事では、ポートフォリオ掲載枚数（ポートフォリオ＋サンプル）にフォールバックする
 export function getTotalImageCount(artwork: Artwork) {
-  return getPortfolioImages(artwork).length + getSampleImages(artwork).length;
+  return (
+    artwork.data.membershipImageCount ??
+    getPortfolioImages(artwork).length + getSampleImages(artwork).length
+  );
+}
+
+// 「タイトル（12枚）」のような、枚数表記込みの見出し文字列を作る
+export function formatImageCountLabel(
+  count: number,
+  lang: "ja" | "en",
+): string {
+  return lang === "ja" ? `（${count}枚）` : `(${count} images)`;
 }

@@ -11,6 +11,7 @@ export interface Props {
   eager?: boolean;
   subtitle?: string;
   slug?: string;
+  countLabel?: string;
 }
 
 const {
@@ -22,6 +23,7 @@ const {
   eager = false,
   subtitle,
   slug,
+  countLabel,
 } = Astro.props;
 ---
 <a href={href} class="artwork-card" data-slug={slug} style={`--aspect: ${aspect.replace("/", " / ")};`}>
@@ -40,7 +42,10 @@ const {
       </span>
     )}
   </div>
-  <p class="card-title">{title}</p>
+  <div class="card-title-row">
+    <p class="card-title">{title}</p>
+    {countLabel && <span class="card-count">{countLabel}</span>}
+  </div>
   {subtitle && <p class="card-subtitle">{subtitle}</p>}
 </a>
 
@@ -97,13 +102,29 @@ const {
     color: var(--heart);
   }
 
-  .card-title {
+  .card-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
     margin: 0.5rem 0 0;
+  }
+
+  .card-title {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
     font-size: 0.85rem;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .card-count {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-strong);
   }
 
   .card-subtitle {

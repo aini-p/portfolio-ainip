@@ -21,7 +21,6 @@ export const ui = {
     "artwork.related": "関連イラスト",
     "artwork.paidSamples": "有料画像サンプル",
     "artwork.paidSamplesCta": "続きはメンバーシップで",
-    "artwork.imageCountSuffix": "枚",
     "artwork.introSample":
       "この記事の画像はメンバーシップ会員向けのサンプルです。",
     "artwork.membershipCta": "メンバーシップに登録する",
@@ -32,6 +31,10 @@ export const ui = {
     "sidebar.moreBySeries": "の他のイラスト",
     "sidebar.doujinshiBySeries": "の同人誌",
     "sidebar.recommend": "こちらもおすすめ",
+    "discord.ctaLead": "会員限定イラストや最新情報はDiscordサーバーで配信中！",
+    "discord.ctaDetail":
+      "コメントだけでなく、Discordでも気軽に感想を聞かせてください。",
+    "discord.ctaButton": "サーバーに参加する",
     "share.x": "Xでシェア",
     "share.copy": "リンクをコピー",
     "share.copied": "コピーしました",
@@ -276,7 +279,6 @@ export const ui = {
     "artwork.related": "Related Artworks",
     "artwork.paidSamples": "Paid sample images",
     "artwork.paidSamplesCta": "See the rest with membership",
-    "artwork.imageCountSuffix": " images",
     "artwork.introSample":
       "The images in this article are membership-only preview samples.",
     "artwork.membershipCta": "Join the membership",
@@ -287,6 +289,11 @@ export const ui = {
     "sidebar.moreBySeries": " — more artwork",
     "sidebar.doujinshiBySeries": " doujinshi",
     "sidebar.recommend": "You might also like",
+    "discord.ctaLead":
+      "Exclusive art and the latest updates are posted in our Discord server!",
+    "discord.ctaDetail":
+      "Feel free to share your thoughts there too, not just in the comments.",
+    "discord.ctaButton": "Join the server",
     "share.x": "Share on X",
     "share.copy": "Copy link",
     "share.copied": "Copied",

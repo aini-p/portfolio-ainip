@@ -4,7 +4,11 @@ import ArtworkCard from "~/components/ArtworkCard.astro";
 import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import { getHeaderImage } from "~/utils/artwork";
+import {
+  formatImageCountLabel,
+  getHeaderImage,
+  getTotalImageCount,
+} from "~/utils/artwork";
 
 const lang = "ja";
 const t = ui[lang];
@@ -32,6 +36,7 @@ const featured = [...artworks]
             title={artwork.data.title}
             image={getHeaderImage(artwork)}
             slug={artwork.slug.replace(`${lang}/`, "")}
+            countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
           />
         ))}
       </div>

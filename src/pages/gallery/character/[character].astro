@@ -3,7 +3,12 @@ import { type CollectionEntry, getCollection } from "astro:content";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import { getArtworkCharacters, getHeaderImage } from "~/utils/artwork";
+import {
+  formatImageCountLabel,
+  getArtworkCharacters,
+  getHeaderImage,
+  getTotalImageCount,
+} from "~/utils/artwork";
 import { toPathSafeSlug } from "~/utils/slug";
 
 const lang = "ja";
@@ -57,6 +62,7 @@ const { artworks, characterName } = Astro.props;
           image={getHeaderImage(artwork)}
           slug={artwork.slug.replace(`${lang}/`, "")}
           eager={index < 8}
+          countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
         />
       ))}
     </section>

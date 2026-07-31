@@ -13,6 +13,8 @@ const artworksCollection = defineCollection({
         portfolioImages: z.array(image()).optional(),
         // メンバーシップ会員向けサンプル画像群
         sampleImages: z.array(image()).optional(),
+        // Patreon側(無料+有料会員向けグループ)の実際の投稿枚数。ポートフォリオ掲載枚数とは異なる
+        membershipImageCount: z.number().optional(),
         // 旧形式（1記事=1画像）との後方互換。新形式では省略可
         src: image().optional(),
         patreonUrl: z.union([

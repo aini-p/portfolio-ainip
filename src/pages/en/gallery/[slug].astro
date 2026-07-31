@@ -8,10 +8,11 @@ import LikeButton from "~/components/LikeButton.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
 import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
-import { patreonMembershipUrl } from "~/constants/social";
+import { discordUrl, patreonMembershipUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
+  formatImageCountLabel,
   getArtworkCharacters,
   getHeaderImage,
   getPortfolioImages,
@@ -95,7 +96,7 @@ const relatedArtworks = artwork.data.relatedImages
 >
   <div class="detail-shell">
     <article class="main-column">
-      <h1>{artwork.data.title} <span class="image-count">({totalImageCount}{t["artwork.imageCountSuffix"]})</span></h1>
+      <h1>{artwork.data.title} <span class="image-count">{formatImageCountLabel(totalImageCount, lang)}</span></h1>
 
       <div class="hero-frame">
         <Image
@@ -177,6 +178,7 @@ const relatedArtworks = artwork.data.relatedImages
                 title={related.data.title}
                 image={getHeaderImage(related)}
                 slug={related.slug.replace(`${lang}/`, '')}
+                countLabel={formatImageCountLabel(getTotalImageCount(related), lang)}
               />
             ))}
           </div>
@@ -223,11 +225,23 @@ const relatedArtworks = artwork.data.relatedImages
               title={related.data.title}
               image={getHeaderImage(related)}
               slug={related.slug.replace(`${lang}/`, '')}
+              countLabel={formatImageCountLabel(getTotalImageCount(related), lang)}
             />
           ))}
         </SidebarSection>
       )}
     </aside>
+
+    <div class="discord-cta">
+      <i class="ti ti-brand-discord" aria-hidden="true"></i>
+      <div class="discord-cta-copy">
+        <p class="discord-cta-lead">{t["discord.ctaLead"]}</p>
+        <p class="discord-cta-detail">{t["discord.ctaDetail"]}</p>
+      </div>
+      <a href={discordUrl} target="_blank" rel="noopener noreferrer" class="discord-cta-button">
+        {t["discord.ctaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+      </a>
+    </div>
 
     <div class="comments-wrapper">
       <CommentSection slug={artwork.slug.replace(`${lang}/`, "")} lang={lang} />
@@ -264,6 +278,37 @@ const relatedArtworks = artwork.data.relatedImages
     margin-top: 0.5rem;
   }
 
+  .discord-cta {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.1rem 1.3rem;
+    border-radius: var(--radius-lg);
+    background: #4b5ac4;
+    color: #fff;
+  }
+  .discord-cta > i { font-size: 28px; flex-shrink: 0; }
+  .discord-cta-copy { flex: 1; min-width: 200px; display: grid; gap: 0.25rem; }
+  .discord-cta-lead { margin: 0; font-size: 0.95rem; font-weight: 600; }
+  .discord-cta-detail { margin: 0; font-size: 0.82rem; opacity: 0.85; }
+  .discord-cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #4b5ac4;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .discord-cta-button:hover { background: #e8e9fb; }
+
   .hero-frame {
     aspect-ratio: 16 / 9;
     border-radius: var(--radius-lg);
@@ -278,7 +323,7 @@ const relatedArtworks = artwork.data.relatedImages
   }
 
   h1 { font-size: 2.0rem; margin: 0; color: var(--text-primary); }
-  .image-count { font-size: 1.1rem; font-weight: 400; color: var(--text-muted); }
+  .image-count { font-size: inherit; font-weight: inherit; color: var(--accent-strong); }
   .artwork-body { line-height: 1.85; color: var(--text-secondary); }
 
   .artwork-meta {
