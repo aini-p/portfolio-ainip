@@ -56,11 +56,10 @@ const { artworks, seriesName } = Astro.props;
       {artworks.map((artwork, index) => (
         <ArtworkCard
           href={`/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
-          title={artwork.data.title}
+          title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
           image={getHeaderImage(artwork)}
           slug={artwork.slug.replace(`${lang}/`, "")}
           eager={index < 8}
-          countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
         />
       ))}
     </section>

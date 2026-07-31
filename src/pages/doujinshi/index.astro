@@ -28,7 +28,7 @@ const sorted = [...items].sort(
             <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={400} />
           </div>
           <div class="card-body">
-            <h2>{item.data.title}</h2>
+            <h2>{item.data.title}{item.data.pageCount ? ` 全${item.data.pageCount}枚` : ''}</h2>
             <p>{item.data.description}</p>
             <span class="card-cta">{t["doujinshi.viewButton"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
           </div>

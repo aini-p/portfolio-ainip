@@ -53,10 +53,11 @@ export function getTotalImageCount(artwork: Artwork) {
   );
 }
 
-// 「タイトル（12枚）」のような、枚数表記込みの見出し文字列を作る
+// タイトル文字列にそのまま連結する枚数表記（例: 「タイトル 全300枚」）。
+// 見た目上タイトルと同じフォント・1行で表示するため、別要素にせずtitle文字列へ直接連結する
 export function formatImageCountLabel(
   count: number,
   lang: "ja" | "en",
 ): string {
-  return lang === "ja" ? `（${count}枚）` : `(${count} images)`;
+  return lang === "ja" ? ` 全${count}枚` : ` (all ${count} images)`;
 }

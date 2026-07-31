@@ -5,7 +5,7 @@ import ArtworkCard from "~/components/ArtworkCard.astro";
 import Rail from "~/components/Rail.astro";
 import { categories } from "~/constants/categories";
 import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
-import { patreonUrl } from "~/constants/social";
+import { discordUrl, patreonUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -110,11 +110,10 @@ const searchIndex = await Promise.all(
         {latestArtworks.map((artwork, index) => (
           <ArtworkCard
             href={toHref(artwork.slug)}
-            title={artwork.data.title}
+            title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
             image={getHeaderImage(artwork)}
             slug={toSlug(artwork.slug)}
             eager={index < 4}
-            countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
           />
         ))}
       </Rail>
@@ -124,10 +123,9 @@ const searchIndex = await Promise.all(
           {rail.items.map((artwork) => (
             <ArtworkCard
               href={toHref(artwork.slug)}
-              title={artwork.data.title}
+              title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
               image={getHeaderImage(artwork)}
               slug={toSlug(artwork.slug)}
-              countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
             />
           ))}
         </Rail>
@@ -169,10 +167,9 @@ const searchIndex = await Promise.all(
         {recommendArtworks.map((artwork) => (
           <ArtworkCard
             href={toHref(artwork.slug)}
-            title={artwork.data.title}
+            title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
             image={getHeaderImage(artwork)}
             slug={toSlug(artwork.slug)}
-            countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
           />
         ))}
         {fanzaAffiliateItems.map((item) => (
@@ -191,6 +188,15 @@ const searchIndex = await Promise.all(
           <h2>{t["home.toolsHeading"]}</h2>
           <p>{t["home.toolsBody"]}</p>
           <span class="promo-cta">{t["home.toolsCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+        </div>
+      </a>
+
+      <a class="promo-banner promo-banner-discord" href={discordUrl} target="_blank" rel="noopener noreferrer">
+        <i class="ti ti-brand-discord promo-glyph-icon" aria-hidden="true"></i>
+        <div class="promo-copy">
+          <h2>{t["discord.ctaLead"]}</h2>
+          <p>{t["discord.ctaDetail"]}</p>
+          <span class="promo-cta">{t["discord.ctaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i></span>
         </div>
       </a>
     </div>
@@ -224,10 +230,7 @@ const searchIndex = await Promise.all(
       <div class="thumb">
         <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
       </div>
-      <div class="card-title-row">
-        <p class="card-title">${entry.title}</p>
-        <span class="card-count">(${entry.imageCount} images)</span>
-      </div>
+      <p class="card-title">${entry.title} (all ${entry.imageCount} images)</p>
     `;
     return a;
   }
@@ -454,6 +457,26 @@ const searchIndex = await Promise.all(
   .promo-banner-membership {
     background: var(--accent-soft);
     border-color: var(--accent);
+  }
+
+  .promo-banner-discord {
+    background: #4b5ac4;
+    border-color: #4b5ac4;
+  }
+
+  .promo-banner-discord .promo-copy h2,
+  .promo-banner-discord .promo-cta {
+    color: #fff;
+  }
+
+  .promo-banner-discord .promo-copy p {
+    color: rgb(255 255 255 / 85%);
+  }
+
+  .promo-glyph-icon {
+    font-size: 40px;
+    color: #fff;
+    flex-shrink: 0;
   }
 
   @media (width <= 768px) {

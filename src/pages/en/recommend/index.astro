@@ -33,10 +33,9 @@ const featured = [...artworks]
         {featured.map((artwork) => (
           <ArtworkCard
             href={`/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
-            title={artwork.data.title}
+            title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
             image={getHeaderImage(artwork)}
             slug={artwork.slug.replace(`${lang}/`, "")}
-            countLabel={formatImageCountLabel(getTotalImageCount(artwork), lang)}
           />
         ))}
       </div>

@@ -3,7 +3,6 @@ import { getImage, Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
-import CommentSection from "~/components/CommentSection.astro";
 import LikeButton from "~/components/LikeButton.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
@@ -95,8 +94,9 @@ const relatedArtworks = artwork.data.relatedImages
   image={{ src: shareImage.src, alt: artwork.data.title }}
 >
   <div class="detail-shell">
+   <div class="detail-grid">
     <article class="main-column">
-      <h1>{artwork.data.title} <span class="image-count">{formatImageCountLabel(totalImageCount, lang)}</span></h1>
+      <h1>{artwork.data.title}{formatImageCountLabel(totalImageCount, lang)}</h1>
 
       <div class="hero-frame">
         <Image
@@ -175,10 +175,9 @@ const relatedArtworks = artwork.data.relatedImages
             {relatedArtworks.map((related) => (
               <ArtworkCard
                 href={`/en/gallery/${related.slug.replace(`${lang}/`, '')}`}
-                title={related.data.title}
+                title={`${related.data.title}${formatImageCountLabel(getTotalImageCount(related), lang)}`}
                 image={getHeaderImage(related)}
                 slug={related.slug.replace(`${lang}/`, '')}
-                countLabel={formatImageCountLabel(getTotalImageCount(related), lang)}
               />
             ))}
           </div>
@@ -222,15 +221,15 @@ const relatedArtworks = artwork.data.relatedImages
           {relatedBySeries.map((related) => (
             <ArtworkCard
               href={`/en/gallery/${related.slug.replace(`${lang}/`, '')}`}
-              title={related.data.title}
+              title={`${related.data.title}${formatImageCountLabel(getTotalImageCount(related), lang)}`}
               image={getHeaderImage(related)}
               slug={related.slug.replace(`${lang}/`, '')}
-              countLabel={formatImageCountLabel(getTotalImageCount(related), lang)}
             />
           ))}
         </SidebarSection>
       )}
     </aside>
+   </div>
 
     <div class="discord-cta">
       <i class="ti ti-brand-discord" aria-hidden="true"></i>
@@ -242,10 +241,6 @@ const relatedArtworks = artwork.data.relatedImages
         {t["discord.ctaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
       </a>
     </div>
-
-    <div class="comments-wrapper">
-      <CommentSection slug={artwork.slug.replace(`${lang}/`, "")} lang={lang} />
-    </div>
   </div>
 </BaseLayout>
 <style is:inline>
@@ -253,6 +248,11 @@ const relatedArtworks = artwork.data.relatedImages
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .detail-grid {
     display: grid;
     grid-template-columns: 1fr 300px;
     gap: 2rem;
@@ -273,13 +273,7 @@ const relatedArtworks = artwork.data.relatedImages
     top: 96px;
   }
 
-  .comments-wrapper {
-    grid-column: 1 / -1;
-    margin-top: 0.5rem;
-  }
-
   .discord-cta {
-    grid-column: 1 / -1;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -323,7 +317,6 @@ const relatedArtworks = artwork.data.relatedImages
   }
 
   h1 { font-size: 2.0rem; margin: 0; color: var(--text-primary); }
-  .image-count { font-size: inherit; font-weight: inherit; color: var(--accent-strong); }
   .artwork-body { line-height: 1.85; color: var(--text-secondary); }
 
   .artwork-meta {
@@ -454,7 +447,7 @@ const relatedArtworks = artwork.data.relatedImages
   }
 
   @media (max-width: 960px) {
-    .detail-shell { grid-template-columns: 1fr; }
+    .detail-grid { grid-template-columns: 1fr; }
     .sidebar-column { position: static; }
   }
 

@@ -60,8 +60,14 @@ const doujinshiCollection = defineCollection({
       description: z.string(),
       // artworksのseriesと一致させることで、記事詳細ページの「同タイトルの同人誌」枠に表示される
       series: z.string().optional(),
+      characters: z.array(z.string()).optional(),
+      pageCount: z.number().optional(),
       fanzaUrl: z.string().url().optional(),
       patreonUrl: z.string().url().optional(),
+      dlsiteUrl: z.string().url().optional(),
+      digiketUrl: z.string().url().optional(),
+      // 総集編が収録する他doujinshiエントリのslug
+      compiledFrom: z.array(z.string()).optional(),
       keywords: z.array(z.string()).optional(),
     }),
 });

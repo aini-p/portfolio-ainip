@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import { toPathSafeSlug } from "~/utils/slug";
 
 const lang = "en";
 const t = ui[lang];
@@ -19,6 +20,14 @@ export async function getStaticPaths() {
 
 const { item } = Astro.props;
 const { Content } = await item.render();
+
+const compiledFrom = item.data.compiledFrom
+  ? await getCollection("doujinshi", ({ id, slug }) => {
+      const itemLang = id.split("/")[0];
+      const itemSlug = slug.replace(/^en\//, "");
+      return itemLang === lang && item.data.compiledFrom?.includes(itemSlug);
+    })
+  : [];
 ---
 <BaseLayout title={item.data.title} description={item.data.description}>
   <div class="lp">
@@ -29,8 +38,15 @@ const { Content } = await item.render();
         <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={640} />
       </div>
       <div class="lp-intro">
-        <h1>{item.data.title}</h1>
+        <h1>{item.data.title}{item.data.pageCount ? ` (all ${item.data.pageCount} images)` : ''}</h1>
         <p>{item.data.description}</p>
+        {item.data.characters && item.data.characters.length > 0 && (
+          <div class="lp-characters">
+            {item.data.characters.map((char) => (
+              <a class="character-tag" href={`/en/gallery/character/${encodeURIComponent(toPathSafeSlug(char))}`}>{char}</a>
+            ))}
+          </div>
+        )}
       </div>
     </header>
 
@@ -60,8 +76,36 @@ const { Content } = await item.render();
             {t["doujinshi.patreonButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
           </a>
         )}
+        {item.data.dlsiteUrl && (
+          <a href={item.data.dlsiteUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-dlsite">
+            {t["doujinshi.dlsiteButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+          </a>
+        )}
+        {item.data.digiketUrl && (
+          <a href={item.data.digiketUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-digiket">
+            {t["doujinshi.digiketButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+          </a>
+        )}
       </div>
     </section>
+
+    {compiledFrom.length > 0 && (
+      <section class="lp-compiled">
+        <h2>{t["doujinshi.compiledHeading"]}</h2>
+        <div class="doujinshi-grid">
+          {compiledFrom.map((included) => (
+            <a class="doujinshi-card" href={`/en/doujinshi/${included.slug.replace(`${lang}/`, '')}`}>
+              <div class="package-frame">
+                <Image src={included.data.packageImage} alt={included.data.title} format="webp" width={400} />
+              </div>
+              <div class="card-body">
+                <h2>{included.data.title}</h2>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
   </div>
 </BaseLayout>
 
@@ -165,6 +209,65 @@ const { Content } = await item.render();
     color: #fff;
   }
   .buy-patreon:hover { background: var(--accent-strong); }
+
+  .buy-dlsite,
+  .buy-digiket {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+  }
+  .buy-dlsite:hover,
+  .buy-digiket:hover { border-color: var(--accent-strong); }
+
+  .lp-characters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.85rem;
+  }
+
+  .character-tag {
+    font-size: 0.82rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--border-strong);
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .character-tag:hover { border-color: var(--accent-strong); color: var(--text-primary); }
+
+  .lp-compiled h2 {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .doujinshi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .doujinshi-card {
+    display: grid;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 0.5px solid var(--border-subtle);
+    background: var(--bg-elevated);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s ease;
+  }
+  .doujinshi-card:hover { border-color: var(--accent-strong); }
+  .lp-compiled .card-body {
+    padding: 0.75rem 0.9rem;
+  }
+  .lp-compiled .card-body h2 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
 
   @media (width <= 768px) {
     .lp { padding: 1rem; gap: 1.5rem; }
