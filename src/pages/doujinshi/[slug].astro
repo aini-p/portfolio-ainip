@@ -94,6 +94,7 @@ const sameSeriesArtworks = item.data.series
       )}
 
       <section class="lp-buy">
+        <p class="lp-buy-recap">{item.data.title}{item.data.pageCount ? ` 全${item.data.pageCount}枚` : ''}</p>
         <h2>{t["doujinshi.buyHeading"]}</h2>
         <div class="buy-buttons">
           {item.data.fanzaUrl && (
@@ -270,6 +271,13 @@ const sameSeriesArtworks = item.data.series
     border-radius: var(--radius-lg);
     background: var(--accent-soft);
     border: 0.5px solid var(--accent);
+  }
+
+  .lp-buy-recap {
+    margin: 0 0 0.3rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
   }
 
   .buy-buttons {

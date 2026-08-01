@@ -74,10 +74,15 @@ const { title, icon, seeMoreHref, seeMoreLabel } = Astro.props;
     overflow-x: auto;
     padding-bottom: 0.35rem;
     scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
   }
 
   .rail-track > :global(*) {
     scroll-snap-align: start;
+    scroll-snap-stop: normal;
   }
 
   .rail-track::-webkit-scrollbar {

@@ -3,6 +3,7 @@ import { getImage } from "astro:assets";
 import { getCollection } from "astro:content";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import Rail from "~/components/Rail.astro";
+import SidebarSection from "~/components/SidebarSection.astro";
 import { categories } from "~/constants/categories";
 import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { discordUrl, patreonUrl } from "~/constants/social";
@@ -24,7 +25,6 @@ const artworks = await getCollection("artworks", ({ id }) =>
 const doujinshiList = await getCollection("doujinshi", ({ id }) =>
   id.startsWith(`${lang}/`),
 );
-const featuredDoujinshi = doujinshiList[0];
 
 function toSlug(fullSlug: string) {
   return fullSlug.replace(`${lang}/`, "");
@@ -32,6 +32,10 @@ function toSlug(fullSlug: string) {
 
 function toHref(fullSlug: string) {
   return `/en/gallery/${toSlug(fullSlug)}`;
+}
+
+function toDoujinshiHref(fullSlug: string) {
+  return `/en/doujinshi/${toSlug(fullSlug)}`;
 }
 
 const sortedByDate = [...artworks].sort(
@@ -48,6 +52,17 @@ const categoryRails = categories
   .filter((rail) => rail.items.length > 0);
 
 const recommendArtworks = sortedByDate.slice(0, 3);
+
+// Own doujinshi (isOwnWork!==false) vs. review articles for other creators' work (isOwnWork===false)
+const ownDoujinshi = [...doujinshiList]
+  .filter((d) => d.data.isOwnWork !== false)
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const otherDoujinshiReviews = [...doujinshiList]
+  .filter((d) => d.data.isOwnWork === false)
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+  .slice(0, 12);
+const latestOwnDoujinshi = ownDoujinshi.slice(0, 12);
+const recommendOwnDoujinshi = ownDoujinshi.slice(0, 3);
 
 // By-series section: series name, count, and its latest artwork
 const seriesMap = new Map<
@@ -93,34 +108,31 @@ const searchIndex = await Promise.all(
 ---
 <BaseLayout>
   <div class="home">
-    <div class="search-bar">
-      <i class="ti ti-search" aria-hidden="true"></i>
-      <input type="search" id="artwork-search" placeholder={t["home.searchPlaceholder"]} />
-    </div>
+   <div class="home-grid">
+    <div class="main-column">
+      <div class="search-bar">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="search" id="artwork-search" placeholder={t["home.searchPlaceholder"]} />
+      </div>
 
-    <p class="search-empty" id="search-empty" hidden>{t["home.noResults"]}</p>
-    <div class="search-results-grid" id="search-results" hidden></div>
+      <p class="search-empty" id="search-empty" hidden>{t["home.noResults"]}</p>
+      <div class="search-results-grid" id="search-results" hidden></div>
 
-    <div id="rails-view" class="rails-view">
-      <Rail title={t["home.ranking"]} icon="ti ti-flame">
-        <div id="ranking-rail" class="ranking-rail"></div>
-      </Rail>
+      <div id="rails-view" class="rails-view">
+        <Rail title={t["home.latest"]}>
+          {latestArtworks.map((artwork, index) => (
+            <ArtworkCard
+              href={toHref(artwork.slug)}
+              title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+              image={getHeaderImage(artwork)}
+              slug={toSlug(artwork.slug)}
+              eager={index < 4}
+            />
+          ))}
+        </Rail>
 
-      <Rail title={t["home.latest"]}>
-        {latestArtworks.map((artwork, index) => (
-          <ArtworkCard
-            href={toHref(artwork.slug)}
-            title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
-            image={getHeaderImage(artwork)}
-            slug={toSlug(artwork.slug)}
-            eager={index < 4}
-          />
-        ))}
-      </Rail>
-
-      {categoryRails.map((rail) => (
-        <Rail title={rail.label[lang]}>
-          {rail.items.map((artwork) => (
+        <Rail title={t["home.recommendHeading"]} seeMoreHref="/en/recommend" seeMoreLabel={t["home.recommendHeading"]}>
+          {recommendArtworks.map((artwork) => (
             <ArtworkCard
               href={toHref(artwork.slug)}
               title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
@@ -128,78 +140,127 @@ const searchIndex = await Promise.all(
               slug={toSlug(artwork.slug)}
             />
           ))}
-        </Rail>
-      ))}
-
-      {seriesList.length > 0 && (
-        <Rail title={t["home.seriesHeading"]}>
-          {seriesList.map((series) => (
-            <ArtworkCard
-              href={`/en/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`}
-              title={series.name}
-              subtitle={`${series.count}${t["home.seriesCountSuffix"]}`}
-              image={getHeaderImage(series.latest)}
-            />
+          {fanzaAffiliateItems.map((item) => (
+            <a class="artwork-card affiliate-card" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
+              <div class="thumb">
+                <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+                <span class="affiliate-label">PR</span>
+              </div>
+              <p class="card-title">{item.title[lang]}</p>
+            </a>
           ))}
         </Rail>
-      )}
 
-      <a class="promo-banner promo-banner-membership" href={patreonUrl} target="_blank" rel="noopener noreferrer">
-        <div class="promo-copy">
-          <h2>{t["home.membershipHeading"]}</h2>
-          <p>{t["home.membershipBody"]}</p>
-          <span class="promo-cta">{t["home.membershipCta"]} <i class="ti ti-external-link" aria-hidden="true"></i></span>
-        </div>
-      </a>
-
-      {featuredDoujinshi && (
-        <a class="promo-banner" href="/en/doujinshi">
-          <img src="/images/placeholder-doujinshi.svg" alt="" aria-hidden="true" class="promo-glyph" />
+        <a class="promo-banner promo-banner-membership" href={patreonUrl} target="_blank" rel="noopener noreferrer">
           <div class="promo-copy">
-            <h2>{t["home.doujinshiHeading"]}</h2>
-            <p>{t["home.doujinshiBody"]}</p>
-            <span class="promo-cta">{t["home.doujinshiCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+            <h2>{t["home.membershipHeading"]}</h2>
+            <p>{t["home.membershipBody"]}</p>
+            <span class="promo-cta">{t["home.membershipCta"]} <i class="ti ti-external-link" aria-hidden="true"></i></span>
           </div>
         </a>
-      )}
 
-      <Rail title={t["home.recommendHeading"]} seeMoreHref="/en/recommend" seeMoreLabel={t["home.recommendHeading"]}>
-        {recommendArtworks.map((artwork) => (
-          <ArtworkCard
-            href={toHref(artwork.slug)}
-            title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
-            image={getHeaderImage(artwork)}
-            slug={toSlug(artwork.slug)}
-          />
+        {latestOwnDoujinshi.length > 0 && (
+          <Rail title={t["home.doujinshiLatestHeading"]} seeMoreHref="/en/doujinshi" seeMoreLabel={t["home.doujinshiLatestHeading"]}>
+            {latestOwnDoujinshi.map((item) => (
+              <ArtworkCard
+                href={toDoujinshiHref(item.slug)}
+                title={`${item.data.title}${item.data.pageCount ? formatImageCountLabel(item.data.pageCount, lang) : ''}`}
+                image={item.data.packageImage}
+                aspect="4/3"
+                slug={toSlug(item.slug)}
+              />
+            ))}
+          </Rail>
+        )}
+
+        {(recommendOwnDoujinshi.length > 0 || fanzaAffiliateItems.length > 0) && (
+          <Rail title={t["home.recommendHeading"]} seeMoreHref="/en/doujinshi" seeMoreLabel={t["home.recommendHeading"]}>
+            {recommendOwnDoujinshi.map((item) => (
+              <ArtworkCard
+                href={toDoujinshiHref(item.slug)}
+                title={`${item.data.title}${item.data.pageCount ? formatImageCountLabel(item.data.pageCount, lang) : ''}`}
+                image={item.data.packageImage}
+                aspect="4/3"
+                slug={toSlug(item.slug)}
+              />
+            ))}
+            {fanzaAffiliateItems.map((item) => (
+              <a class="artwork-card affiliate-card" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
+                <div class="thumb">
+                  <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+                  <span class="affiliate-label">PR</span>
+                </div>
+                <p class="card-title">{item.title[lang]}</p>
+              </a>
+            ))}
+          </Rail>
+        )}
+
+        {otherDoujinshiReviews.length > 0 && (
+          <Rail title={t["home.doujinshiReviewHeading"]}>
+            {otherDoujinshiReviews.map((item) => (
+              <ArtworkCard
+                href={toDoujinshiHref(item.slug)}
+                title={`${item.data.title}${item.data.pageCount ? formatImageCountLabel(item.data.pageCount, lang) : ''}`}
+                image={item.data.packageImage}
+                aspect="4/3"
+                slug={toSlug(item.slug)}
+              />
+            ))}
+          </Rail>
+        )}
+
+        {categoryRails.map((rail) => (
+          <Rail title={rail.label[lang]}>
+            {rail.items.map((artwork) => (
+              <ArtworkCard
+                href={toHref(artwork.slug)}
+                title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+                image={getHeaderImage(artwork)}
+                slug={toSlug(artwork.slug)}
+              />
+            ))}
+          </Rail>
         ))}
-        {fanzaAffiliateItems.map((item) => (
-          <a class="artwork-card affiliate-card" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
-            <div class="thumb">
-              <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
-              <span class="affiliate-label">PR</span>
-            </div>
-            <p class="card-title">{item.title[lang]}</p>
-          </a>
-        ))}
-      </Rail>
 
-      <a class="promo-banner promo-banner-tools" href="/en/tools">
-        <div class="promo-copy">
-          <h2>{t["home.toolsHeading"]}</h2>
-          <p>{t["home.toolsBody"]}</p>
-          <span class="promo-cta">{t["home.toolsCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
-        </div>
-      </a>
+        <a class="promo-banner promo-banner-tools" href="/en/tools">
+          <div class="promo-copy">
+            <h2>{t["home.toolsHeading"]}</h2>
+            <p>{t["home.toolsBody"]}</p>
+            <span class="promo-cta">{t["home.toolsCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+          </div>
+        </a>
 
-      <a class="promo-banner promo-banner-discord" href={discordUrl} target="_blank" rel="noopener noreferrer">
-        <i class="ti ti-brand-discord promo-glyph-icon" aria-hidden="true"></i>
-        <div class="promo-copy">
-          <h2>{t["discord.ctaLead"]}</h2>
-          <p>{t["discord.ctaDetail"]}</p>
-          <span class="promo-cta">{t["discord.ctaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i></span>
-        </div>
-      </a>
+        <a class="promo-banner promo-banner-discord" href={discordUrl} target="_blank" rel="noopener noreferrer">
+          <i class="ti ti-brand-discord promo-glyph-icon" aria-hidden="true"></i>
+          <div class="promo-copy">
+            <h2>{t["discord.ctaLead"]}</h2>
+            <p>{t["discord.ctaDetail"]}</p>
+            <span class="promo-cta">{t["discord.ctaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i></span>
+          </div>
+        </a>
+      </div>
     </div>
+
+    <aside class="sidebar-column">
+      <SidebarSection title={t["home.ranking"]}>
+        <div id="ranking-list" class="ranking-list"></div>
+      </SidebarSection>
+
+      {seriesList.length > 0 && (
+        <SidebarSection title={t["home.worksListHeading"]}>
+          <div class="series-list">
+            {seriesList.map((series) => (
+              <a class="series-list-item" href={`/en/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`}>
+                <span class="series-list-name">{series.name}</span>
+                <span class="series-list-count">{series.count}{t["home.seriesCountSuffix"]}</span>
+              </a>
+            ))}
+          </div>
+        </SidebarSection>
+      )}
+    </aside>
+   </div>
   </div>
 
   <script is:inline type="application/json" id="artworks-index" set:html={JSON.stringify(searchIndex)} />
@@ -269,9 +330,9 @@ const searchIndex = await Promise.all(
   });
 
   async function loadRanking() {
-    const rankingRail = document.getElementById("ranking-rail");
-    const rankingSection = rankingRail?.closest("section");
-    if (!rankingRail || !rankingSection || !API_BASE) return;
+    const rankingList = document.getElementById("ranking-list");
+    const rankingSection = rankingList?.closest(".sidebar-section");
+    if (!rankingList || !rankingSection || !API_BASE) return;
 
     try {
       const res = await fetch(`${API_BASE}/likes/ranking?limit=10`);
@@ -295,15 +356,15 @@ const searchIndex = await Promise.all(
         likeBadge.className = "like-badge";
         likeBadge.innerHTML = `<i class="ti ti-heart" aria-hidden="true"></i> ${row.count}`;
         card.querySelector(".thumb")?.append(likeBadge);
-        rankingRail.append(card);
+        rankingList.append(card);
       });
       rankingSection.removeAttribute("hidden");
     } catch {
-      // ranking unavailable: keep the rail hidden
+      // ranking unavailable: keep the section hidden
     }
   }
 
-  document.getElementById("ranking-rail")?.closest("section")?.setAttribute("hidden", "true");
+  document.getElementById("ranking-list")?.closest(".sidebar-section")?.setAttribute("hidden", "true");
   loadRanking();
 </script>
 
@@ -316,8 +377,27 @@ const searchIndex = await Promise.all(
     max-width: 1200px;
     margin: 0 auto;
     padding: 1.25rem 1.25rem 3rem;
+  }
+
+  .home-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .main-column {
     display: grid;
     gap: 2.25rem;
+    min-width: 0;
+  }
+
+  .sidebar-column {
+    display: grid;
+    gap: 1.75rem;
+    min-width: 0;
+    position: sticky;
+    top: 96px;
   }
 
   .search-bar {
@@ -354,18 +434,44 @@ const searchIndex = await Promise.all(
     margin: 0;
   }
 
-  .search-results-grid,
-  .ranking-rail {
+  .search-results-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
   }
 
-  .ranking-rail {
-    grid-auto-flow: column;
-    grid-auto-columns: 150px;
-    overflow-x: auto;
-    padding-bottom: 0.35rem;
+  .ranking-list,
+  .series-list {
+    display: grid;
+    gap: 0.6rem;
+    grid-column: 1 / -1;
+  }
+
+  .series-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated-2);
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+  .series-list-item:hover { color: var(--text-primary); }
+
+  .series-list-name {
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .series-list-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
   }
 
   .rails-view {
@@ -477,6 +583,11 @@ const searchIndex = await Promise.all(
     font-size: 40px;
     color: #fff;
     flex-shrink: 0;
+  }
+
+  @media (max-width: 960px) {
+    .home-grid { grid-template-columns: 1fr; }
+    .sidebar-column { position: static; }
   }
 
   @media (width <= 768px) {

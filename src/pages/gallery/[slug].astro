@@ -12,6 +12,7 @@ import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
   formatImageCountLabel,
+  formatMembershipCtaLead,
   getArtworkCharacters,
   getHeaderImage,
   getPortfolioImages,
@@ -143,7 +144,7 @@ const relatedArtworks = artwork.data.relatedImages
         <div class="membership-intro-copy">
           <p class="membership-intro-lead"><i class="ti ti-lock-open" aria-hidden="true"></i> {t["artwork.introSample"]}</p>
           <p class="membership-intro-detail">
-            会員なら全{totalImageCount}枚を塗りつぶし無しでご覧いただけます。
+            会員なら<strong>全{totalImageCount}枚</strong>を塗りつぶしなしで閲覧可能！
           </p>
         </div>
         <a href="/membership" class="membership-intro-link">
@@ -158,7 +159,7 @@ const relatedArtworks = artwork.data.relatedImages
       )}
 
       <div class="membership-outro">
-        <p class="membership-cta-lead">{t["artwork.membershipCtaLead"]}</p>
+        <p class="membership-cta-lead">{formatMembershipCtaLead(totalImageCount, lang)}</p>
         <a href={patreonMembershipUrl} target="_blank" rel="noopener noreferrer" class="membership-cta">
           <span class="membership-cta-text">
             <strong>{t["artwork.membershipCta"]}</strong>
@@ -358,7 +359,8 @@ const relatedArtworks = artwork.data.relatedImages
   .membership-intro-copy { display: grid; gap: 0.3rem; }
   .membership-intro-lead { margin: 0; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
   .membership-intro-lead i { color: var(--heart); font-size: 16px; }
-  .membership-intro-detail { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+  .membership-intro-detail { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+  .membership-intro-detail strong { color: var(--accent-strong); font-size: 1.15em; }
   .membership-intro-link {
     display: inline-flex;
     align-items: center;

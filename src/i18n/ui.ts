@@ -21,12 +21,9 @@ export const ui = {
     "artwork.related": "関連イラスト",
     "artwork.paidSamples": "有料画像サンプル",
     "artwork.paidSamplesCta": "続きはメンバーシップで",
-    "artwork.introSample":
-      "この記事の画像はメンバーシップ会員向けのサンプルです。",
+    "artwork.introSample": "メンバーシップ会員向けのサンプルイラストです。",
     "artwork.membershipCta": "メンバーシップに登録する",
     "artwork.membershipMoreLink": "メンバーシップについて詳しく見る",
-    "artwork.membershipCtaLead":
-      "続きが気になる方は、メンバーシップでいつでもご覧いただけます。",
     "sidebar.moreByCharacter": "の他のイラスト",
     "sidebar.moreBySeries": "の他のイラスト",
     "sidebar.doujinshiBySeries": "の同人誌",
@@ -45,10 +42,9 @@ export const ui = {
     "home.latest": "最新の投稿",
     "home.seriesHeading": "作品別",
     "home.seriesCountSuffix": "件",
-    "home.doujinshiHeading": "同人誌、はじめました",
-    "home.doujinshiBody":
-      "描き下ろしを収録した同人誌を制作しています。サンプルや購入方法はこちらから。",
-    "home.doujinshiCta": "同人誌ページを見る",
+    "home.worksListHeading": "作品別記事一覧",
+    "home.doujinshiLatestHeading": "最新の同人誌",
+    "home.doujinshiReviewHeading": "最新の同人誌レビュー",
     "home.recommendHeading": "こちらもおすすめ",
     "home.toolsHeading": "制作支援ツール",
     "home.toolsBody":
@@ -272,12 +268,9 @@ export const ui = {
     "artwork.related": "Related Artworks",
     "artwork.paidSamples": "Paid sample images",
     "artwork.paidSamplesCta": "See the rest with membership",
-    "artwork.introSample":
-      "The images in this article are membership-only preview samples.",
+    "artwork.introSample": "Membership-exclusive sample illustration.",
     "artwork.membershipCta": "Join the membership",
     "artwork.membershipMoreLink": "Learn more about membership",
-    "artwork.membershipCtaLead":
-      "Want to see more? Join the membership to view it anytime.",
     "sidebar.moreByCharacter": " — more artwork",
     "sidebar.moreBySeries": " — more artwork",
     "sidebar.doujinshiBySeries": " doujinshi",
@@ -297,10 +290,9 @@ export const ui = {
     "home.latest": "Latest posts",
     "home.seriesHeading": "By series",
     "home.seriesCountSuffix": " works",
-    "home.doujinshiHeading": "New: doujinshi",
-    "home.doujinshiBody":
-      "We publish doujinshi with exclusive artwork. Check out samples and where to buy.",
-    "home.doujinshiCta": "View doujinshi",
+    "home.worksListHeading": "Articles by work",
+    "home.doujinshiLatestHeading": "Latest doujinshi",
+    "home.doujinshiReviewHeading": "Latest doujinshi reviews",
     "home.recommendHeading": "You might also like",
     "home.toolsHeading": "Creator tools",
     "home.toolsBody":

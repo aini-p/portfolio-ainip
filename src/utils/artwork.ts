@@ -61,3 +61,13 @@ export function formatImageCountLabel(
 ): string {
   return lang === "ja" ? ` 全${count}枚` : ` (all ${count} images)`;
 }
+
+// 記事下部CTAのリード文。枚数・塗りつぶし無しを前面に押し出した短い訴求文言
+export function formatMembershipCtaLead(
+  count: number,
+  lang: "ja" | "en",
+): string {
+  return lang === "ja"
+    ? `続き全${count}枚を塗りつぶしなしで見るなら`
+    : `See all ${count} images, unfiltered —`;
+}

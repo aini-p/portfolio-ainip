@@ -69,6 +69,8 @@ const doujinshiCollection = defineCollection({
       // 総集編が収録する他doujinshiエントリのslug
       compiledFrom: z.array(z.string()).optional(),
       keywords: z.array(z.string()).optional(),
+      // 自作か、他者作品のレビュー記事か（TOPページの表示振り分けに使用）
+      isOwnWork: z.boolean().optional().default(true),
     }),
 });
 
