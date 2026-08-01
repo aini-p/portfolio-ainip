@@ -1,8 +1,19 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import ArticleImageStack from "~/components/ArticleImageStack.astro";
+import ArtworkCard from "~/components/ArtworkCard.astro";
+import LikeButton from "~/components/LikeButton.astro";
+import ShareButtons from "~/components/ShareButtons.astro";
+import SidebarSection from "~/components/SidebarSection.astro";
+import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import {
+  formatImageCountLabel,
+  getHeaderImage,
+  getTotalImageCount,
+} from "~/utils/artwork";
 import { toPathSafeSlug } from "~/utils/slug";
 
 const lang = "ja";
@@ -20,102 +31,186 @@ export async function getStaticPaths() {
 
 const { item } = Astro.props;
 const { Content } = await item.render();
+const itemSlug = item.slug.replace(`${lang}/`, "");
+
+const pageUrl = new URL(`/doujinshi/${itemSlug}`, Astro.site).toString();
 
 const compiledFrom = item.data.compiledFrom
   ? await getCollection("doujinshi", ({ id, slug }) => {
       const itemLang = id.split("/")[0];
-      const itemSlug = slug.replace(/^ja\//, "");
-      return itemLang === lang && item.data.compiledFrom?.includes(itemSlug);
+      const otherSlug = slug.replace(/^ja\//, "");
+      return itemLang === lang && item.data.compiledFrom?.includes(otherSlug);
     })
+  : [];
+
+const otherDoujinshi = (
+  await getCollection("doujinshi", ({ id }) => id.startsWith(`${lang}/`))
+)
+  .filter((d) => d.slug !== item.slug)
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+  .slice(0, 6);
+
+const sameSeriesArtworks = item.data.series
+  ? (await getCollection("artworks", ({ id }) => id.startsWith(`${lang}/`)))
+      .filter((a) => a.data.series === item.data.series)
+      .sort(
+        (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+      )
+      .slice(0, 6)
   : [];
 ---
 <BaseLayout title={item.data.title} description={item.data.description}>
-  <div class="lp">
-    <a class="back-link" href="/doujinshi">{t["doujinshi.backToList"]}</a>
+  <div class="detail-shell">
+   <div class="detail-grid">
+    <article class="main-column">
+      <a class="back-link" href="/doujinshi">{t["doujinshi.backToList"]}</a>
 
-    <header class="lp-hero">
-      <div class="package-frame">
+      <h1>{item.data.title}{item.data.pageCount ? ` 全${item.data.pageCount}枚` : ''}</h1>
+
+      <div class="hero-frame">
         <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={640} />
       </div>
-      <div class="lp-intro">
-        <h1>{item.data.title}{item.data.pageCount ? ` 全${item.data.pageCount}枚` : ''}</h1>
-        <p>{item.data.description}</p>
-        {item.data.characters && item.data.characters.length > 0 && (
-          <div class="lp-characters">
-            {item.data.characters.map((char) => (
-              <a class="character-tag" href={`/gallery/character/${encodeURIComponent(toPathSafeSlug(char))}`}>{char}</a>
+
+      {item.data.characters && item.data.characters.length > 0 && (
+        <div class="lp-characters">
+          {item.data.characters.map((char) => (
+            <a class="character-tag" href={`/gallery/character/${encodeURIComponent(toPathSafeSlug(char))}`}>{char}</a>
+          ))}
+        </div>
+      )}
+
+      <div class="action-row">
+        <LikeButton slug={`doujinshi-${itemSlug}`} />
+        <ShareButtons lang={lang} url={pageUrl} text={item.data.title} />
+      </div>
+
+      <div class="lp-body"><Content /></div>
+
+      {item.data.sampleImages && item.data.sampleImages.length > 0 && (
+        <section class="lp-samples">
+          <h2>{t["doujinshi.sampleHeading"]}</h2>
+          <ArticleImageStack images={item.data.sampleImages} groupId="doujinshi-samples" eagerCount={1} />
+        </section>
+      )}
+
+      <section class="lp-buy">
+        <h2>{t["doujinshi.buyHeading"]}</h2>
+        <div class="buy-buttons">
+          {item.data.fanzaUrl && (
+            <a href={item.data.fanzaUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-fanza">
+              {t["doujinshi.fanzaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          )}
+          {item.data.patreonUrl && (
+            <a href={item.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="buy-btn buy-patreon">
+              {t["doujinshi.patreonButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          )}
+          {item.data.dlsiteUrl && (
+            <a href={item.data.dlsiteUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-dlsite">
+              {t["doujinshi.dlsiteButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          )}
+          {item.data.digiketUrl && (
+            <a href={item.data.digiketUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-digiket">
+              {t["doujinshi.digiketButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          )}
+        </div>
+      </section>
+
+      {compiledFrom.length > 0 && (
+        <section class="lp-compiled">
+          <h2>{t["doujinshi.compiledHeading"]}</h2>
+          <div class="doujinshi-grid">
+            {compiledFrom.map((included) => (
+              <a class="doujinshi-card" href={`/doujinshi/${included.slug.replace(`${lang}/`, '')}`}>
+                <div class="package-frame">
+                  <Image src={included.data.packageImage} alt={included.data.title} format="webp" width={400} />
+                </div>
+                <div class="card-body">
+                  <h2>{included.data.title}</h2>
+                </div>
+              </a>
             ))}
           </div>
-        )}
-      </div>
-    </header>
+        </section>
+      )}
+    </article>
 
-    <div class="lp-body"><Content /></div>
-
-    {item.data.sampleImages && item.data.sampleImages.length > 0 && (
-      <section class="lp-samples">
-        <h2>{t["doujinshi.sampleHeading"]}</h2>
-        <div class="samples-grid">
-          {item.data.sampleImages.map((image) => (
-            <Image src={image} alt="" format="webp" width={480} />
-          ))}
-        </div>
-      </section>
-    )}
-
-    <section class="lp-buy">
-      <h2>{t["doujinshi.buyHeading"]}</h2>
-      <div class="buy-buttons">
-        {item.data.fanzaUrl && (
-          <a href={item.data.fanzaUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-fanza">
-            {t["doujinshi.fanzaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
-          </a>
-        )}
-        {item.data.patreonUrl && (
-          <a href={item.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="buy-btn buy-patreon">
-            {t["doujinshi.patreonButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
-          </a>
-        )}
-        {item.data.dlsiteUrl && (
-          <a href={item.data.dlsiteUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-dlsite">
-            {t["doujinshi.dlsiteButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
-          </a>
-        )}
-        {item.data.digiketUrl && (
-          <a href={item.data.digiketUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-digiket">
-            {t["doujinshi.digiketButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
-          </a>
-        )}
-      </div>
-    </section>
-
-    {compiledFrom.length > 0 && (
-      <section class="lp-compiled">
-        <h2>{t["doujinshi.compiledHeading"]}</h2>
-        <div class="doujinshi-grid">
-          {compiledFrom.map((included) => (
-            <a class="doujinshi-card" href={`/doujinshi/${included.slug.replace(`${lang}/`, '')}`}>
-              <div class="package-frame">
-                <Image src={included.data.packageImage} alt={included.data.title} format="webp" width={400} />
-              </div>
-              <div class="card-body">
-                <h2>{included.data.title}</h2>
-              </div>
+    <aside class="sidebar-column">
+      {otherDoujinshi.length > 0 && (
+        <SidebarSection title={t["doujinshi.heading"]} href="/doujinshi">
+          {otherDoujinshi.map((other) => (
+            <a class="recommend-card" href={`/doujinshi/${other.slug.replace(`${lang}/`, '')}`}>
+              <Image src={other.data.packageImage} alt={other.data.title} format="webp" width={240} />
             </a>
           ))}
-        </div>
-      </section>
-    )}
+        </SidebarSection>
+      )}
+
+      {sameSeriesArtworks.length > 0 && (
+        <SidebarSection
+          title={`${item.data.series}${t["sidebar.moreBySeries"]}`}
+          href={`/gallery/series/${encodeURIComponent(toPathSafeSlug(item.data.series ?? ""))}`}
+        >
+          {sameSeriesArtworks.map((artwork) => (
+            <ArtworkCard
+              href={`/gallery/${artwork.slug.replace(`${lang}/`, '')}`}
+              title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+              image={getHeaderImage(artwork)}
+              slug={artwork.slug.replace(`${lang}/`, '')}
+            />
+          ))}
+        </SidebarSection>
+      )}
+
+      {fanzaAffiliateItems.length > 0 && (
+        <SidebarSection title={t["sidebar.recommend"]} href="/recommend">
+          {fanzaAffiliateItems.map((affiliate) => (
+            <a class="artwork-card affiliate-card" href={affiliate.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
+              <div class="thumb">
+                <img src={affiliate.imageUrl} alt={affiliate.title[lang]} loading="lazy" />
+                <span class="affiliate-label">PR</span>
+              </div>
+              <p class="card-title">{affiliate.title[lang]}</p>
+            </a>
+          ))}
+        </SidebarSection>
+      )}
+    </aside>
+   </div>
   </div>
 </BaseLayout>
 
 <style is:inline>
-  .lp {
-    max-width: 880px;
+  .detail-shell {
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 1.25rem;
+    padding: 2rem;
     display: grid;
     gap: 2rem;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .main-column {
+    display: grid;
+    gap: 1.6rem;
+    min-width: 0;
+  }
+
+  .sidebar-column {
+    display: grid;
+    gap: 1.75rem;
+    min-width: 0;
+    position: sticky;
+    top: 96px;
   }
 
   .back-link {
@@ -125,52 +220,49 @@ const compiledFrom = item.data.compiledFrom
   }
   .back-link:hover { color: var(--text-primary); }
 
-  .lp-hero {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 1.5rem;
-    align-items: center;
-  }
+  h1 { margin: 0; font-size: 2.0rem; color: var(--text-primary); }
 
-  .package-frame {
+  .hero-frame {
     aspect-ratio: 4 / 3;
+    max-width: 480px;
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: var(--bg-elevated);
   }
-  .package-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  .lp-intro h1 {
-    margin: 0 0 0.75rem;
-    font-size: clamp(1.6rem, 3.2vw, 2.1rem);
-    color: var(--text-primary);
+  .lp-characters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
   }
-  .lp-intro p {
-    margin: 0;
+
+  .character-tag {
+    font-size: 0.82rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--border-strong);
     color: var(--text-secondary);
-    line-height: 1.8;
+    text-decoration: none;
+  }
+  .character-tag:hover { border-color: var(--accent-strong); color: var(--text-primary); }
+
+  .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   .lp-body { line-height: 1.85; color: var(--text-secondary); }
 
   .lp-samples h2,
-  .lp-buy h2 {
+  .lp-buy h2,
+  .lp-compiled h2 {
     margin: 0 0 1rem;
     font-size: 1.2rem;
     font-weight: 500;
     color: var(--text-primary);
-  }
-
-  .samples-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0.85rem;
-  }
-  .samples-grid img {
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
   }
 
   .lp-buy {
@@ -219,30 +311,6 @@ const compiledFrom = item.data.compiledFrom
   .buy-dlsite:hover,
   .buy-digiket:hover { border-color: var(--accent-strong); }
 
-  .lp-characters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.85rem;
-  }
-
-  .character-tag {
-    font-size: 0.82rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 999px;
-    border: 0.5px solid var(--border-strong);
-    color: var(--text-secondary);
-    text-decoration: none;
-  }
-  .character-tag:hover { border-color: var(--accent-strong); color: var(--text-primary); }
-
-  .lp-compiled h2 {
-    margin: 0 0 1rem;
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: var(--text-primary);
-  }
-
   .doujinshi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -260,17 +328,39 @@ const compiledFrom = item.data.compiledFrom
     transition: border-color 0.2s ease;
   }
   .doujinshi-card:hover { border-color: var(--accent-strong); }
-  .lp-compiled .card-body {
-    padding: 0.75rem 0.9rem;
+  .lp-compiled .card-body { padding: 0.75rem 0.9rem; }
+  .lp-compiled .card-body h2 { margin: 0; font-size: 0.9rem; font-weight: 500; }
+
+  .recommend-card {
+    display: block;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
   }
-  .lp-compiled .card-body h2 {
-    margin: 0;
-    font-size: 0.9rem;
-    font-weight: 500;
+  .recommend-card img { width: 100%; height: 100%; object-fit: cover; }
+
+  .affiliate-card .thumb { background: var(--bg-elevated-2); position: relative; }
+  .affiliate-label {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 960px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .sidebar-column { position: static; }
   }
 
   @media (width <= 768px) {
-    .lp { padding: 1rem; gap: 1.5rem; }
-    .lp-hero { grid-template-columns: 1fr; }
+    .detail-shell { padding: 1rem; gap: 1.25rem; }
+    h1 { font-size: 1.6rem; }
+    .hero-frame { max-width: 100%; }
   }
 </style>
