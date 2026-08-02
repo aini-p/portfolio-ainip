@@ -55,12 +55,36 @@ export default {
         Number(url.searchParams.get("limit") ?? 10) || 10,
         50,
       );
+      const period = url.searchParams.get("period") ?? "all";
+
+      if (period === "all") {
+        const { results } = await env.DB.prepare(
+          "SELECT slug, count FROM likes ORDER BY count DESC LIMIT ?1",
+        )
+          .bind(limit)
+          .all();
+        return json({ ranking: results ?? [], period }, origin);
+      }
+
+      const periodWindowMs: Record<string, number> = {
+        daily: 24 * 60 * 60 * 1000,
+        monthly: 30 * 24 * 60 * 60 * 1000,
+        yearly: 365 * 24 * 60 * 60 * 1000,
+      };
+      const windowMs = periodWindowMs[period];
+      if (!windowMs) {
+        return json({ error: "invalid_period" }, origin, { status: 400 });
+      }
+
+      // like_votesは投票(いいね)1件ごとにcreated_atを持つため、直近N日分だけを
+      // 集計すれば期間別ランキングになる（likesテーブルは累計のみでcreated_atを持たない）
+      const since = new Date(Date.now() - windowMs).toISOString();
       const { results } = await env.DB.prepare(
-        "SELECT slug, count FROM likes ORDER BY count DESC LIMIT ?1",
+        "SELECT slug, COUNT(*) as count FROM like_votes WHERE created_at >= ?1 GROUP BY slug ORDER BY count DESC LIMIT ?2",
       )
-        .bind(limit)
+        .bind(since, limit)
         .all();
-      return json({ ranking: results ?? [] }, origin);
+      return json({ ranking: results ?? [], period }, origin);
     }
 
     const likesMatch = url.pathname.match(/^\/likes\/([^/]+)$/);

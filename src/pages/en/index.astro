@@ -105,6 +105,32 @@ const searchIndex = await Promise.all(
     };
   }),
 );
+
+// For resolving the like ranking. Combines artworks and doujinshi into one index,
+// matching LikeButton's slug format (artworks use the plain slug, doujinshi use a "doujinshi-" prefix)
+const rankingIndex = [
+  ...searchIndex.map((entry) => ({
+    slug: entry.slug,
+    title: entry.title,
+    thumb: entry.thumb,
+    href: toHref(entry.slug),
+  })),
+  ...(await Promise.all(
+    ownDoujinshi.map(async (item) => {
+      const optimized = await getImage({
+        src: item.data.packageImage,
+        width: 480,
+        format: "webp",
+      });
+      return {
+        slug: `doujinshi-${toSlug(item.slug)}`,
+        title: item.data.title,
+        thumb: optimized.src,
+        href: toDoujinshiHref(item.slug),
+      };
+    }),
+  )),
+];
 ---
 <BaseLayout>
   <div class="home">
@@ -247,7 +273,12 @@ const searchIndex = await Promise.all(
 
     <aside class="sidebar-column">
       <SidebarSection title={t["home.ranking"]}>
-        <div id="ranking-list" class="ranking-list"></div>
+        <div class="ranking-tabs" role="tablist">
+          <button type="button" class="ranking-tab" data-period="daily" aria-selected="true">{t["home.rankingDaily"]}</button>
+          <button type="button" class="ranking-tab" data-period="monthly" aria-selected="false">{t["home.rankingMonthly"]}</button>
+          <button type="button" class="ranking-tab" data-period="yearly" aria-selected="false">{t["home.rankingYearly"]}</button>
+        </div>
+        <div id="ranking-list" class="ranking-list" data-empty-text={t["home.rankingEmpty"]}></div>
       </SidebarSection>
 
       {seriesList.length > 0 && (
@@ -267,6 +298,7 @@ const searchIndex = await Promise.all(
   </div>
 
   <script is:inline type="application/json" id="artworks-index" set:html={JSON.stringify(searchIndex)} />
+  <script is:inline type="application/json" id="ranking-index" set:html={JSON.stringify(rankingIndex)} />
 </BaseLayout>
 
 <script>
@@ -282,9 +314,21 @@ const searchIndex = await Promise.all(
 
   const API_BASE = import.meta.env.PUBLIC_API_BASE as string | undefined;
 
+  interface RankingEntry {
+    slug: string;
+    title: string;
+    thumb: string;
+    href: string;
+  }
+
   const indexScript = document.getElementById("artworks-index");
   const searchIndex: IndexEntry[] = indexScript ? JSON.parse(indexScript.textContent ?? "[]") : [];
-  const indexBySlug = new Map(searchIndex.map((entry) => [entry.slug, entry]));
+
+  const rankingIndexScript = document.getElementById("ranking-index");
+  const rankingIndex: RankingEntry[] = rankingIndexScript
+    ? JSON.parse(rankingIndexScript.textContent ?? "[]")
+    : [];
+  const rankingIndexBySlug = new Map(rankingIndex.map((entry) => [entry.slug, entry]));
 
   function buildCard(entry: IndexEntry) {
     const a = document.createElement("a");
@@ -295,6 +339,19 @@ const searchIndex = await Promise.all(
         <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
       </div>
       <p class="card-title">${entry.title} (all ${entry.imageCount} images)</p>
+    `;
+    return a;
+  }
+
+  function buildRankingCard(entry: RankingEntry) {
+    const a = document.createElement("a");
+    a.className = "artwork-card";
+    a.href = entry.href;
+    a.innerHTML = `
+      <div class="thumb">
+        <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
+      </div>
+      <p class="card-title">${entry.title}</p>
     `;
     return a;
   }
@@ -332,35 +389,78 @@ const searchIndex = await Promise.all(
     }
   });
 
+  const RANKING_PERIODS = ["daily", "monthly", "yearly"] as const;
+  type RankingPeriod = (typeof RANKING_PERIODS)[number];
+  type RankingRow = { slug: string; count: number };
+
+  const rankingCache = new Map<RankingPeriod, RankingRow[]>();
+
+  function renderRankingPeriod(period: RankingPeriod) {
+    const rankingList = document.getElementById("ranking-list");
+    if (!rankingList) return;
+
+    rankingList.innerHTML = "";
+    const rows = rankingCache.get(period) ?? [];
+    const resolved = rows
+      .map((row) => ({ row, entry: rankingIndexBySlug.get(row.slug) }))
+      .filter((item): item is { row: RankingRow; entry: RankingEntry } => Boolean(item.entry));
+
+    if (resolved.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "ranking-empty";
+      empty.textContent = rankingList.dataset.emptyText ?? "";
+      rankingList.append(empty);
+      return;
+    }
+
+    resolved.forEach(({ row, entry }, index) => {
+      const card = buildRankingCard(entry);
+      const badge = document.createElement("span");
+      badge.className = "rank-badge";
+      badge.textContent = String(index + 1);
+      card.prepend(badge);
+      const likeBadge = document.createElement("span");
+      likeBadge.className = "like-badge";
+      likeBadge.innerHTML = `<i class="ti ti-heart" aria-hidden="true"></i> ${row.count}`;
+      card.querySelector(".thumb")?.append(likeBadge);
+      rankingList.append(card);
+    });
+  }
+
   async function loadRanking() {
     const rankingList = document.getElementById("ranking-list");
     const rankingSection = rankingList?.closest(".sidebar-section");
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".ranking-tab"));
     if (!rankingList || !rankingSection || !API_BASE) return;
 
     try {
-      const res = await fetch(`${API_BASE}/likes/ranking?limit=10`);
-      const data = await res.json();
-      const ranking: { slug: string; count: number }[] = data.ranking ?? [];
-      const resolved = ranking
-        .map((row) => ({ row, entry: indexBySlug.get(row.slug) }))
-        .filter((item): item is { row: { slug: string; count: number }; entry: IndexEntry } =>
-          Boolean(item.entry),
-        );
+      const responses = await Promise.all(
+        RANKING_PERIODS.map((period) =>
+          fetch(`${API_BASE}/likes/ranking?period=${period}&limit=10`)
+            .then((res) => res.json())
+            .then((data) => (data.ranking ?? []) as RankingRow[]),
+        ),
+      );
 
-      if (resolved.length === 0) return;
-
-      resolved.forEach(({ row, entry }, index) => {
-        const card = buildCard(entry);
-        const badge = document.createElement("span");
-        badge.className = "rank-badge";
-        badge.textContent = String(index + 1);
-        card.prepend(badge);
-        const likeBadge = document.createElement("span");
-        likeBadge.className = "like-badge";
-        likeBadge.innerHTML = `<i class="ti ti-heart" aria-hidden="true"></i> ${row.count}`;
-        card.querySelector(".thumb")?.append(likeBadge);
-        rankingList.append(card);
+      let hasAnyData = false;
+      RANKING_PERIODS.forEach((period, i) => {
+        rankingCache.set(period, responses[i]);
+        if (responses[i].some((row) => rankingIndexBySlug.has(row.slug))) {
+          hasAnyData = true;
+        }
       });
+
+      if (!hasAnyData) return;
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((other) => other.setAttribute("aria-selected", "false"));
+          tab.setAttribute("aria-selected", "true");
+          renderRankingPeriod(tab.dataset.period as RankingPeriod);
+        });
+      });
+
+      renderRankingPeriod("daily");
       rankingSection.removeAttribute("hidden");
     } catch {
       // ranking unavailable: keep the section hidden
@@ -448,6 +548,41 @@ const searchIndex = await Promise.all(
     display: grid;
     gap: 0.6rem;
     grid-column: 1 / -1;
+  }
+
+  .ranking-tabs {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .ranking-tab {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated-2);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .ranking-tab:hover {
+    color: var(--text-primary);
+  }
+
+  .ranking-tab[aria-selected="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .ranking-empty {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
   }
 
   .series-list-item {
