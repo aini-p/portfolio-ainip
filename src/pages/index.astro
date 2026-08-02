@@ -165,9 +165,10 @@ const searchIndex = await Promise.all(
             {latestOwnDoujinshi.map((item) => (
               <ArtworkCard
                 href={toDoujinshiHref(item.slug)}
-                title={`${item.data.title}${item.data.pageCount ? formatImageCountLabel(item.data.pageCount, lang) : ''}`}
+                title={item.data.title}
                 image={item.data.packageImage}
                 aspect="4/3"
+                fit="contain"
                 slug={toSlug(item.slug)}
               />
             ))}
@@ -179,9 +180,10 @@ const searchIndex = await Promise.all(
             {recommendOwnDoujinshi.map((item) => (
               <ArtworkCard
                 href={toDoujinshiHref(item.slug)}
-                title={`${item.data.title}${item.data.pageCount ? formatImageCountLabel(item.data.pageCount, lang) : ''}`}
+                title={item.data.title}
                 image={item.data.packageImage}
                 aspect="4/3"
+                fit="contain"
                 slug={toSlug(item.slug)}
               />
             ))}
@@ -202,9 +204,10 @@ const searchIndex = await Promise.all(
             {otherDoujinshiReviews.map((item) => (
               <ArtworkCard
                 href={toDoujinshiHref(item.slug)}
-                title={`${item.data.title}${item.data.pageCount ? formatImageCountLabel(item.data.pageCount, lang) : ''}`}
+                title={item.data.title}
                 image={item.data.packageImage}
                 aspect="4/3"
+                fit="contain"
                 slug={toSlug(item.slug)}
               />
             ))}

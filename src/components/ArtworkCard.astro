@@ -7,6 +7,8 @@ export interface Props {
   title: string;
   image: ImageMetadata;
   aspect?: "16/9" | "4/3";
+  // "contain"は表紙画像が縦長など4:3と異なる比率でもトリミングせずに表示したい場合に使う
+  fit?: "cover" | "contain";
   likeCount?: number;
   eager?: boolean;
   subtitle?: string;
@@ -18,13 +20,14 @@ const {
   title,
   image,
   aspect = "16/9",
+  fit = "cover",
   likeCount,
   eager = false,
   subtitle,
   slug,
 } = Astro.props;
 ---
-<a href={href} class="artwork-card" data-slug={slug} style={`--aspect: ${aspect.replace("/", " / ")};`}>
+<a href={href} class="artwork-card" data-slug={slug} style={`--aspect: ${aspect.replace("/", " / ")}; --fit: ${fit};`}>
   <div class="thumb">
     <Image
       src={image}
@@ -64,7 +67,7 @@ const {
   .thumb img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: var(--fit, cover);
     display: block;
   }
 

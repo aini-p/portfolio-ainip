@@ -69,7 +69,7 @@ export const ui = {
     "doujinshi.detailsPageCount": "枚数",
     "doujinshi.buyHeading": "購入はこちら",
     "doujinshi.fanzaButton": "FANZAで購入",
-    "doujinshi.patreonButton": "Patreonで見る",
+    "doujinshi.patreonButton": "Patreonで購入",
     "doujinshi.dlsiteButton": "DLsiteで購入",
     "doujinshi.digiketButton": "デジケットで購入",
     "doujinshi.backToList": "同人誌一覧に戻る",
