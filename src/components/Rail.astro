@@ -26,6 +26,51 @@ const { title, icon, seeMoreHref, seeMoreLabel } = Astro.props;
   </div>
 </section>
 
+<script>
+  // サムネ上をドラッグしてもレールが横スクロールするようにする（掴んでもスクロールバー自体でないと
+  // 動かせない、という操作性の悪さを解消するため）。ドラッグ距離が閾値を超えた場合のみクリックを
+  // キャンセルし、通常のクリック（カードへの遷移）を邪魔しないようにする。
+  function initDragScroll(track: HTMLElement) {
+    let isDown = false;
+    let moved = false;
+    let startX = 0;
+    let scrollStart = 0;
+
+    track.addEventListener("mousedown", (e) => {
+      isDown = true;
+      moved = false;
+      startX = e.pageX;
+      scrollStart = track.scrollLeft;
+      track.classList.add("dragging");
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDown) return;
+      const dx = e.pageX - startX;
+      if (Math.abs(dx) > 5) moved = true;
+      track.scrollLeft = scrollStart - dx;
+    });
+
+    window.addEventListener("mouseup", () => {
+      isDown = false;
+      track.classList.remove("dragging");
+    });
+
+    track.addEventListener(
+      "click",
+      (e) => {
+        if (moved) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      },
+      true,
+    );
+  }
+
+  document.querySelectorAll<HTMLElement>(".rail-track").forEach(initDragScroll);
+</script>
+
 <style>
   .rail {
     display: grid;
@@ -78,11 +123,24 @@ const { title, icon, seeMoreHref, seeMoreLabel } = Astro.props;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
     touch-action: pan-x;
+    cursor: grab;
+  }
+
+  .rail-track.dragging {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+    cursor: grabbing;
+    user-select: none;
   }
 
   .rail-track > :global(*) {
     scroll-snap-align: start;
     scroll-snap-stop: normal;
+  }
+
+  .rail-track :global(img) {
+    -webkit-user-drag: none;
+    user-select: none;
   }
 
   .rail-track::-webkit-scrollbar {

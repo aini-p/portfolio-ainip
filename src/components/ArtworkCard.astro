@@ -9,7 +9,10 @@ export interface Props {
   aspect?: "16/9" | "4/3";
   // "contain"は表紙画像が縦長など4:3と異なる比率でもトリミングせずに表示したい場合に使う
   fit?: "cover" | "contain";
+  // サムネの実寸幅。カードの表示幅はこの値に追従する（トップページのレールなどで縮小する用途）
+  thumbWidth?: number;
   likeCount?: number;
+  isNew?: boolean;
   eager?: boolean;
   subtitle?: string;
   slug?: string;
@@ -21,7 +24,9 @@ const {
   image,
   aspect = "16/9",
   fit = "cover",
+  thumbWidth = 480,
   likeCount,
+  isNew = false,
   eager = false,
   subtitle,
   slug,
@@ -33,9 +38,10 @@ const {
       src={image}
       alt={title}
       format="webp"
-      width={480}
+      width={thumbWidth}
       loading={eager ? "eager" : "lazy"}
     />
+    {isNew && <span class="new-badge">NEW</span>}
     {typeof likeCount === "number" && (
       <span class="like-badge">
         <i class="ti ti-heart" aria-hidden="true"></i>
@@ -98,6 +104,19 @@ const {
   .like-badge i {
     font-size: 11px;
     color: var(--heart);
+  }
+
+  .new-badge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    background: var(--accent-strong);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 2px 7px;
+    border-radius: 4px;
   }
 
   .card-title {

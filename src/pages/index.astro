@@ -1,5 +1,5 @@
 ---
-import { getImage } from "astro:assets";
+import { Image, getImage } from "astro:assets";
 import { getCollection } from "astro:content";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import Rail from "~/components/Rail.astro";
@@ -42,7 +42,15 @@ const sortedByDate = [...artworks].sort(
   (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
 );
 
-const latestArtworks = sortedByDate.slice(0, 12);
+const NEW_BADGE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const now = Date.now();
+function isRecentlyPublished(item: { data: { publishDate: Date } }) {
+  return now - item.data.publishDate.valueOf() <= NEW_BADGE_WINDOW_MS;
+}
+
+// 最新の1件はページ最上部に大きくフィーチャーするため、通常のレールからは除外する
+const featuredArtwork = sortedByDate[0];
+const latestArtworks = sortedByDate.slice(1, 13);
 
 const categoryRails = categories
   .map((category) => ({
@@ -170,6 +178,20 @@ const rankingIndex = [
       <div class="search-results-grid" id="search-results" hidden></div>
 
       <div id="rails-view" class="rails-view">
+        {featuredArtwork && (
+          <a class="featured-post" href={toHref(featuredArtwork.slug)}>
+            <div class="featured-thumb">
+              <Image src={getHeaderImage(featuredArtwork)} alt={featuredArtwork.data.title} format="webp" width={480} loading="eager" />
+              {isRecentlyPublished(featuredArtwork) && <span class="new-badge">NEW</span>}
+            </div>
+            <div class="featured-body">
+              <h2 class="featured-title">{featuredArtwork.data.title}</h2>
+              <p class="featured-excerpt">{featuredArtwork.data.description}</p>
+              <span class="featured-cta">{t["home.readArticle"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+            </div>
+          </a>
+        )}
+
         <Rail title={t["home.latest"]}>
           {latestArtworks.map((artwork, index) => (
             <ArtworkCard
@@ -177,6 +199,8 @@ const rankingIndex = [
               title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
               image={getHeaderImage(artwork)}
               slug={toSlug(artwork.slug)}
+              thumbWidth={260}
+              isNew={isRecentlyPublished(artwork)}
               eager={index < 4}
             />
           ))}
@@ -189,6 +213,8 @@ const rankingIndex = [
               title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
               image={getHeaderImage(artwork)}
               slug={toSlug(artwork.slug)}
+              thumbWidth={260}
+              isNew={isRecentlyPublished(artwork)}
             />
           ))}
           {fanzaAffiliateItems.map((item) => (
@@ -219,6 +245,8 @@ const rankingIndex = [
                 image={item.data.packageImage}
                 aspect="4/3"
                 fit="contain"
+                thumbWidth={260}
+                isNew={isRecentlyPublished(item)}
                 slug={toSlug(item.slug)}
               />
             ))}
@@ -234,6 +262,8 @@ const rankingIndex = [
                 image={item.data.packageImage}
                 aspect="4/3"
                 fit="contain"
+                thumbWidth={260}
+                isNew={isRecentlyPublished(item)}
                 slug={toSlug(item.slug)}
               />
             ))}
@@ -258,6 +288,8 @@ const rankingIndex = [
                 image={item.data.packageImage}
                 aspect="4/3"
                 fit="contain"
+                thumbWidth={260}
+                isNew={isRecentlyPublished(item)}
                 slug={toSlug(item.slug)}
               />
             ))}
@@ -272,6 +304,8 @@ const rankingIndex = [
                 title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
                 image={getHeaderImage(artwork)}
                 slug={toSlug(artwork.slug)}
+                thumbWidth={260}
+                isNew={isRecentlyPublished(artwork)}
               />
             ))}
           </Rail>
@@ -692,6 +726,72 @@ const rankingIndex = [
     gap: 2.25rem;
   }
 
+  .featured-post {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+    transition: border-color 0.2s ease;
+  }
+  .featured-post:hover,
+  .featured-post:focus-visible {
+    border-color: var(--accent-strong);
+  }
+
+  .featured-thumb {
+    position: relative;
+    flex: 0 0 auto;
+    width: 320px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
+  }
+  .featured-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .featured-body {
+    display: grid;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+
+  .featured-title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .featured-excerpt {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .featured-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent-strong);
+  }
+
   .rank-badge {
     position: absolute;
     left: 6px;
@@ -862,6 +962,15 @@ const rankingIndex = [
     .promo-glyph {
       width: 100%;
       height: 120px;
+    }
+
+    .featured-post {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .featured-thumb {
+      width: 100%;
     }
   }
 </style>
