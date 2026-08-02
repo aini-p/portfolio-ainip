@@ -79,10 +79,20 @@ for (const artwork of sortedByDate) {
     seriesMap.set(series, { count: 1, latest: artwork });
   }
 }
-const seriesList = [...seriesMap.entries()]
-  .map(([name, data]) => ({ name, count: data.count, latest: data.latest }))
-  .sort((a, b) => b.count - a.count)
-  .slice(0, 12);
+const seriesList = await Promise.all(
+  [...seriesMap.entries()]
+    .map(([name, data]) => ({ name, count: data.count, latest: data.latest }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 12)
+    .map(async (series) => {
+      const optimized = await getImage({
+        src: getHeaderImage(series.latest),
+        width: 400,
+        format: "webp",
+      });
+      return { name: series.name, count: series.count, thumb: optimized.src };
+    }),
+);
 
 // クライアント側の検索・いいねランキング表示用に、全作品の軽量インデックスを埋め込む
 const searchIndex = await Promise.all(
@@ -136,6 +146,20 @@ const rankingIndex = [
 <BaseLayout>
   <div class="home">
    <div class="home-grid">
+    <aside class="sidebar-column sidebar-column-left">
+      <SidebarSection title={t["home.affiliateHeading"]}>
+        <div class="affiliate-widget-list">
+          {fanzaAffiliateItems.map((item) => (
+            <a class="affiliate-widget" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
+              <span class="affiliate-widget-badge">PR</span>
+              <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+              <p class="affiliate-widget-title">{item.title[lang]}</p>
+            </a>
+          ))}
+        </div>
+      </SidebarSection>
+    </aside>
+
     <div class="main-column">
       <div class="search-bar">
         <i class="ti ti-search" aria-hidden="true"></i>
@@ -272,7 +296,7 @@ const rankingIndex = [
       </div>
     </div>
 
-    <aside class="sidebar-column">
+    <aside class="sidebar-column sidebar-column-right">
       <SidebarSection title={t["home.ranking"]}>
         <div class="ranking-tabs" role="tablist">
           <button type="button" class="ranking-tab" data-period="daily" aria-selected="true">{t["home.rankingDaily"]}</button>
@@ -287,8 +311,12 @@ const rankingIndex = [
           <div class="series-list">
             {seriesList.map((series) => (
               <a class="series-list-item" href={`/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`}>
-                <span class="series-list-name">{series.name}</span>
-                <span class="series-list-count">{series.count}{t["home.seriesCountSuffix"]}</span>
+                <img class="series-list-thumb" src={series.thumb} alt="" loading="lazy" />
+                <div class="series-list-fade"></div>
+                <div class="series-list-text">
+                  <span class="series-list-name">{series.name}</span>
+                  <span class="series-list-count">{series.count}{t["home.seriesCountSuffix"]}</span>
+                </div>
               </a>
             ))}
           </div>
@@ -506,6 +534,23 @@ const rankingIndex = [
     top: 96px;
   }
 
+  /* 左のアフィリエイト欄は、メインコンテンツ幅を圧迫しない十分な余白がある画面幅でのみ表示する */
+  .sidebar-column-left {
+    display: none;
+  }
+
+  @media (min-width: 1480px) {
+    .home {
+      max-width: 1520px;
+    }
+    .home-grid {
+      grid-template-columns: 280px 1fr 300px;
+    }
+    .sidebar-column-left {
+      display: grid;
+    }
+  }
+
   .search-bar {
     display: flex;
     align-items: center;
@@ -589,12 +634,12 @@ const rankingIndex = [
   }
 
   .series-list-item {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.5rem 0.65rem;
-    border-radius: var(--radius-sm);
+    height: 92px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
     background: var(--bg-elevated-2);
     text-decoration: none;
     color: var(--text-secondary);
@@ -602,17 +647,44 @@ const rankingIndex = [
   }
   .series-list-item:hover { color: var(--text-primary); }
 
+  .series-list-thumb {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 70%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .series-list-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--bg-elevated-2) 0%, var(--bg-elevated-2) 32%, transparent 92%);
+    z-index: 1;
+  }
+
+  .series-list-text {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: 0.25rem;
+    padding: 0 1rem;
+    min-width: 0;
+  }
+
   .series-list-name {
-    font-size: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 11rem;
   }
 
   .series-list-count {
-    font-size: 0.75rem;
+    font-size: 0.78rem;
     color: var(--text-muted);
-    flex-shrink: 0;
   }
 
   .rails-view {
@@ -651,6 +723,51 @@ const rankingIndex = [
     font-weight: 600;
     padding: 2px 6px;
     border-radius: 4px;
+  }
+
+  .affiliate-widget-list {
+    display: grid;
+    gap: 0.85rem;
+    grid-column: 1 / -1;
+  }
+
+  .affiliate-widget {
+    position: relative;
+    display: block;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s ease;
+  }
+  .affiliate-widget:hover { border-color: var(--accent-strong); }
+
+  .affiliate-widget img {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: var(--bg-elevated-2);
+  }
+
+  .affiliate-widget-badge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .affiliate-widget-title {
+    margin: 0;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
   }
 
   .promo-banner {
