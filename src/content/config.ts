@@ -54,13 +54,14 @@ const doujinshiCollection = defineCollection({
     z.object({
       title: z.string(),
       publishDate: z.date(),
-      // FANZA準拠 560x420 (4:3) を想定したパッケージ画像
+      // 表紙画像。縦長（例: 小説の表紙）・横長どちらも許容
       packageImage: image(),
       sampleImages: z.array(image()).optional(),
       description: z.string(),
       // artworksのseriesと一致させることで、記事詳細ページの「同タイトルの同人誌」枠に表示される
       series: z.string().optional(),
       characters: z.array(z.string()).optional(),
+      author: z.string().optional(),
       pageCount: z.number().optional(),
       fanzaUrl: z.string().url().optional(),
       patreonUrl: z.string().url().optional(),

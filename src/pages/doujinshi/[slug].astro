@@ -93,8 +93,31 @@ const sameSeriesArtworks = item.data.series
         </section>
       )}
 
+      <section class="lp-details">
+        <h2>{t["doujinshi.detailsHeading"]}</h2>
+        <table class="details-table">
+          <tbody>
+            <tr>
+              <th>{t["doujinshi.detailsTitle"]}</th>
+              <td>{item.data.title}</td>
+            </tr>
+            {item.data.author && (
+              <tr>
+                <th>{t["doujinshi.detailsAuthor"]}</th>
+                <td>{item.data.author}</td>
+              </tr>
+            )}
+            {item.data.pageCount && (
+              <tr>
+                <th>{t["doujinshi.detailsPageCount"]}</th>
+                <td>{item.data.pageCount}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </section>
+
       <section class="lp-buy">
-        <p class="lp-buy-recap">{item.data.title}{item.data.pageCount ? ` 全${item.data.pageCount}枚` : ''}</p>
         <h2>{t["doujinshi.buyHeading"]}</h2>
         <div class="buy-buttons">
           {item.data.fanzaUrl && (
@@ -224,13 +247,24 @@ const sameSeriesArtworks = item.data.series
   h1 { margin: 0; font-size: 2.0rem; color: var(--text-primary); }
 
   .hero-frame {
-    aspect-ratio: 4 / 3;
     max-width: 480px;
+    max-height: 640px;
+    margin: 0 auto;
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .hero-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-frame img {
+    max-width: 100%;
+    max-height: 640px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
 
   .lp-characters {
     display: flex;
@@ -258,6 +292,7 @@ const sameSeriesArtworks = item.data.series
   .lp-body { line-height: 1.85; color: var(--text-secondary); }
 
   .lp-samples h2,
+  .lp-details h2,
   .lp-buy h2,
   .lp-compiled h2 {
     margin: 0 0 1rem;
@@ -266,18 +301,43 @@ const sameSeriesArtworks = item.data.series
     color: var(--text-primary);
   }
 
+  .lp-details {
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+  }
+
+  .details-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .details-table th,
+  .details-table td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.92rem;
+    border-bottom: 0.5px solid var(--border-subtle);
+  }
+  .details-table th {
+    width: 30%;
+    color: var(--text-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .details-table td {
+    color: var(--text-primary);
+  }
+  .details-table tr:last-child th,
+  .details-table tr:last-child td {
+    border-bottom: none;
+  }
+
   .lp-buy {
     padding: 1.5rem;
     border-radius: var(--radius-lg);
     background: var(--accent-soft);
     border: 0.5px solid var(--accent);
-  }
-
-  .lp-buy-recap {
-    margin: 0 0 0.3rem;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: var(--text-primary);
   }
 
   .buy-buttons {
