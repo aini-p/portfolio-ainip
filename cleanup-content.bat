@@ -9,9 +9,11 @@ if not exist "%PS1_PATH%" (
   exit /b 1
 )
 
-set "FORCE_ARG="
-if /I "%~1"=="-Force" set "FORCE_ARG=-Force"
-if /I "%~1"=="/Force" set "FORCE_ARG=-Force"
+set "FORCE_ARG=-Force"
+if /I "%~1"=="-DryRun" set "FORCE_ARG="
+if /I "%~1"=="/DryRun" set "FORCE_ARG="
+if /I "%~1"=="-Preview" set "FORCE_ARG="
+if /I "%~1"=="/Preview" set "FORCE_ARG="
 
 where pwsh >nul 2>nul
 if "%ERRORLEVEL%"=="0" (
