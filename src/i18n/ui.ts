@@ -84,7 +84,8 @@ export const ui = {
     "doujinshi.backToList": "同人誌一覧に戻る",
     "doujinshi.compiledHeading": "収録作品",
     "doujinshi.authorCommentHeading": "筆者からのコメント",
-    "doujinshi.ratingPointsHeading": "評価ポイント",
+    "doujinshi.recommendPointsHeading": "あと5分。のおすすめポイント",
+    "doujinshi.ratingLabel": "評価",
     "recommend.pageTitle": "同人レビュー",
     "recommend.pageDescription":
       "自作以外の同人誌をレビューして紹介するページです。",
@@ -373,7 +374,8 @@ export const ui = {
     "doujinshi.backToList": "Back to doujinshi list",
     "doujinshi.compiledHeading": "Included works",
     "doujinshi.authorCommentHeading": "Comment from the creator",
-    "doujinshi.ratingPointsHeading": "Rating points",
+    "doujinshi.recommendPointsHeading": "At5Fun's Recommended Points",
+    "doujinshi.ratingLabel": "Rating",
     "recommend.pageTitle": "Doujin Reviews",
     "recommend.pageDescription":
       "Reviews of doujinshi by other creators, not our own works.",

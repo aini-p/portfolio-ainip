@@ -86,24 +86,25 @@ const sameSeriesArtworks = item.data.series
         <ShareButtons lang={lang} url={pageUrl} text={item.data.title} />
       </div>
 
-      {item.data.isOwnWork === false ? (
-        item.data.rating != null && (
-          <div class="rating-block">
-            <div class="rating-value" style={`--rating: ${item.data.rating};`}>
-              <span class="rating-stars" aria-hidden="true"></span>
-              <span class="rating-number">{item.data.rating.toFixed(1)} / 5.0</span>
-            </div>
-            <p class="rating-divider">{t["doujinshi.ratingPointsHeading"]}</p>
-          </div>
-        )
-      ) : (
-        <div class="author-comment-heading">
-          <img src="/images/icon.png" alt="" class="author-icon" />
-          <span>{t["doujinshi.authorCommentHeading"]}</span>
+      {item.data.isOwnWork === false && item.data.rating != null && (
+        <div class="rating-row" style={`--rating: ${item.data.rating};`}>
+          <span class="rating-stars" aria-hidden="true"></span>
+          <span class="rating-number">{item.data.rating.toFixed(1)} / 5.0</span>
+          <span class="rating-label">{t["doujinshi.ratingLabel"]}</span>
         </div>
       )}
 
-      <div class="lp-body"><Content /></div>
+      <div class="comment-callout">
+        <a href="/en/profile" class="comment-icon-link" aria-label={t["nav.profile"]}>
+          <img src="/images/icon.png" alt="" class="comment-icon" />
+        </a>
+        <div class="comment-content">
+          <p class="comment-heading">
+            {item.data.isOwnWork === false ? t["doujinshi.recommendPointsHeading"] : t["doujinshi.authorCommentHeading"]}
+          </p>
+          <div class="lp-body"><Content /></div>
+        </div>
+      </div>
 
       {item.data.sampleImages && item.data.sampleImages.length > 0 && (
         <section class="lp-samples">
@@ -325,16 +326,7 @@ const sameSeriesArtworks = item.data.series
 
   .lp-body { line-height: 1.85; color: var(--text-secondary); }
 
-  .rating-block {
-    display: grid;
-    gap: 0.6rem;
-    padding: 1.1rem 1.3rem;
-    border-radius: var(--radius-lg);
-    background: var(--bg-elevated);
-    border: 0.5px solid var(--border-subtle);
-  }
-
-  .rating-value {
+  .rating-row {
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -366,29 +358,61 @@ const sameSeriesArtworks = item.data.series
     color: var(--text-primary);
   }
 
-  .rating-divider {
-    margin: 0;
-    padding-top: 0.6rem;
-    border-top: 0.5px solid var(--border-subtle);
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-secondary);
+  .rating-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
   }
 
-  .author-comment-heading {
+  .comment-callout {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-secondary);
+    gap: 1.1rem;
+    align-items: flex-start;
+    padding: 1.4rem 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--accent-soft);
+    border: 0.5px solid var(--accent);
   }
 
-  .author-icon {
-    width: 28px;
-    height: 28px;
+  .comment-icon-link {
+    flex-shrink: 0;
+    display: block;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+  .comment-icon-link:hover,
+  .comment-icon-link:focus-visible {
+    transform: scale(1.06);
+  }
+
+  .comment-icon {
+    display: block;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     object-fit: cover;
+    border: 2px solid var(--accent);
+  }
+
+  .comment-content {
+    min-width: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .comment-heading {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+  }
+
+  @media (width <= 600px) {
+    .comment-callout { padding: 1.1rem; gap: 0.85rem; }
+    .comment-icon { width: 44px; height: 44px; }
   }
 
   .lp-samples h2,
