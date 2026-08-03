@@ -16,12 +16,15 @@ const t = ui[lang];
       {fanzaAffiliateItems.map((item) => (
         <a class="affiliate-widget" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
           <span class="affiliate-widget-badge">PR</span>
-          <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+          <div class="affiliate-widget-thumb">
+            <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+          </div>
           <p class="affiliate-widget-title">{item.title[lang]}</p>
         </a>
       ))}
     </div>
   </SidebarSection>
+  <slot />
 </aside>
 
 <style is:global>
@@ -46,11 +49,22 @@ const t = ui[lang];
     border-color: var(--accent-strong);
   }
 
-  .affiliate-widget img {
-    width: 100%;
-    height: auto;
-    display: block;
+  .affiliate-widget-thumb {
+    aspect-ratio: 4 / 3;
     background: var(--bg-elevated-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .affiliate-widget-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
   }
 
   .affiliate-widget-badge {

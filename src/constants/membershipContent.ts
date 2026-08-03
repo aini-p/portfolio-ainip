@@ -64,6 +64,43 @@ export const membershipFeatureHighlights: FeatureHighlight[] = [
   },
 ];
 
+export interface ComparisonRow {
+  label: { ja: string; en: string };
+  /** [お試しさん, 常連さん, パートナーさん] の順 */
+  included: [boolean, boolean, boolean];
+}
+
+// セクション6: Tier比較表（マルバツ表）
+export const membershipComparisonRows: ComparisonRow[] = [
+  {
+    label: { ja: "秘密のDiscordチャンネル", en: "Secret Discord channel" },
+    included: [true, true, true],
+  },
+  {
+    label: { ja: "新作イラスト見放題", en: "Unlimited new releases" },
+    included: [true, true, true],
+  },
+  {
+    label: {
+      ja: "過去アーカイブ全見放題（数千枚）",
+      en: "Full back catalog (thousands of images)",
+    },
+    included: [false, true, true],
+  },
+  {
+    label: { ja: "ZIP一括ダウンロード", en: "Bulk ZIP download" },
+    included: [false, true, true],
+  },
+  {
+    label: { ja: "ショップ全品25%OFF", en: "25% off the shop" },
+    included: [false, true, true],
+  },
+  {
+    label: { ja: "オーダーイラスト（ご相談制作）", en: "Custom illustration requests" },
+    included: [false, false, true],
+  },
+];
+
 export interface FaqItem {
   question: { ja: string; en: string };
   answer: { ja: string; en: string };
