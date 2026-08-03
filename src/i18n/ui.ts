@@ -125,7 +125,8 @@ export const ui = {
       "こんな同人誌が、どこよりもお得に。ショップの全商品がいつでも25%OFFになります。",
     "membership.highlightShopCta": "同人誌一覧を見る",
     "membership.compareHeading": "プラン比較表",
-    "membership.compareLead": "各プランで利用できる特典をまとめて比較できます。",
+    "membership.compareLead":
+      "各プランで利用できる特典をまとめて比較できます。",
     "membership.includedLabel": "対応",
     "membership.notIncludedLabel": "非対応",
     "membership.faqHeading": "よくある質問",
@@ -421,7 +422,8 @@ export const ui = {
       "Doujinshi like these, at the best price anywhere. Every item in the shop is always 25% off.",
     "membership.highlightShopCta": "View all doujinshi",
     "membership.compareHeading": "Plan Comparison",
-    "membership.compareLead": "See everything each plan includes, side by side.",
+    "membership.compareLead":
+      "See everything each plan includes, side by side.",
     "membership.includedLabel": "Included",
     "membership.notIncludedLabel": "Not included",
     "membership.faqHeading": "Frequently Asked Questions",

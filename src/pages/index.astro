@@ -177,7 +177,17 @@ const rankingIndex = [
 <BaseLayout>
   <div class="home">
    <div class="home-grid">
-    <AffiliateColumn lang={lang} />
+    <AffiliateColumn lang={lang}>
+      {otherDoujinshiReviews.length > 0 && (
+        <SidebarSection title={t["home.doujinshiReviewHeading"]} href="/recommend">
+          {otherDoujinshiReviews.map((item) => (
+            <a class="recommend-card" href={toDoujinshiHref(item.slug)}>
+              <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={240} />
+            </a>
+          ))}
+        </SidebarSection>
+      )}
+    </AffiliateColumn>
 
     <div class="main-column">
       <div class="search-bar">
@@ -258,23 +268,6 @@ const rankingIndex = [
         {recommendOwnDoujinshi.length > 0 && (
           <Rail title={t["home.recommendHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.recommendHeading"]}>
             {recommendOwnDoujinshi.map((item) => (
-              <ArtworkCard
-                href={toDoujinshiHref(item.slug)}
-                title={item.data.title}
-                image={item.data.packageImage}
-                aspect="4/3"
-                fit="contain"
-                thumbWidth={260}
-                isNew={isRecentlyPublished(item)}
-                slug={toSlug(item.slug)}
-              />
-            ))}
-          </Rail>
-        )}
-
-        {otherDoujinshiReviews.length > 0 && (
-          <Rail title={t["home.doujinshiReviewHeading"]}>
-            {otherDoujinshiReviews.map((item) => (
               <ArtworkCard
                 href={toDoujinshiHref(item.slug)}
                 title={item.data.title}
@@ -754,6 +747,24 @@ const rankingIndex = [
   .tool-thumb-frame svg {
     width: 56px;
     height: 56px;
+  }
+
+  .recommend-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
+  }
+  .recommend-card img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
   }
 
   .featured-post {

@@ -32,7 +32,7 @@ const {
   slug,
 } = Astro.props;
 ---
-<a href={href} class="artwork-card" data-slug={slug} style={`--aspect: ${aspect.replace("/", " / ")}; --fit: ${fit};`}>
+<a href={href} class="artwork-card" data-slug={slug} style={`--aspect: ${aspect.replace("/", " / ")}; --fit: ${fit}; --thumb-width: ${thumbWidth}px;`}>
   <div class="thumb">
     <Image
       src={image}
@@ -59,6 +59,12 @@ const {
     text-decoration: none;
     color: inherit;
     flex: 0 0 auto;
+  }
+
+  /* レール（横スクロール）内では、画像の読み込み前でもレイアウトが安定するよう
+     カード幅を明示的に固定する。サムネはこの箱に収まるようobject-fitでスケールされる */
+  .rail-track .artwork-card {
+    width: var(--thumb-width);
   }
 
   .thumb {

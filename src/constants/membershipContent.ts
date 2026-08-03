@@ -96,7 +96,10 @@ export const membershipComparisonRows: ComparisonRow[] = [
     included: [false, true, true],
   },
   {
-    label: { ja: "オーダーイラスト（ご相談制作）", en: "Custom illustration requests" },
+    label: {
+      ja: "オーダーイラスト（ご相談制作）",
+      en: "Custom illustration requests",
+    },
     included: [false, false, true],
   },
 ];
