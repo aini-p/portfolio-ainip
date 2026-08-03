@@ -54,4 +54,10 @@ export const doujinShopLinks: ShopLink[] = [
     abbr: "DL",
     color: "#8a92a3",
   },
+  {
+    name: { ja: "Patreonショップ", en: "Patreon Shop" },
+    abbr: "PTR",
+    color: "#ff424d",
+    url: "https://www.patreon.com/cw/AtGoFun/shop",
+  },
 ];

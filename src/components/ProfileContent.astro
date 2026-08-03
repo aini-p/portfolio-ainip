@@ -117,6 +117,9 @@ const snsLinks = [
       {t["profile.membershipCta"]}
       <i class="ti ti-arrow-right" aria-hidden="true"></i>
     </a>
+    <a href={lang === "ja" ? "/membership" : "/en/membership"} class="membership-more-link">
+      {t["artwork.membershipMoreLink"]}
+    </a>
   </section>
 </div>
 
@@ -357,6 +360,21 @@ const snsLinks = [
   .membership-cta:hover,
   .membership-cta:focus-visible {
     transform: translateY(-1px);
+  }
+
+  .membership-more-link {
+    display: inline-flex;
+    justify-self: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    transition: color 0.2s ease;
+  }
+
+  .membership-more-link:hover,
+  .membership-more-link:focus-visible {
+    color: var(--text-primary);
   }
 
   @media (width <= 560px) {

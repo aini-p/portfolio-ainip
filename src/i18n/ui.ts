@@ -11,7 +11,7 @@ export const ui = {
     "nav.doujinshi": "同人誌",
     "nav.recommend": "同人レビュー",
     "nav.membership": "メンバーシップ",
-    "nav.profile": "著者紹介",
+    "nav.profile": "著者について",
     "nav.tool": "ツール",
     "nav.menu": "メニュー",
     "nav.menuClose": "閉じる",
