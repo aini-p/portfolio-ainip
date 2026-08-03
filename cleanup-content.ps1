@@ -1,6 +1,8 @@
 # cleanup-content.ps1
-# Delete all article MDX files under artworks/doujinshi and delete image files
-# referenced from those articles, unless the image is also referenced elsewhere.
+# Delete all article MDX files under artworks/doujinshi and delete every image
+# under their _images folders that is not referenced anywhere else in the repo
+# (src/ or public/) - including images left orphaned by earlier partial cleanups,
+# not just ones directly referenced by the articles being deleted right now.
 #
 # Usage:
 #   Dry run (no deletion): .\cleanup-content.ps1
@@ -13,7 +15,7 @@ param(
 $ErrorActionPreference = "Stop"
 $rootDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-# 1) Collect article files
+# 1) Collect article files (all of these are always deleted)
 $articleDirs = @(
     (Join-Path $rootDir "src\content\artworks\ja"),
     (Join-Path $rootDir "src\content\artworks\en"),
@@ -37,53 +39,31 @@ foreach ($dir in $articleDirs) {
 
 Write-Host "Article files found: $($articleFiles.Count)" -ForegroundColor Cyan
 
-# 2) Build image index by basename
-$imageMap = @{}
-foreach ($imgDir in $imageDirs) {
-    if (Test-Path $imgDir) {
-        Get-ChildItem -Path $imgDir -File | ForEach-Object {
-            $key = $_.BaseName.ToLowerInvariant()
-            if (-not $imageMap.ContainsKey($key)) {
-                $imageMap[$key] = $_.FullName
-            }
-        }
-    }
-}
-
-# 3) Parse image references from articles
-$referencedImagePaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-
-foreach ($file in $articleFiles) {
-    $content = Get-Content -Path $file.FullName -Raw -Encoding UTF8
-
-    # Matches "../_images/filename.ext"
-    [regex]::Matches($content, '"\.\./_images/([^"]+)"') | ForEach-Object {
-        $baseName = [System.IO.Path]::GetFileNameWithoutExtension($_.Groups[1].Value).ToLowerInvariant()
-        if ($imageMap.ContainsKey($baseName)) {
-            $null = $referencedImagePaths.Add($imageMap[$baseName])
-        }
-    }
-
-    # Matches relatedImages: ["id1", "id2", ...]
-    $riBlock = [regex]::Match($content, 'relatedImages:\s*\[([^\]]*)\]')
-    if ($riBlock.Success) {
-        [regex]::Matches($riBlock.Groups[1].Value, '"([0-9a-fA-F]{16})"') | ForEach-Object {
-            $id = $_.Groups[1].Value.ToLowerInvariant()
-            if ($imageMap.ContainsKey($id)) {
-                $null = $referencedImagePaths.Add($imageMap[$id])
-            }
-        }
-    }
-}
-
-Write-Host "Images referenced by articles: $($referencedImagePaths.Count)" -ForegroundColor Cyan
-
-# 4) Collect non-article content to detect external references
 $articlePathSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 foreach ($f in $articleFiles) {
     $null = $articlePathSet.Add($f.FullName)
 }
 
+# 2) Collect every image under the _images folders - each one is a delete candidate
+$imageFiles = [System.Collections.Generic.List[System.IO.FileInfo]]::new()
+foreach ($imgDir in $imageDirs) {
+    if (Test-Path $imgDir) {
+        Get-ChildItem -Path $imgDir -File | ForEach-Object {
+            $imageFiles.Add($_)
+        }
+    }
+}
+
+Write-Host "Images under _images folders: $($imageFiles.Count)" -ForegroundColor Cyan
+
+$imagePathSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+foreach ($img in $imageFiles) {
+    $null = $imagePathSet.Add($img.FullName)
+}
+
+# 3) Build "other content" = every file under src/ and public/ EXCLUDING the
+#    article files being deleted and the image files themselves, so an image
+#    only survives when something other than an article (or itself) mentions it.
 $searchDirs = @(
     (Join-Path $rootDir "src"),
     (Join-Path $rootDir "public")
@@ -96,7 +76,7 @@ foreach ($dir in $searchDirs) {
     }
 
     Get-ChildItem -Path $dir -Recurse -File | Where-Object {
-        -not $articlePathSet.Contains($_.FullName)
+        -not $articlePathSet.Contains($_.FullName) -and -not $imagePathSet.Contains($_.FullName)
     } | ForEach-Object {
         $text = Get-Content -Path $_.FullName -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
         if ($text) {
@@ -106,21 +86,22 @@ foreach ($dir in $searchDirs) {
 }
 $otherContent = $otherFilesContent.ToString()
 
-# 5) Split into delete/keep lists
+# 4) Split every image into delete/keep based on whether its filename (the
+#    hex id) appears anywhere outside the articles/_images themselves
 $imagesToDelete = [System.Collections.Generic.List[string]]::new()
 $imagesToKeep = [System.Collections.Generic.List[string]]::new()
 
-foreach ($imgPath in $referencedImagePaths) {
-    $baseName = [System.IO.Path]::GetFileNameWithoutExtension($imgPath)
+foreach ($img in $imageFiles) {
+    $baseName = [System.IO.Path]::GetFileNameWithoutExtension($img.Name)
     if ($otherContent -match [regex]::Escape($baseName)) {
-        $imagesToKeep.Add($imgPath)
+        $imagesToKeep.Add($img.FullName)
     }
     else {
-        $imagesToDelete.Add($imgPath)
+        $imagesToDelete.Add($img.FullName)
     }
 }
 
-# 6) Print summary
+# 5) Print summary
 if ($imagesToKeep.Count -gt 0) {
     Write-Host "`n[KEEP] Referenced outside articles ($($imagesToKeep.Count)):" -ForegroundColor Green
     foreach ($img in $imagesToKeep) {

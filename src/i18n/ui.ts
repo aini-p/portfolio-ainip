@@ -38,8 +38,8 @@ export const ui = {
     "discord.ctaDetail":
       "コメントだけでなく、Discordでも気軽に感想を聞かせてください。",
     "discord.ctaButton": "サーバーに参加する",
-    "discord.floatLead": "無料イラスト＆最新情報をお届け",
-    "discord.floatSub": "感想や質問もお気軽にどうぞ",
+    "discord.floatLead": "無料イラスト＆最新情報",
+    "discord.floatSub": "感想・質問もお気軽に",
     "discord.floatCta": "サーバーに参加する",
     "share.x": "Xでシェア",
     "share.copy": "リンクをコピー",
@@ -339,8 +339,8 @@ export const ui = {
     "discord.ctaDetail":
       "Feel free to share your thoughts there too, not just in the comments.",
     "discord.ctaButton": "Join the server",
-    "discord.floatLead": "Free art & the latest updates",
-    "discord.floatSub": "Come chat, ask questions, join in",
+    "discord.floatLead": "Free art & updates",
+    "discord.floatSub": "Chat with us anytime",
     "discord.floatCta": "Join the server",
     "share.x": "Share on X",
     "share.copy": "Copy link",
