@@ -674,12 +674,13 @@ const rankingIndex = [
   .series-list-thumb {
     position: absolute;
     inset: 0 0 0 auto;
-    width: 70%;
+    width: auto;
+    max-width: 70%;
     height: 100%;
     object-fit: contain;
     object-position: right center;
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 45%);
-    mask-image: linear-gradient(to right, transparent 0%, #000 45%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 50%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 50%);
     z-index: 0;
   }
 
