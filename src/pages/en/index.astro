@@ -207,7 +207,7 @@ const rankingIndex = [
             </a>
             <div class="featured-body">
               <h2 class="featured-title">{featuredArtwork.data.title}</h2>
-              <p class="featured-excerpt">{featuredArtwork.data.description}</p>
+              <p class="featured-excerpt">{featuredArtwork.body?.trim() || featuredArtwork.data.description}</p>
               <a class="featured-cta" href={toHref(featuredArtwork.slug)}>{t["home.readArticle"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
             </div>
           </div>
