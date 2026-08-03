@@ -2,16 +2,18 @@
 setlocal enabledelayedexpansion
 
 set "SCRIPT_DIR=%~dp0"
-set "PS1_PATH=%SCRIPT_DIR%cleanup-db.ps1"
+set "PS1_PATH=%SCRIPT_DIR%cleanup.ps1"
 
 if not exist "%PS1_PATH%" (
-  echo [ERROR] cleanup-db.ps1 was not found: "%PS1_PATH%"
+  echo [ERROR] cleanup.ps1 was not found: "%PS1_PATH%"
   exit /b 1
 )
 
-rem Unlike cleanup-content.bat, this defaults to a DRY RUN (preview only).
-rem Pass -Force to apply to the local dev D1 database, and -Force -Remote
-rem to apply to the production D1 database (irreversible).
+rem Double-clicking this file with no arguments runs a DRY RUN (preview only,
+rem nothing is deleted or touched). Pass -Force to actually delete files and
+rem apply to the local dev D1 database. Add -Remote as well to apply to the
+rem production D1 database (irreversible). Add -SkipDb to skip the database
+rem step entirely (e.g. if wrangler/D1 isn't set up).
 set "ARGS="
 
 :parse
@@ -20,6 +22,8 @@ if /I "%~1"=="-Force" set "ARGS=%ARGS% -Force"
 if /I "%~1"=="/Force" set "ARGS=%ARGS% -Force"
 if /I "%~1"=="-Remote" set "ARGS=%ARGS% -Remote"
 if /I "%~1"=="/Remote" set "ARGS=%ARGS% -Remote"
+if /I "%~1"=="-SkipDb" set "ARGS=%ARGS% -SkipDb"
+if /I "%~1"=="/SkipDb" set "ARGS=%ARGS% -SkipDb"
 shift
 goto :parse
 
