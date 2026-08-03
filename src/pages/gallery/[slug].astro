@@ -7,7 +7,7 @@ import ArtworkCard from "~/components/ArtworkCard.astro";
 import LikeButton from "~/components/LikeButton.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
-import { discordUrl, patreonMembershipUrl } from "~/constants/social";
+import { patreonMembershipUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -224,17 +224,6 @@ const relatedArtworks = artwork.data.relatedImages
       )}
     </aside>
    </div>
-
-    <div class="discord-cta">
-      <i class="ti ti-brand-discord" aria-hidden="true"></i>
-      <div class="discord-cta-copy">
-        <p class="discord-cta-lead">{t["discord.ctaLead"]}</p>
-        <p class="discord-cta-detail">{t["discord.ctaDetail"]}</p>
-      </div>
-      <a href={discordUrl} target="_blank" rel="noopener noreferrer" class="discord-cta-button">
-        {t["discord.ctaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
-      </a>
-    </div>
   </div>
 </BaseLayout>
 <style is:inline>
@@ -283,36 +272,6 @@ const relatedArtworks = artwork.data.relatedImages
       display: grid;
     }
   }
-
-  .discord-cta {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding: 1.1rem 1.3rem;
-    border-radius: var(--radius-lg);
-    background: #4b5ac4;
-    color: #fff;
-  }
-  .discord-cta > i { font-size: 28px; flex-shrink: 0; }
-  .discord-cta-copy { flex: 1; min-width: 200px; display: grid; gap: 0.25rem; }
-  .discord-cta-lead { margin: 0; font-size: 0.95rem; font-weight: 600; }
-  .discord-cta-detail { margin: 0; font-size: 0.82rem; opacity: 0.85; }
-  .discord-cta-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    flex-shrink: 0;
-    padding: 0.55rem 1.1rem;
-    border-radius: 999px;
-    background: #fff;
-    color: #4b5ac4;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .discord-cta-button:hover { background: #e8e9fb; }
 
   .hero-frame {
     aspect-ratio: 16 / 9;

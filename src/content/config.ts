@@ -72,6 +72,8 @@ const doujinshiCollection = defineCollection({
       keywords: z.array(z.string()).optional(),
       // 自作か、他者作品のレビュー記事か（TOPページの表示振り分けに使用）
       isOwnWork: z.boolean().optional().default(true),
+      // 他者作品レビュー記事の評価値（5.0満点、小数第1位まで）
+      rating: z.number().min(0).max(5).optional(),
     }),
 });
 

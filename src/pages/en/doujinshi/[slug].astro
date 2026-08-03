@@ -86,6 +86,23 @@ const sameSeriesArtworks = item.data.series
         <ShareButtons lang={lang} url={pageUrl} text={item.data.title} />
       </div>
 
+      {item.data.isOwnWork === false ? (
+        item.data.rating != null && (
+          <div class="rating-block">
+            <div class="rating-value" style={`--rating: ${item.data.rating};`}>
+              <span class="rating-stars" aria-hidden="true"></span>
+              <span class="rating-number">{item.data.rating.toFixed(1)} / 5.0</span>
+            </div>
+            <p class="rating-divider">{t["doujinshi.ratingPointsHeading"]}</p>
+          </div>
+        )
+      ) : (
+        <div class="author-comment-heading">
+          <img src="/images/icon.png" alt="" class="author-icon" />
+          <span>{t["doujinshi.authorCommentHeading"]}</span>
+        </div>
+      )}
+
       <div class="lp-body"><Content /></div>
 
       {item.data.sampleImages && item.data.sampleImages.length > 0 && (
@@ -307,6 +324,72 @@ const sameSeriesArtworks = item.data.series
   }
 
   .lp-body { line-height: 1.85; color: var(--text-secondary); }
+
+  .rating-block {
+    display: grid;
+    gap: 0.6rem;
+    padding: 1.1rem 1.3rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+  }
+
+  .rating-value {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .rating-stars {
+    position: relative;
+    display: inline-block;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--border-strong);
+  }
+  .rating-stars::before,
+  .rating-stars::after {
+    content: "★★★★★";
+    white-space: nowrap;
+  }
+  .rating-stars::after {
+    position: absolute;
+    inset: 0;
+    width: calc(var(--rating) / 5 * 100%);
+    overflow: hidden;
+    color: var(--accent-strong);
+  }
+
+  .rating-number {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .rating-divider {
+    margin: 0;
+    padding-top: 0.6rem;
+    border-top: 0.5px solid var(--border-subtle);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .author-comment-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .author-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 
   .lp-samples h2,
   .lp-details h2,

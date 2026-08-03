@@ -1,23 +1,19 @@
 ---
+import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import ArtworkCard from "~/components/ArtworkCard.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import {
-  formatImageCountLabel,
-  getHeaderImage,
-  getTotalImageCount,
-} from "~/utils/artwork";
 
 const lang = "en";
 const t = ui[lang];
 
-const artworks = await getCollection("artworks", ({ id }) =>
-  id.startsWith(`${lang}/`),
+const items = await getCollection(
+  "doujinshi",
+  ({ id, data }) => id.startsWith(`${lang}/`) && data.isOwnWork === false,
 );
-const featured = [...artworks]
-  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
-  .slice(0, 8);
+const sorted = [...items].sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
 ---
 <BaseLayout title={t["recommend.pageTitle"]} description={t["recommend.pageDescription"]}>
   <div class="recommend-shell">
@@ -26,19 +22,30 @@ const featured = [...artworks]
       <p>{t["recommend.lead"]}</p>
     </header>
 
-    <section>
-      <h2>{t["recommend.ownWorksHeading"]}</h2>
-      <div class="recommend-grid">
-        {featured.map((artwork) => (
-          <ArtworkCard
-            href={`/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
-            title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
-            image={getHeaderImage(artwork)}
-            slug={artwork.slug.replace(`${lang}/`, "")}
-          />
+    {sorted.length > 0 ? (
+      <div class="doujinshi-grid">
+        {sorted.map((item) => (
+          <a class="doujinshi-card" href={`/en/doujinshi/${item.slug.replace(`${lang}/`, "")}`}>
+            <div class="package-frame">
+              <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={400} />
+            </div>
+            <div class="card-body">
+              {item.data.rating != null && (
+                <div class="card-rating" style={`--rating: ${item.data.rating};`}>
+                  <span class="card-rating-stars" aria-hidden="true"></span>
+                  <span class="card-rating-value">{item.data.rating.toFixed(1)}</span>
+                </div>
+              )}
+              <h2>{item.data.title}</h2>
+              <p>{item.data.description}</p>
+              <span class="card-cta">{t["doujinshi.viewButton"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+            </div>
+          </a>
         ))}
       </div>
-    </section>
+    ) : (
+      <p class="recommend-empty">{t["recommend.empty"]}</p>
+    )}
   </div>
 </BaseLayout>
 
@@ -48,7 +55,7 @@ const featured = [...artworks]
     margin: 0 auto;
     padding: 1.25rem;
     display: grid;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .recommend-header h1 {
@@ -61,22 +68,120 @@ const featured = [...artworks]
     margin: 0;
     color: var(--text-secondary);
     line-height: 1.8;
+    max-width: 65ch;
   }
 
-  section h2 {
-    margin: 0 0 1rem;
-    font-size: 1.2rem;
+  .recommend-empty {
+    color: var(--text-secondary);
+  }
+
+  .doujinshi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .doujinshi-card {
+    display: grid;
+    gap: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 0.5px solid var(--border-subtle);
+    background: var(--bg-elevated);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s ease;
+  }
+
+  .doujinshi-card:hover,
+  .doujinshi-card:focus-visible {
+    border-color: var(--accent-strong);
+  }
+
+  .package-frame {
+    aspect-ratio: 4 / 3;
+    background: var(--bg-elevated-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .package-frame img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .card-body {
+    padding: 1.1rem 1.2rem 1.3rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .card-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .card-rating-stars {
+    position: relative;
+    display: inline-block;
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--border-strong);
+  }
+  .card-rating-stars::before,
+  .card-rating-stars::after {
+    content: "★★★★★";
+    white-space: nowrap;
+  }
+  .card-rating-stars::after {
+    position: absolute;
+    inset: 0;
+    width: calc(var(--rating) / 5 * 100%);
+    overflow: hidden;
+    color: var(--accent-strong);
+  }
+
+  .card-rating-value {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .card-body h2 {
+    margin: 0;
+    font-size: 1.1rem;
     font-weight: 500;
     color: var(--text-primary);
   }
 
-  .recommend-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1rem;
+  .card-body p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
   }
 
   @media (width <= 768px) {
-    .recommend-shell { padding: 1rem; gap: 1.5rem; }
+    .recommend-shell { padding: 1rem; gap: 1.25rem; }
+    .doujinshi-grid { grid-template-columns: 1fr; }
   }
 </style>

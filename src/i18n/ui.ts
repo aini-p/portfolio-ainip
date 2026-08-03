@@ -9,7 +9,7 @@ export const ui = {
   ja: {
     "nav.gallery": "作品",
     "nav.doujinshi": "同人誌",
-    "nav.recommend": "おすすめ",
+    "nav.recommend": "同人レビュー",
     "nav.membership": "メンバーシップ",
     "nav.profile": "著者紹介",
     "nav.tool": "ツール",
@@ -32,7 +32,9 @@ export const ui = {
     "discord.ctaDetail":
       "コメントだけでなく、Discordでも気軽に感想を聞かせてください。",
     "discord.ctaButton": "サーバーに参加する",
-    "discord.floatText": "無料イラスト＆新作通知",
+    "discord.floatLead": "無料イラスト＆最新情報をお届け",
+    "discord.floatSub": "感想や質問もお気軽にどうぞ",
+    "discord.floatCta": "サーバーに参加する",
     "share.x": "Xでシェア",
     "share.copy": "リンクをコピー",
     "share.copied": "コピーしました",
@@ -81,14 +83,15 @@ export const ui = {
     "doujinshi.digiketButton": "デジケットで購入",
     "doujinshi.backToList": "同人誌一覧に戻る",
     "doujinshi.compiledHeading": "収録作品",
-    "recommend.pageTitle": "おすすめ",
+    "doujinshi.authorCommentHeading": "筆者からのコメント",
+    "doujinshi.ratingPointsHeading": "評価ポイント",
+    "recommend.pageTitle": "同人レビュー",
     "recommend.pageDescription":
-      "自社作品とFANZA提携作品のおすすめ紹介ページです。",
-    "recommend.heading": "こちらもおすすめ",
+      "自作以外の同人誌をレビューして紹介するページです。",
+    "recommend.heading": "同人レビュー",
     "recommend.lead":
-      "気に入っていただけたら、あわせてこちらもチェックしてみてください。",
-    "recommend.ownWorksHeading": "この作者のおすすめ作品",
-    "recommend.affiliateHeading": "あわせて読みたい（提携紹介）",
+      "他の作家さんによる同人誌の感想・レビューをまとめています。気になる一冊があれば購入の参考にしてください。",
+    "recommend.empty": "同人レビュー記事はまだありません。",
     "membership.pageTitle": "メンバーシップ",
     "membership.pageDescription":
       "新作も、過去の全アーカイブも。もっと限定イラストを楽しめるファンクラブの特典とプランをご紹介します。",
@@ -295,7 +298,7 @@ export const ui = {
   en: {
     "nav.gallery": "Works",
     "nav.doujinshi": "Doujinshi",
-    "nav.recommend": "Recommended",
+    "nav.recommend": "Doujin Reviews",
     "nav.membership": "Membership",
     "nav.profile": "About",
     "nav.tool": "Tool",
@@ -319,7 +322,9 @@ export const ui = {
     "discord.ctaDetail":
       "Feel free to share your thoughts there too, not just in the comments.",
     "discord.ctaButton": "Join the server",
-    "discord.floatText": "Free art & new alerts",
+    "discord.floatLead": "Free art & the latest updates",
+    "discord.floatSub": "Come chat, ask questions, join in",
+    "discord.floatCta": "Join the server",
     "share.x": "Share on X",
     "share.copy": "Copy link",
     "share.copied": "Copied",
@@ -368,13 +373,15 @@ export const ui = {
     "doujinshi.digiketButton": "Buy on Digiket",
     "doujinshi.backToList": "Back to doujinshi list",
     "doujinshi.compiledHeading": "Included works",
-    "recommend.pageTitle": "Recommended",
+    "doujinshi.authorCommentHeading": "Comment from the creator",
+    "doujinshi.ratingPointsHeading": "Rating points",
+    "recommend.pageTitle": "Doujin Reviews",
     "recommend.pageDescription":
-      "A curated page of our own works and FANZA partner recommendations.",
-    "recommend.heading": "You might also like",
-    "recommend.lead": "If you enjoyed this, take a look at these as well.",
-    "recommend.ownWorksHeading": "More from this creator",
-    "recommend.affiliateHeading": "Also worth checking out (partner picks)",
+      "Reviews of doujinshi by other creators, not our own works.",
+    "recommend.heading": "Doujin Reviews",
+    "recommend.lead":
+      "A collection of impressions and reviews for doujinshi by other creators. Check them out if you're looking for your next read.",
+    "recommend.empty": "No doujinshi reviews yet.",
     "membership.pageTitle": "Membership",
     "membership.pageDescription":
       "New releases, and the entire back catalog. Explore the perks and plans of a fan club built around more exclusive illustrations.",
@@ -398,12 +405,14 @@ export const ui = {
     "membership.highlightOrderNote":
       "*The number of requests we can take on depends on the content and current workload",
     "membership.highlightArchiveTag": "💎 Standard and Partner",
-    "membership.highlightArchiveTitle": "💎 Thousands of Past Illustrations, Unlocked",
+    "membership.highlightArchiveTitle":
+      "💎 Thousands of Past Illustrations, Unlocked",
     "membership.highlightArchiveBody":
       "Browse and save from thousands of high-resolution illustrations published over the years, any time you like. Here's a taste of what's inside.",
     "membership.highlightArchiveCta": "View all works",
     "membership.highlightShopTag": "🎁 Standard and Partner",
-    "membership.highlightShopTitle": "🎁 25% Off Every Doujinshi and Item in the Shop",
+    "membership.highlightShopTitle":
+      "🎁 25% Off Every Doujinshi and Item in the Shop",
     "membership.highlightShopBody":
       "Doujinshi like these, at the best price anywhere. Every item in the shop is always 25% off.",
     "membership.highlightShopCta": "View all doujinshi",
