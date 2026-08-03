@@ -1,7 +1,6 @@
 ---
 import { getCollection } from "astro:content";
 import ArtworkCard from "~/components/ArtworkCard.astro";
-import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -40,21 +39,6 @@ const featured = [...artworks]
         ))}
       </div>
     </section>
-
-    <section>
-      <h2>{t["recommend.affiliateHeading"]}</h2>
-      <div class="recommend-grid">
-        {fanzaAffiliateItems.map((item) => (
-          <a class="affiliate-card" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
-            <div class="affiliate-thumb">
-              <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
-              <span class="affiliate-label">PR</span>
-            </div>
-            <p>{item.title[lang]}</p>
-          </a>
-        ))}
-      </div>
-    </section>
   </div>
 </BaseLayout>
 
@@ -90,44 +74,6 @@ const featured = [...artworks]
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
-  }
-
-  .affiliate-card {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .affiliate-thumb {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background: var(--bg-elevated-2);
-  }
-
-  .affiliate-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .affiliate-label {
-    position: absolute;
-    left: 6px;
-    top: 6px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  .affiliate-card p {
-    margin: 0.5rem 0 0;
-    font-size: 0.85rem;
-    color: var(--text-primary);
   }
 
   @media (width <= 768px) {

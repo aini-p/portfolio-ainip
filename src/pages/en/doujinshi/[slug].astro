@@ -1,12 +1,12 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import LikeButton from "~/components/LikeButton.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
-import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -62,6 +62,8 @@ const sameSeriesArtworks = item.data.series
 <BaseLayout title={item.data.title} description={item.data.description}>
   <div class="detail-shell">
    <div class="detail-grid">
+    <AffiliateColumn lang={lang} />
+
     <article class="main-column">
       <a class="back-link" href="/en/doujinshi">{t["doujinshi.backToList"]}</a>
 
@@ -160,9 +162,14 @@ const sameSeriesArtworks = item.data.series
           )}
         </div>
       </section>
+
+      <div class="action-row action-row-bottom">
+        <LikeButton slug={`doujinshi-${itemSlug}`} />
+        <ShareButtons lang={lang} url={pageUrl} text={item.data.title} />
+      </div>
     </article>
 
-    <aside class="sidebar-column">
+    <aside class="sidebar-column sidebar-column-right">
       {otherDoujinshi.length > 0 && (
         <SidebarSection title={t["doujinshi.heading"]} href="/en/doujinshi">
           {otherDoujinshi.map((other) => (
@@ -189,19 +196,6 @@ const sameSeriesArtworks = item.data.series
         </SidebarSection>
       )}
 
-      {fanzaAffiliateItems.length > 0 && (
-        <SidebarSection title={t["sidebar.recommend"]} href="/en/recommend">
-          {fanzaAffiliateItems.map((affiliate) => (
-            <a class="artwork-card affiliate-card" href={affiliate.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
-              <div class="thumb">
-                <img src={affiliate.imageUrl} alt={affiliate.title[lang]} loading="lazy" />
-                <span class="affiliate-label">PR</span>
-              </div>
-              <p class="card-title">{affiliate.title[lang]}</p>
-            </a>
-          ))}
-        </SidebarSection>
-      )}
     </aside>
    </div>
   </div>
@@ -235,6 +229,24 @@ const sameSeriesArtworks = item.data.series
     min-width: 0;
     position: sticky;
     top: 96px;
+  }
+
+  /* Only show the left affiliate column when there's enough spare width that it
+     won't eat into the main content column */
+  .sidebar-column-left {
+    display: none;
+  }
+
+  @media (min-width: 1480px) {
+    .detail-shell {
+      max-width: 1520px;
+    }
+    .detail-grid {
+      grid-template-columns: 280px 1fr 300px;
+    }
+    .sidebar-column-left {
+      display: grid;
+    }
   }
 
   .back-link {
@@ -287,6 +299,11 @@ const sameSeriesArtworks = item.data.series
     flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem;
+  }
+
+  .action-row-bottom {
+    padding-top: 1.6rem;
+    border-top: 0.5px solid var(--border-subtle);
   }
 
   .lp-body { line-height: 1.85; color: var(--text-secondary); }
@@ -425,19 +442,6 @@ const sameSeriesArtworks = item.data.series
     background: var(--bg-elevated-2);
   }
   .recommend-card img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
-
-  .affiliate-card .thumb { background: var(--bg-elevated-2); position: relative; }
-  .affiliate-label {
-    position: absolute;
-    left: 6px;
-    top: 6px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
 
   @media (max-width: 960px) {
     .detail-grid { grid-template-columns: 1fr; }

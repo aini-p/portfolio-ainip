@@ -36,12 +36,27 @@ const { title, icon, seeMoreHref, seeMoreLabel } = Astro.props;
     let startX = 0;
     let scrollStart = 0;
 
+    function endDrag() {
+      if (!isDown) return;
+      isDown = false;
+      track.classList.remove("dragging");
+    }
+
+    // カード(<a>)やサムネ(<img>)はブラウザ標準でドラッグ可能な要素のため、そのままだと
+    // 「リンクをドラッグしてブックマーク/新規タブを作る」というネイティブ操作が割り込み、
+    // 自前のスクロール処理と衝突してカーソルにテキストが張り付いたような挙動になる。
+    // dragstartを止めて、独自のmousedown/mousemoveだけでスクロールを制御する。
+    track.addEventListener("dragstart", (e) => {
+      e.preventDefault();
+    });
+
     track.addEventListener("mousedown", (e) => {
       isDown = true;
       moved = false;
       startX = e.pageX;
       scrollStart = track.scrollLeft;
       track.classList.add("dragging");
+      e.preventDefault();
     });
 
     window.addEventListener("mousemove", (e) => {
@@ -51,10 +66,8 @@ const { title, icon, seeMoreHref, seeMoreLabel } = Astro.props;
       track.scrollLeft = scrollStart - dx;
     });
 
-    window.addEventListener("mouseup", () => {
-      isDown = false;
-      track.classList.remove("dragging");
-    });
+    window.addEventListener("mouseup", endDrag);
+    window.addEventListener("blur", endDrag);
 
     track.addEventListener(
       "click",
@@ -138,6 +151,7 @@ const { title, icon, seeMoreHref, seeMoreLabel } = Astro.props;
     scroll-snap-stop: normal;
   }
 
+  .rail-track :global(a),
   .rail-track :global(img) {
     -webkit-user-drag: none;
     user-select: none;

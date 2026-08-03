@@ -1,0 +1,74 @@
+---
+import SidebarSection from "~/components/SidebarSection.astro";
+import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
+import { ui } from "~/i18n/ui";
+
+export interface Props {
+  lang: "ja" | "en";
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+---
+<aside class="sidebar-column sidebar-column-left">
+  <SidebarSection title={t["home.affiliateHeading"]}>
+    <div class="affiliate-widget-list">
+      {fanzaAffiliateItems.map((item) => (
+        <a class="affiliate-widget" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
+          <span class="affiliate-widget-badge">PR</span>
+          <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+          <p class="affiliate-widget-title">{item.title[lang]}</p>
+        </a>
+      ))}
+    </div>
+  </SidebarSection>
+</aside>
+
+<style is:global>
+  .affiliate-widget-list {
+    display: grid;
+    gap: 0.85rem;
+    grid-column: 1 / -1;
+  }
+
+  .affiliate-widget {
+    position: relative;
+    display: block;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s ease;
+  }
+  .affiliate-widget:hover {
+    border-color: var(--accent-strong);
+  }
+
+  .affiliate-widget img {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: var(--bg-elevated-2);
+  }
+
+  .affiliate-widget-badge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .affiliate-widget-title {
+    margin: 0;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+</style>

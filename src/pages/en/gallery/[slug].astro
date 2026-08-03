@@ -1,12 +1,12 @@
 ---
 import { getImage, Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import LikeButton from "~/components/LikeButton.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
-import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { discordUrl, patreonMembershipUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
@@ -96,6 +96,8 @@ const relatedArtworks = artwork.data.relatedImages
 >
   <div class="detail-shell">
    <div class="detail-grid">
+    <AffiliateColumn lang={lang} />
+
     <article class="main-column">
       <h1>{artwork.data.title}{formatImageCountLabel(totalImageCount, lang)}</h1>
 
@@ -184,9 +186,14 @@ const relatedArtworks = artwork.data.relatedImages
           </div>
         </div>
       )}
+
+      <div class="action-row action-row-bottom">
+        <LikeButton slug={artwork.slug.replace(`${lang}/`, "")} />
+        <ShareButtons lang={lang} url={pageUrl} text={artwork.data.title} />
+      </div>
     </article>
 
-    <aside class="sidebar-column">
+    <aside class="sidebar-column sidebar-column-right">
       {artwork.data.series && sameSeriesDoujinshi.length > 0 && (
         <SidebarSection
           title={`${artwork.data.series}${t["sidebar.doujinshiBySeries"]}`}
@@ -195,20 +202,6 @@ const relatedArtworks = artwork.data.relatedImages
           {sameSeriesDoujinshi.map((item) => (
             <a class="recommend-card" href={`/en/doujinshi/${item.slug.replace(`${lang}/`, '')}`}>
               <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={240} />
-            </a>
-          ))}
-        </SidebarSection>
-      )}
-
-      {fanzaAffiliateItems.length > 0 && (
-        <SidebarSection title={t["sidebar.recommend"]} href="/en/recommend">
-          {fanzaAffiliateItems.map((item) => (
-            <a class="artwork-card affiliate-card" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
-              <div class="thumb">
-                <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
-                <span class="affiliate-label">PR</span>
-              </div>
-              <p class="card-title">{item.title[lang]}</p>
             </a>
           ))}
         </SidebarSection>
@@ -272,6 +265,24 @@ const relatedArtworks = artwork.data.relatedImages
     min-width: 0;
     position: sticky;
     top: 96px;
+  }
+
+  /* Only show the left affiliate column when there's enough spare width that it
+     won't eat into the main content column */
+  .sidebar-column-left {
+    display: none;
+  }
+
+  @media (min-width: 1480px) {
+    .detail-shell {
+      max-width: 1520px;
+    }
+    .detail-grid {
+      grid-template-columns: 280px 1fr 300px;
+    }
+    .sidebar-column-left {
+      display: grid;
+    }
   }
 
   .discord-cta {
@@ -342,6 +353,11 @@ const relatedArtworks = artwork.data.relatedImages
     flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem;
+  }
+
+  .action-row-bottom {
+    padding-top: 1.6rem;
+    border-top: 0.5px solid var(--border-subtle);
   }
 
   .membership-intro {
@@ -434,19 +450,6 @@ const relatedArtworks = artwork.data.relatedImages
     background: var(--bg-elevated-2);
   }
   .recommend-card img { width: 100%; height: 100%; object-fit: cover; }
-
-  .affiliate-card .thumb { background: var(--bg-elevated-2); position: relative; }
-  .affiliate-label {
-    position: absolute;
-    left: 6px;
-    top: 6px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
 
   @media (max-width: 960px) {
     .detail-grid { grid-template-columns: 1fr; }

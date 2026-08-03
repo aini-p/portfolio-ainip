@@ -1,11 +1,11 @@
 ---
 import { getImage, Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import Rail from "~/components/Rail.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
 import { categories } from "~/constants/categories";
-import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { discordUrl, patreonUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
@@ -154,19 +154,7 @@ const rankingIndex = [
 <BaseLayout>
   <div class="home">
    <div class="home-grid">
-    <aside class="sidebar-column sidebar-column-left">
-      <SidebarSection title={t["home.affiliateHeading"]}>
-        <div class="affiliate-widget-list">
-          {fanzaAffiliateItems.map((item) => (
-            <a class="affiliate-widget" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
-              <span class="affiliate-widget-badge">PR</span>
-              <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
-              <p class="affiliate-widget-title">{item.title[lang]}</p>
-            </a>
-          ))}
-        </div>
-      </SidebarSection>
-    </aside>
+    <AffiliateColumn lang={lang} />
 
     <div class="main-column">
       <div class="search-bar">
@@ -179,7 +167,7 @@ const rankingIndex = [
 
       <div id="rails-view" class="rails-view">
         {featuredArtwork && (
-          <a class="featured-post" href={toHref(featuredArtwork.slug)}>
+          <div class="featured-post">
             <div class="featured-thumb">
               <Image src={getHeaderImage(featuredArtwork)} alt={featuredArtwork.data.title} format="webp" width={480} loading="eager" />
               {isRecentlyPublished(featuredArtwork) && <span class="new-badge">NEW</span>}
@@ -187,9 +175,9 @@ const rankingIndex = [
             <div class="featured-body">
               <h2 class="featured-title">{featuredArtwork.data.title}</h2>
               <p class="featured-excerpt">{featuredArtwork.data.description}</p>
-              <span class="featured-cta">{t["home.readArticle"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+              <a class="featured-cta" href={toHref(featuredArtwork.slug)}>{t["home.readArticle"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
             </div>
-          </a>
+          </div>
         )}
 
         <Rail title={t["home.latest"]}>
@@ -216,15 +204,6 @@ const rankingIndex = [
               thumbWidth={260}
               isNew={isRecentlyPublished(artwork)}
             />
-          ))}
-          {fanzaAffiliateItems.map((item) => (
-            <a class="artwork-card affiliate-card" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
-              <div class="thumb">
-                <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
-                <span class="affiliate-label">PR</span>
-              </div>
-              <p class="card-title">{item.title[lang]}</p>
-            </a>
           ))}
         </Rail>
 
@@ -253,7 +232,7 @@ const rankingIndex = [
           </Rail>
         )}
 
-        {(recommendOwnDoujinshi.length > 0 || fanzaAffiliateItems.length > 0) && (
+        {recommendOwnDoujinshi.length > 0 && (
           <Rail title={t["home.recommendHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.recommendHeading"]}>
             {recommendOwnDoujinshi.map((item) => (
               <ArtworkCard
@@ -266,15 +245,6 @@ const rankingIndex = [
                 isNew={isRecentlyPublished(item)}
                 slug={toSlug(item.slug)}
               />
-            ))}
-            {fanzaAffiliateItems.map((item) => (
-              <a class="artwork-card affiliate-card" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
-                <div class="thumb">
-                  <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
-                  <span class="affiliate-label">PR</span>
-                </div>
-                <p class="card-title">{item.title[lang]}</p>
-              </a>
             ))}
           </Rail>
         )}
@@ -730,17 +700,10 @@ const rankingIndex = [
     display: flex;
     gap: 1.5rem;
     align-items: center;
-    text-decoration: none;
-    color: inherit;
     padding: 1.25rem;
     border-radius: var(--radius-lg);
     background: var(--bg-elevated);
     border: 0.5px solid var(--border-subtle);
-    transition: border-color 0.2s ease;
-  }
-  .featured-post:hover,
-  .featured-post:focus-visible {
-    border-color: var(--accent-strong);
   }
 
   .featured-thumb {
@@ -786,10 +749,20 @@ const rankingIndex = [
   .featured-cta {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.35rem;
+    width: fit-content;
+    margin-top: 0.2rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
     font-size: 0.88rem;
     font-weight: 600;
-    color: var(--accent-strong);
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .featured-cta:hover {
+    background: var(--accent-strong);
   }
 
   .rank-badge {
@@ -807,67 +780,6 @@ const rankingIndex = [
     color: var(--text-primary);
     font-size: 12px;
     font-weight: 600;
-  }
-
-  .affiliate-card .thumb {
-    background: var(--bg-elevated-2);
-  }
-
-  .affiliate-label {
-    position: absolute;
-    left: 6px;
-    top: 6px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  .affiliate-widget-list {
-    display: grid;
-    gap: 0.85rem;
-    grid-column: 1 / -1;
-  }
-
-  .affiliate-widget {
-    position: relative;
-    display: block;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background: var(--bg-elevated);
-    border: 0.5px solid var(--border-subtle);
-    text-decoration: none;
-    color: inherit;
-    transition: border-color 0.2s ease;
-  }
-  .affiliate-widget:hover { border-color: var(--accent-strong); }
-
-  .affiliate-widget img {
-    width: 100%;
-    height: auto;
-    display: block;
-    background: var(--bg-elevated-2);
-  }
-
-  .affiliate-widget-badge {
-    position: absolute;
-    left: 6px;
-    top: 6px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  .affiliate-widget-title {
-    margin: 0;
-    padding: 0.6rem 0.7rem;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
   }
 
   .promo-banner {
