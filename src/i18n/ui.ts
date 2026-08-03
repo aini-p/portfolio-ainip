@@ -32,6 +32,7 @@ export const ui = {
     "discord.ctaDetail":
       "コメントだけでなく、Discordでも気軽に感想を聞かせてください。",
     "discord.ctaButton": "サーバーに参加する",
+    "discord.floatText": "無料イラスト＆新作通知",
     "share.x": "Xでシェア",
     "share.copy": "リンクをコピー",
     "share.copied": "コピーしました",
@@ -90,23 +91,39 @@ export const ui = {
     "recommend.affiliateHeading": "あわせて読みたい（提携紹介）",
     "membership.pageTitle": "メンバーシップ",
     "membership.pageDescription":
-      "ここだけでしか見られない特別な世界へ。ファンクラブ限定の特典とプランをご紹介します。",
-    "membership.heroCatch": "ここだけでしか見られない、特別な世界をあなたに。",
+      "新作も、過去の全アーカイブも。もっと限定イラストを楽しめるファンクラブの特典とプランをご紹介します。",
+    "membership.heroCatch":
+      "新作も、過去の全アーカイブも。もっと限定イラストを楽しめる場所。",
     "membership.heroSub":
-      "過去作品の見放題から秘密のコミュニティ、限定リクエストまで。特別な特典が詰まったファンクラブへようこそ。",
+      "プランに応じて、新作イラストの見放題から過去数千枚のアーカイブ、オーダーイラストまで。あなたに合った楽しみ方がきっと見つかります。",
     "membership.heroCta": "プラン一覧を見る",
-    "membership.heroImageAlt": "メンバーシップのイメージイラスト",
+    "membership.heroImageAlt": "メンバーシップ限定イラストのイメージバナー",
     "membership.featuresHeading": "メンバーシップで体験できること",
     "membership.pricingHeading": "選べる3つのプラン",
-    "membership.pricingLead": "ライフスタイルに合わせて、いつでも変更・解約できます。",
+    "membership.pricingLead":
+      "プランによって見られる範囲・ダウンロードの可否が異なります。内容をよく確認の上お選びください。",
     "membership.popularBadge": "一番人気",
     "membership.tierCta": "このプランを選択する",
-    "membership.includedLabel": "対応",
-    "membership.notIncludedLabel": "非対応",
-    "membership.topTierHeading": "最上位プラン（トップ Tier）だけの特別な体験",
+    "membership.highlightsHeading": "気になる特典を詳しくご紹介",
+    "membership.highlightOrderTag": "👑 パートナーさんだけの特典",
+    "membership.highlightOrderTitle": "🎨 好きなキャラのオーダーイラスト",
+    "membership.highlightOrderBody":
+      "好きなキャラクターの同人誌はもちろん、痛車用の高解像度データなど、これまでも幅広いご要望にお応えしてきました。まずはお気軽にご相談ください。",
+    "membership.highlightOrderNote":
+      "※ご相談内容によりお受けできる数に限りがございます",
+    "membership.highlightArchiveTag": "💎 常連さん・パートナーさんが対象",
+    "membership.highlightArchiveTitle": "💎 数千枚の過去アーカイブが見放題",
+    "membership.highlightArchiveBody":
+      "これまで公開してきた数千枚におよぶ高画質イラストを、いつでも好きなだけ閲覧・保存できます。実際にはこんな作品が見られます。",
+    "membership.highlightArchiveCta": "作品一覧を見る",
+    "membership.highlightShopTag": "🎁 常連さん・パートナーさんが対象",
+    "membership.highlightShopTitle": "🎁 同人誌・グッズが全品25%OFF",
+    "membership.highlightShopBody":
+      "こんな同人誌が、どこよりもお得に。ショップの全商品がいつでも25%OFFになります。",
+    "membership.highlightShopCta": "同人誌一覧を見る",
     "membership.faqHeading": "よくある質問",
-    "membership.footerCatch": "さあ、あなただけの特別な体験を始めよう。",
-    "membership.footerCta": "今すぐトップ Tier で始める",
+    "membership.footerCatch": "今すぐ、もっと近くで楽しもう。",
+    "membership.footerCta": "今すぐパートナーさんで始める",
     "tool.pageTitle": "タップ変化画像つくるちゃん",
     "tool.pageDescription":
       "白背景ではイラスト A、黒背景ではイラスト B に見える PNG をブラウザ内で作成します。",
@@ -302,6 +319,7 @@ export const ui = {
     "discord.ctaDetail":
       "Feel free to share your thoughts there too, not just in the comments.",
     "discord.ctaButton": "Join the server",
+    "discord.floatText": "Free art & new alerts",
     "share.x": "Share on X",
     "share.copy": "Copy link",
     "share.copied": "Copied",
@@ -359,23 +377,39 @@ export const ui = {
     "recommend.affiliateHeading": "Also worth checking out (partner picks)",
     "membership.pageTitle": "Membership",
     "membership.pageDescription":
-      "A members-only world you won't find anywhere else. Explore the perks and plans of the fan club.",
-    "membership.heroCatch": "A special world, just for you — found nowhere else.",
+      "New releases, and the entire back catalog. Explore the perks and plans of a fan club built around more exclusive illustrations.",
+    "membership.heroCatch":
+      "New releases, and the entire back catalog. More exclusive illustrations to enjoy.",
     "membership.heroSub":
-      "From an unlimited back catalog to a secret community and custom requests, welcome to a fan club packed with exclusive perks.",
+      "From unlimited new releases to a back catalog of thousands and custom illustration requests, depending on your plan — there's a way to enjoy it that's right for you.",
     "membership.heroCta": "See the plans",
-    "membership.heroImageAlt": "Membership hero illustration",
+    "membership.heroImageAlt": "Membership exclusive artwork banner",
     "membership.featuresHeading": "What you get with membership",
     "membership.pricingHeading": "Choose from 3 plans",
-    "membership.pricingLead": "Switch or cancel any time to match your lifestyle.",
+    "membership.pricingLead":
+      "What you can view and download differs by plan — please check the details before choosing.",
     "membership.popularBadge": "MOST POPULAR",
     "membership.tierCta": "Choose this plan",
-    "membership.includedLabel": "Included",
-    "membership.notIncludedLabel": "Not included",
-    "membership.topTierHeading": "Exclusive experiences only in the top tier",
+    "membership.highlightsHeading": "A closer look at the perks",
+    "membership.highlightOrderTag": "👑 Partner-only perk",
+    "membership.highlightOrderTitle": "🎨 Custom Illustrations, Made to Order",
+    "membership.highlightOrderBody":
+      "From a doujinshi starring your favorite character to high-resolution art for itasha car wraps — we've taken on all kinds of requests. Just reach out and let's talk about what you have in mind.",
+    "membership.highlightOrderNote":
+      "*The number of requests we can take on depends on the content and current workload",
+    "membership.highlightArchiveTag": "💎 Standard and Partner",
+    "membership.highlightArchiveTitle": "💎 Thousands of Past Illustrations, Unlocked",
+    "membership.highlightArchiveBody":
+      "Browse and save from thousands of high-resolution illustrations published over the years, any time you like. Here's a taste of what's inside.",
+    "membership.highlightArchiveCta": "View all works",
+    "membership.highlightShopTag": "🎁 Standard and Partner",
+    "membership.highlightShopTitle": "🎁 25% Off Every Doujinshi and Item in the Shop",
+    "membership.highlightShopBody":
+      "Doujinshi like these, at the best price anywhere. Every item in the shop is always 25% off.",
+    "membership.highlightShopCta": "View all doujinshi",
     "membership.faqHeading": "Frequently Asked Questions",
-    "membership.footerCatch": "Start your own special experience today.",
-    "membership.footerCta": "Join the Top Tier now",
+    "membership.footerCatch": "Get closer, starting today.",
+    "membership.footerCta": "Become a Partner now",
     "tool.pageTitle": "Tap-Change Image Maker Chan",
     "tool.pageDescription":
       "Create a PNG that shows illustration A on white backgrounds and illustration B on black backgrounds directly in the browser.",

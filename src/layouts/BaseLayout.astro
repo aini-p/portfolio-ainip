@@ -1,5 +1,6 @@
 ---
 import smartypants from "smartypants";
+import DiscordFloat from "~/components/DiscordFloat.astro";
 import Header from "~/components/header.astro";
 import { profileNames, siteCopyrightLabel } from "~/constants/social";
 
@@ -148,6 +149,7 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <footer>
       <small>&copy; {new Date().getFullYear()} {siteCopyrightLabel} All rights reserved.</small>
     </footer>
+    <DiscordFloat lang={lang} />
   </body>
 </html>
 

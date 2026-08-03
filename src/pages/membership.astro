@@ -1,17 +1,45 @@
 ---
-import { membershipFaq, membershipFeatureHighlights, topTierHighlights } from "~/constants/membershipContent";
+import { getCollection } from "astro:content";
+import ArtworkCard from "~/components/ArtworkCard.astro";
+import Rail from "~/components/Rail.astro";
+import { membershipFaq, membershipFeatureHighlights } from "~/constants/membershipContent";
 import { membershipTiers } from "~/constants/membershipTiers";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import { formatImageCountLabel, getHeaderImage, getTotalImageCount } from "~/utils/artwork";
 
 const lang = "ja";
 const t = ui[lang];
-const topTier = membershipTiers[membershipTiers.length - 1];
+const partnerTier = membershipTiers[membershipTiers.length - 1];
+
+function toSlug(fullSlug: string) {
+  return fullSlug.replace(`${lang}/`, "");
+}
+function toHref(fullSlug: string) {
+  return `/gallery/${toSlug(fullSlug)}`;
+}
+function toDoujinshiHref(fullSlug: string) {
+  return `/doujinshi/${toSlug(fullSlug)}`;
+}
+
+const artworks = await getCollection("artworks", ({ id }) => id.startsWith(`${lang}/`));
+const latestArtworks = [...artworks]
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+  .slice(0, 10);
+
+const doujinshiList = await getCollection("doujinshi", ({ id }) => id.startsWith(`${lang}/`));
+const latestDoujinshi = [...doujinshiList]
+  .filter((item) => item.data.isOwnWork !== false)
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
+  .slice(0, 10);
 ---
 
 <BaseLayout title={t["membership.pageTitle"]} description={t["membership.pageDescription"]}>
   <div class="membership-lp">
     <section class="mship-hero" id="hero">
+      <div class="hero-banner" aria-hidden="true">
+        <img src="/images/patreon-banner.png" alt="" width="3000" height="1000" loading="eager" />
+      </div>
       <div class="mship-container hero-grid">
         <div class="hero-copy">
           <p class="hero-eyebrow">FAN CLUB MEMBERSHIP</p>
@@ -20,9 +48,6 @@ const topTier = membershipTiers[membershipTiers.length - 1];
           <a href="#pricing" class="hero-cta">
             {t["membership.heroCta"]} <i class="ti ti-arrow-narrow-down" aria-hidden="true"></i>
           </a>
-        </div>
-        <div class="hero-visual">
-          <img src="/images/placeholder-membership-hero.svg" alt={t["membership.heroImageAlt"]} width="480" height="480" loading="eager" />
         </div>
       </div>
     </section>
@@ -34,6 +59,7 @@ const topTier = membershipTiers[membershipTiers.length - 1];
           {membershipFeatureHighlights.map((feature) => (
             <div class="feature-card">
               <span class="feature-icon" aria-hidden="true">{feature.icon}</span>
+              <span class="feature-tag">{feature.availability[lang]}</span>
               <h3>{feature.title[lang]}</h3>
               <p>{feature.desc[lang]}</p>
             </div>
@@ -60,19 +86,7 @@ const topTier = membershipTiers[membershipTiers.length - 1];
               </p>
               <ul class="tier-features">
                 {tier.features.map((feature) => (
-                  <li class:list={{ "is-excluded": !feature.included }}>
-                    {tier.customIcons ? (
-                      <span>{feature.text[lang]}</span>
-                    ) : (
-                      <>
-                        <i
-                          class:list={["ti", feature.included ? "ti-check" : "ti-x"]}
-                          aria-label={feature.included ? t["membership.includedLabel"] : t["membership.notIncludedLabel"]}
-                        ></i>
-                        <span>{feature.text[lang]}</span>
-                      </>
-                    )}
-                  </li>
+                  <li>{feature.text[lang]}</li>
                 ))}
               </ul>
               <a
@@ -89,22 +103,66 @@ const topTier = membershipTiers[membershipTiers.length - 1];
       </div>
     </section>
 
-    <section class="mship-toptier" id="top-tier">
+    <section class="mship-highlights" id="highlights">
       <div class="mship-container">
-        <h2>{t["membership.topTierHeading"]}</h2>
-        <div class="toptier-list">
-          {topTierHighlights.map((item, index) => (
-            <div class:list={["toptier-item", { reverse: index % 2 === 1 }]}>
-              <div class="toptier-visual">
-                <img src={item.image} alt={item.imageAlt[lang]} width="320" height="210" loading="lazy" />
-              </div>
-              <div class="toptier-copy">
-                <h3>{item.title[lang]}</h3>
-                <p>{item.body[lang]}</p>
-                {item.note && <p class="toptier-note">{item.note[lang]}</p>}
-              </div>
+        <h2>{t["membership.highlightsHeading"]}</h2>
+        <div class="highlight-list">
+          <div class="highlight-item">
+            <div class="highlight-visual">
+              <img src="/images/placeholder-membership-top-1.svg" alt={t["membership.highlightOrderTitle"]} width="320" height="210" loading="lazy" />
             </div>
-          ))}
+            <div class="highlight-copy">
+              <span class="highlight-tag">{t["membership.highlightOrderTag"]}</span>
+              <h3>{t["membership.highlightOrderTitle"]}</h3>
+              <p>{t["membership.highlightOrderBody"]}</p>
+              <p class="highlight-note">{t["membership.highlightOrderNote"]}</p>
+            </div>
+          </div>
+
+          <div class="highlight-item highlight-item-wide">
+            <div class="highlight-copy">
+              <span class="highlight-tag">{t["membership.highlightArchiveTag"]}</span>
+              <h3>{t["membership.highlightArchiveTitle"]}</h3>
+              <p>{t["membership.highlightArchiveBody"]}</p>
+            </div>
+            {latestArtworks.length > 0 && (
+              <Rail title="" seeMoreHref="/" seeMoreLabel={t["membership.highlightArchiveCta"]}>
+                {latestArtworks.map((artwork, index) => (
+                  <ArtworkCard
+                    href={toHref(artwork.slug)}
+                    title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+                    image={getHeaderImage(artwork)}
+                    slug={toSlug(artwork.slug)}
+                    thumbWidth={220}
+                    eager={index < 4}
+                  />
+                ))}
+              </Rail>
+            )}
+          </div>
+
+          <div class="highlight-item highlight-item-wide">
+            <div class="highlight-copy">
+              <span class="highlight-tag">{t["membership.highlightShopTag"]}</span>
+              <h3>{t["membership.highlightShopTitle"]}</h3>
+              <p>{t["membership.highlightShopBody"]}</p>
+            </div>
+            {latestDoujinshi.length > 0 && (
+              <Rail title="" seeMoreHref="/doujinshi" seeMoreLabel={t["membership.highlightShopCta"]}>
+                {latestDoujinshi.map((item) => (
+                  <ArtworkCard
+                    href={toDoujinshiHref(item.slug)}
+                    title={item.data.title}
+                    image={item.data.packageImage}
+                    aspect="4/3"
+                    fit="contain"
+                    thumbWidth={220}
+                    slug={toSlug(item.slug)}
+                  />
+                ))}
+              </Rail>
+            )}
+          </div>
         </div>
       </div>
     </section>
@@ -131,7 +189,7 @@ const topTier = membershipTiers[membershipTiers.length - 1];
     <section class="mship-footer-cta">
       <div class="mship-container">
         <h2>{t["membership.footerCatch"]}</h2>
-        <a href={topTier.patreonTierUrl} target="_blank" rel="noopener noreferrer" class="footer-cta-button">
+        <a href={partnerTier.patreonTierUrl} target="_blank" rel="noopener noreferrer" class="footer-cta-button">
           {t["membership.footerCta"]}
         </a>
       </div>
@@ -177,25 +235,57 @@ const topTier = membershipTiers[membershipTiers.length - 1];
   /* ---------- Hero ---------- */
   .mship-hero {
     position: relative;
-    padding: clamp(2rem, 5vw, 3.5rem) 1.25rem;
-    background:
-      radial-gradient(120% 140% at 12% 0%, rgb(212 175 122 / 18%) 0%, transparent 55%),
-      radial-gradient(120% 140% at 90% 100%, rgb(216 116 160 / 16%) 0%, transparent 55%),
-      linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-page) 100%);
-    border-bottom: 0.5px solid var(--border-subtle);
+    min-height: clamp(320px, 42vw, 460px);
+    display: flex;
+    align-items: center;
     overflow: hidden;
+    background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-page) 100%);
+    border-bottom: 0.5px solid var(--border-subtle);
+  }
+
+  .hero-banner {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero-banner img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: auto;
+    max-width: none;
+    object-fit: cover;
+    opacity: 0.96;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 40%);
+    mask-image: linear-gradient(to right, transparent 0%, black 40%);
+  }
+
+  .hero-banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      var(--bg-page) 0%,
+      rgb(23 20 28 / 55%) 32%,
+      rgb(122 74 150 / 25%) 58%,
+      rgb(232 195 122 / 12%) 100%
+    );
+    mix-blend-mode: multiply;
   }
 
   .hero-grid {
-    display: flex;
-    align-items: center;
-    gap: clamp(2rem, 5vw, 4rem);
+    position: relative;
+    z-index: 1;
   }
 
   .hero-copy {
-    flex: 1 1 480px;
+    max-width: 560px;
     display: grid;
     gap: 1.1rem;
+    padding: clamp(2rem, 5vw, 3rem) 0;
   }
 
   .hero-eyebrow {
@@ -208,18 +298,20 @@ const topTier = membershipTiers[membershipTiers.length - 1];
 
   .hero-copy h1 {
     margin: 0;
-    font-size: clamp(1.9rem, 4vw, 2.9rem);
-    line-height: 1.4;
+    font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+    line-height: 1.45;
     font-weight: 500;
     color: var(--text-primary);
+    text-shadow: 0 2px 18px rgb(0 0 0 / 45%);
   }
 
   .hero-sub {
     margin: 0;
-    max-width: 52ch;
+    max-width: 50ch;
     color: var(--text-secondary);
     line-height: 1.85;
-    font-size: 0.98rem;
+    font-size: 0.96rem;
+    text-shadow: 0 2px 14px rgb(0 0 0 / 40%);
   }
 
   .hero-cta {
@@ -244,28 +336,16 @@ const topTier = membershipTiers[membershipTiers.length - 1];
     box-shadow: 0 12px 28px rgb(155 99 214 / 45%);
   }
 
-  .hero-visual {
-    flex: 0 1 340px;
-    display: flex;
-    justify-content: center;
-  }
-
-  .hero-visual img {
-    width: 100%;
-    max-width: 340px;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 20px 50px rgb(0 0 0 / 35%);
-  }
-
   /* ---------- Features ---------- */
   .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.1rem;
     margin-top: 2rem;
   }
 
   .feature-card {
+    position: relative;
     display: grid;
     gap: 0.6rem;
     align-content: start;
@@ -284,6 +364,16 @@ const topTier = membershipTiers[membershipTiers.length - 1];
   .feature-icon {
     font-size: 1.8rem;
     line-height: 1;
+  }
+
+  .feature-tag {
+    justify-self: start;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
   }
 
   .feature-card h3 {
@@ -308,7 +398,7 @@ const topTier = membershipTiers[membershipTiers.length - 1];
 
   .pricing-lead {
     margin: 0 auto;
-    max-width: 46ch;
+    max-width: 52ch;
     text-align: center;
     color: var(--text-secondary);
     font-size: 0.92rem;
@@ -362,7 +452,7 @@ const topTier = membershipTiers[membershipTiers.length - 1];
 
   .tier-head h3 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: 600;
     color: var(--text-primary);
   }
@@ -404,35 +494,9 @@ const topTier = membershipTiers[membershipTiers.length - 1];
   }
 
   .tier-features li {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
     font-size: 0.88rem;
     color: var(--text-secondary);
     line-height: 1.6;
-  }
-
-  .tier-features li.is-excluded {
-    color: var(--text-muted);
-    text-decoration: line-through;
-    text-decoration-color: var(--border-strong);
-  }
-
-  .tier-features li i {
-    margin-top: 0.2rem;
-    flex-shrink: 0;
-  }
-
-  .tier-features li i.ti-check {
-    color: var(--accent-strong);
-  }
-
-  .tier-premium .tier-features li i.ti-check {
-    color: var(--gold-strong);
-  }
-
-  .tier-features li i.ti-x {
-    color: var(--text-muted);
   }
 
   .tier-cta {
@@ -466,45 +530,62 @@ const topTier = membershipTiers[membershipTiers.length - 1];
     box-shadow: 0 10px 26px rgb(232 195 122 / 35%);
   }
 
-  /* ---------- Top tier highlights ---------- */
-  .mship-toptier {
+  /* ---------- Highlights ---------- */
+  .mship-highlights {
     padding: 1rem 1.25rem;
   }
 
-  .toptier-list {
+  .highlight-list {
     display: grid;
-    gap: 2.5rem;
+    gap: 3rem;
     margin-top: 2.5rem;
   }
 
-  .toptier-item {
+  .highlight-item {
     display: flex;
     align-items: center;
     gap: clamp(1.5rem, 4vw, 3rem);
   }
 
-  .toptier-item.reverse {
-    flex-direction: row-reverse;
+  .highlight-item-wide {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
   }
 
-  .toptier-visual {
+  .highlight-visual {
     flex: 0 0 auto;
     width: min(320px, 42%);
   }
 
-  .toptier-visual img {
+  .highlight-visual img {
     width: 100%;
     border-radius: var(--radius-lg);
     box-shadow: 0 16px 40px rgb(0 0 0 / 30%);
   }
 
-  .toptier-copy {
+  .highlight-copy {
     flex: 1;
     display: grid;
-    gap: 0.7rem;
+    gap: 0.6rem;
+    justify-items: start;
   }
 
-  .toptier-copy h3 {
+  .highlight-item-wide .highlight-copy {
+    text-align: center;
+    justify-items: center;
+    max-width: 70ch;
+    margin: 0 auto;
+  }
+
+  .highlight-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.03em;
+  }
+
+  .highlight-copy h3 {
     margin: 0;
     font-size: 1.2rem;
     font-weight: 600;
@@ -512,16 +593,20 @@ const topTier = membershipTiers[membershipTiers.length - 1];
     line-height: 1.5;
   }
 
-  .toptier-copy p {
+  .highlight-copy p {
     margin: 0;
     color: var(--text-secondary);
     line-height: 1.85;
     font-size: 0.95rem;
   }
 
-  .toptier-note {
+  .highlight-note {
     color: var(--gold) !important;
     font-size: 0.82rem !important;
+  }
+
+  .highlight-item-wide :global(.rail-head) {
+    display: none;
   }
 
   /* ---------- FAQ ---------- */
@@ -639,26 +724,36 @@ const topTier = membershipTiers[membershipTiers.length - 1];
   }
 
   @media (width <= 860px) {
-    .hero-grid {
-      flex-direction: column-reverse;
-      text-align: center;
+    .mship-hero {
+      min-height: clamp(360px, 70vw, 480px);
+      align-items: flex-end;
+    }
+
+    .hero-banner::after {
+      background: linear-gradient(
+        180deg,
+        rgb(23 20 28 / 30%) 0%,
+        var(--bg-page) 78%
+      );
     }
 
     .hero-copy {
-      align-items: center;
+      max-width: none;
+      text-align: left;
+      padding-bottom: 2rem;
     }
 
-    .hero-cta {
-      justify-self: center;
-    }
-
-    .toptier-item,
-    .toptier-item.reverse {
+    .highlight-item {
       flex-direction: column;
       text-align: center;
     }
 
-    .toptier-visual {
+    .highlight-item .highlight-copy {
+      text-align: center;
+      justify-items: center;
+    }
+
+    .highlight-visual {
       width: min(320px, 80%);
     }
   }
