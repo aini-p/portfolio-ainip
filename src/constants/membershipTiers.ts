@@ -12,6 +12,8 @@ export interface MembershipTier {
   period: { ja: string; en: string };
   popular?: boolean;
   badge?: { ja: string; en: string };
+  /** 1280x560相当のTierサムネイル画像 */
+  thumbnail: string;
   features: MembershipFeatureItem[];
   patreonTierUrl: string;
 }
@@ -28,6 +30,7 @@ export const membershipTiers: MembershipTier[] = [
     },
     price: { ja: "$5", en: "$5" },
     period: { ja: "/ 月", en: "/ month" },
+    thumbnail: "/images/placeholder-tier-trial.svg",
     features: [
       {
         text: {
@@ -55,6 +58,7 @@ export const membershipTiers: MembershipTier[] = [
     period: { ja: "/ 月", en: "/ month" },
     popular: true,
     badge: { ja: "一番人気", en: "MOST POPULAR" },
+    thumbnail: "/images/placeholder-tier-standard.svg",
     features: [
       {
         text: {
@@ -92,6 +96,7 @@ export const membershipTiers: MembershipTier[] = [
     },
     price: { ja: "$100", en: "$100" },
     period: { ja: "/ 月", en: "/ month" },
+    thumbnail: "/images/placeholder-tier-partner.svg",
     features: [
       {
         text: {

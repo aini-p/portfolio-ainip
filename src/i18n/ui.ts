@@ -95,10 +95,9 @@ export const ui = {
     "membership.pageTitle": "メンバーシップ",
     "membership.pageDescription":
       "新作も、過去の全アーカイブも。もっと限定イラストを楽しめるファンクラブの特典とプランをご紹介します。",
-    "membership.heroCatch":
-      "新作も、過去の全アーカイブも。もっと限定イラストを楽しめる場所。",
+    "membership.heroCatch": "数千枚の限定イラストが見放題。",
     "membership.heroSub":
-      "プランに応じて、新作イラストの見放題から過去数千枚のアーカイブ、オーダーイラストまで。あなたに合った楽しみ方がきっと見つかります。",
+      "プランに応じて、新作から過去の全アーカイブ、オーダーイラストまで。",
     "membership.heroCta": "プラン一覧を見る",
     "membership.heroImageAlt": "メンバーシップ限定イラストのイメージバナー",
     "membership.featuresHeading": "メンバーシップで体験できること",
@@ -111,7 +110,7 @@ export const ui = {
     "membership.highlightOrderTag": "👑 パートナーさんだけの特典",
     "membership.highlightOrderTitle": "🎨 好きなキャラのオーダーイラスト",
     "membership.highlightOrderBody":
-      "好きなキャラクターの同人誌はもちろん、痛車用の高解像度データなど、これまでも幅広いご要望にお応えしてきました。まずはお気軽にご相談ください。",
+      "好きなキャラクターの同人誌はもちろん、痛車用の高解像度データなど、これまでも幅広いご要望にお応えしてきました。描いたことのない作品でもご相談OK、まずはお気軽にどうぞ。",
     "membership.highlightOrderNote":
       "※ご相談内容によりお受けできる数に限りがございます",
     "membership.highlightArchiveTag": "💎 常連さん・パートナーさんが対象",
@@ -126,7 +125,7 @@ export const ui = {
     "membership.highlightShopCta": "同人誌一覧を見る",
     "membership.faqHeading": "よくある質問",
     "membership.footerCatch": "今すぐ、もっと近くで楽しもう。",
-    "membership.footerCta": "今すぐパートナーさんで始める",
+    "membership.footerCta": "今すぐメンバーシップを始める",
     "tool.pageTitle": "タップ変化画像つくるちゃん",
     "tool.pageDescription":
       "白背景ではイラスト A、黒背景ではイラスト B に見える PNG をブラウザ内で作成します。",
@@ -385,10 +384,9 @@ export const ui = {
     "membership.pageTitle": "Membership",
     "membership.pageDescription":
       "New releases, and the entire back catalog. Explore the perks and plans of a fan club built around more exclusive illustrations.",
-    "membership.heroCatch":
-      "New releases, and the entire back catalog. More exclusive illustrations to enjoy.",
+    "membership.heroCatch": "Thousands of exclusive illustrations, unlimited.",
     "membership.heroSub":
-      "From unlimited new releases to a back catalog of thousands and custom illustration requests, depending on your plan — there's a way to enjoy it that's right for you.",
+      "From new releases to the entire back catalog and custom illustration requests, depending on your plan.",
     "membership.heroCta": "See the plans",
     "membership.heroImageAlt": "Membership exclusive artwork banner",
     "membership.featuresHeading": "What you get with membership",
@@ -401,7 +399,7 @@ export const ui = {
     "membership.highlightOrderTag": "👑 Partner-only perk",
     "membership.highlightOrderTitle": "🎨 Custom Illustrations, Made to Order",
     "membership.highlightOrderBody":
-      "From a doujinshi starring your favorite character to high-resolution art for itasha car wraps — we've taken on all kinds of requests. Just reach out and let's talk about what you have in mind.",
+      "From a doujinshi starring your favorite character to high-resolution art for itasha car wraps — we've taken on all kinds of requests. Never-drawn-before characters are welcome too, so just reach out.",
     "membership.highlightOrderNote":
       "*The number of requests we can take on depends on the content and current workload",
     "membership.highlightArchiveTag": "💎 Standard and Partner",
@@ -418,7 +416,7 @@ export const ui = {
     "membership.highlightShopCta": "View all doujinshi",
     "membership.faqHeading": "Frequently Asked Questions",
     "membership.footerCatch": "Get closer, starting today.",
-    "membership.footerCta": "Become a Partner now",
+    "membership.footerCta": "Start your membership now",
     "tool.pageTitle": "Tap-Change Image Maker Chan",
     "tool.pageDescription":
       "Create a PNG that shows illustration A on white backgrounds and illustration B on black backgrounds directly in the browser.",

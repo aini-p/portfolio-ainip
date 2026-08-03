@@ -88,6 +88,7 @@ const latestDoujinshi = [...doujinshiList]
             <div class:list={["tier-card", { "tier-premium": tier.popular }]}>
               {tier.popular && tier.badge && <span class="tier-badge">{tier.badge[lang]}</span>}
               <div class="tier-head">
+                <img class="tier-thumb" src={tier.thumbnail} alt={tier.name[lang]} width="1280" height="560" loading="lazy" />
                 <h3>{tier.name[lang]}</h3>
                 <p class="tier-tagline">{tier.tagline[lang]}</p>
               </div>
@@ -144,7 +145,7 @@ const latestDoujinshi = [...doujinshiList]
                     title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
                     image={getHeaderImage(artwork)}
                     slug={toSlug(artwork.slug)}
-                    thumbWidth={220}
+                    thumbWidth={340}
                     eager={index < 4}
                   />
                 ))}
@@ -167,7 +168,7 @@ const latestDoujinshi = [...doujinshiList]
                     image={item.data.packageImage}
                     aspect="4/3"
                     fit="contain"
-                    thumbWidth={220}
+                    thumbWidth={340}
                     slug={toSlug(item.slug)}
                   />
                 ))}
@@ -269,8 +270,8 @@ const latestDoujinshi = [...doujinshiList]
     max-width: none;
     object-fit: cover;
     opacity: 0.96;
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 40%);
-    mask-image: linear-gradient(to right, transparent 0%, black 40%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 46%);
+    mask-image: linear-gradient(to right, transparent 0%, black 46%);
   }
 
   .hero-banner::after {
@@ -280,8 +281,9 @@ const latestDoujinshi = [...doujinshiList]
     background: linear-gradient(
       100deg,
       var(--bg-page) 0%,
-      rgb(23 20 28 / 55%) 32%,
-      rgb(122 74 150 / 25%) 58%,
+      var(--bg-page) 28%,
+      rgb(23 20 28 / 65%) 42%,
+      rgb(122 74 150 / 25%) 60%,
       rgb(232 195 122 / 12%) 100%
     );
     mix-blend-mode: multiply;
@@ -293,10 +295,13 @@ const latestDoujinshi = [...doujinshiList]
   }
 
   .hero-copy {
-    max-width: 560px;
+    max-width: 520px;
     display: grid;
     gap: 1.1rem;
-    padding: clamp(2rem, 5vw, 3rem) 0;
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(120deg, rgb(23 20 28 / 82%) 0%, rgb(23 20 28 / 45%) 100%);
+    backdrop-filter: blur(6px);
   }
 
   .hero-eyebrow {
@@ -461,6 +466,18 @@ const latestDoujinshi = [...doujinshiList]
     box-shadow: 0 4px 14px rgb(0 0 0 / 30%);
   }
 
+  .tier-head {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .tier-thumb {
+    width: 100%;
+    aspect-ratio: 1280 / 560;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+
   .tier-head h3 {
     margin: 0;
     font-size: 1.15rem;
@@ -598,10 +615,10 @@ const latestDoujinshi = [...doujinshiList]
 
   .highlight-copy h3 {
     margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: clamp(1.5rem, 3.2vw, 2rem);
+    font-weight: 700;
     color: var(--text-primary);
-    line-height: 1.5;
+    line-height: 1.4;
   }
 
   .highlight-copy p {

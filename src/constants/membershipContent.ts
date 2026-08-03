@@ -12,8 +12,8 @@ export const membershipFeatureHighlights: FeatureHighlight[] = [
     icon: "🗝️",
     title: { ja: "シークレットDiscord", en: "Secret Discord" },
     desc: {
-      ja: "限定Discordチャンネルにご招待。作者やファン同士と気軽に交流できます。",
-      en: "Get invited to an exclusive Discord channel and chat directly with the creator and fellow fans.",
+      ja: "スマホでもPCでも、いつでも気軽に新作イラストをチェックできる専用の空間です。",
+      en: "A dedicated space where you can casually check out new illustrations any time, on mobile or desktop.",
     },
     availability: { ja: "全プラン共通", en: "All plans" },
   },
@@ -57,8 +57,8 @@ export const membershipFeatureHighlights: FeatureHighlight[] = [
     icon: "🎨",
     title: { ja: "オーダーイラスト", en: "Custom Illustration Requests" },
     desc: {
-      ja: "好きなキャラクターの同人誌から、痛車用の高解像度データまで。ご相談に応じて自由な用途のイラストを制作します。",
-      en: "From a doujinshi starring your favorite character to high-resolution art for itasha car wraps — we'll work with you to create almost anything.",
+      ja: "好きなキャラクターの同人誌から、痛車用の高解像度データまで。描いたことのない作品でもご相談OKです。",
+      en: "From a doujinshi starring your favorite character to high-resolution art for itasha car wraps — even characters we've never drawn before are welcome, just ask.",
     },
     availability: { ja: "パートナーさんだけ", en: "Partner only" },
   },
