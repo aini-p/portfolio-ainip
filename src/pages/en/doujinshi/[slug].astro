@@ -73,9 +73,12 @@ const sameSeriesArtworks = item.data.series
         <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={640} />
       </div>
 
-      {item.data.characters && item.data.characters.length > 0 && (
+      {(item.data.series || (item.data.characters && item.data.characters.length > 0)) && (
         <div class="lp-characters">
-          {item.data.characters.map((char) => (
+          {item.data.series && (
+            <a class="series-tag" href={`/en/gallery/series/${encodeURIComponent(toPathSafeSlug(item.data.series))}`}>{item.data.series}</a>
+          )}
+          {item.data.characters && item.data.characters.map((char) => (
             <a class="character-tag" href={`/en/gallery/character/${encodeURIComponent(toPathSafeSlug(char))}`}>{char}</a>
           ))}
         </div>
@@ -311,6 +314,18 @@ const sameSeriesArtworks = item.data.series
     text-decoration: none;
   }
   .character-tag:hover { border-color: var(--accent-strong); color: var(--text-primary); }
+
+  .series-tag {
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    text-decoration: none;
+  }
+  .series-tag:hover { background: var(--accent); color: #fff; }
 
   .action-row {
     display: flex;

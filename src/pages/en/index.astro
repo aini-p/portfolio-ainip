@@ -201,10 +201,10 @@ const rankingIndex = [
       <div id="rails-view" class="rails-view">
         {featuredArtwork && (
           <div class="featured-post">
-            <div class="featured-thumb">
+            <a class="featured-thumb" href={toHref(featuredArtwork.slug)}>
               <Image src={getHeaderImage(featuredArtwork)} alt={featuredArtwork.data.title} format="webp" width={480} loading="eager" />
               {isRecentlyPublished(featuredArtwork) && <span class="new-badge">NEW</span>}
-            </div>
+            </a>
             <div class="featured-body">
               <h2 class="featured-title">{featuredArtwork.data.title}</h2>
               <p class="featured-excerpt">{featuredArtwork.data.description}</p>
