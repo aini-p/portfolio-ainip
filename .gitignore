@@ -26,3 +26,4 @@ pnpm-debug.log*
 # Cloudflare Worker (worker/)
 worker/node_modules/
 worker/.wrangler/
+worker/.generated-cleanup.sql
