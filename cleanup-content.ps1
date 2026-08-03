@@ -137,13 +137,6 @@ foreach ($img in $imagesToDelete) {
     Write-Host "  Deleted $img"
 }
 
-# 8) Clear Astro cache to avoid stale content references
-$astroCacheDir = Join-Path $rootDir ".astro"
-if (Test-Path $astroCacheDir) {
-    Remove-Item -Path $astroCacheDir -Recurse -Force -ErrorAction SilentlyContinue
-    Write-Host "  Cleared cache: $astroCacheDir"
-}
-
 Write-Host "`nDone." -ForegroundColor Green
 Write-Host "  Article files deleted: $($articleFiles.Count)" -ForegroundColor Green
 Write-Host "  Image files deleted:   $($imagesToDelete.Count)" -ForegroundColor Green
