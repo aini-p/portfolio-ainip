@@ -14,11 +14,19 @@
 #   Delete files + apply to local dev D1:       .\cleanup.ps1 -Force
 #   Delete files + apply to production D1:      .\cleanup.ps1 -Force -Remote
 #   Delete files only, skip the D1 step:        .\cleanup.ps1 -Force -SkipDb
+#
+#   Only sweep orphaned images, keep every article:
+#     Preview: .\cleanup.ps1 -ImagesOnly
+#     Delete:  .\cleanup.ps1 -ImagesOnly -Force
+#   (-ImagesOnly leaves articles untouched, so the D1 step is skipped too -
+#   nothing references a slug that no longer has an article, so there's
+#   nothing to clean up there.)
 
 param(
     [switch]$Force,
     [switch]$Remote,
     [switch]$SkipDb,
+    [switch]$ImagesOnly,
     [string]$DatabaseName = "at5fun-db"
 )
 
@@ -40,7 +48,9 @@ $imageDirs = @(
 
 Write-Host "===== STEP 1: articles + images =====" -ForegroundColor Cyan
 
-# 1) Collect article files (all of these are always deleted)
+# 1) Collect article files. Normally every one of these gets deleted; with
+#    -ImagesOnly, articles are left alone and only used to figure out which
+#    images are still referenced.
 $articleFiles = [System.Collections.Generic.List[System.IO.FileInfo]]::new()
 foreach ($dir in $articleDirs) {
     if (Test-Path $dir) {
@@ -52,9 +62,11 @@ foreach ($dir in $articleDirs) {
 
 Write-Host "Article files found: $($articleFiles.Count)" -ForegroundColor Cyan
 
+$articleFilesToDelete = if ($ImagesOnly) { [System.Collections.Generic.List[System.IO.FileInfo]]::new() } else { $articleFiles }
+
 $articlePathSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 $deletedSlugs = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-foreach ($f in $articleFiles) {
+foreach ($f in $articleFilesToDelete) {
     $null = $articlePathSet.Add($f.FullName)
     $null = $deletedSlugs.Add($f.BaseName)
 }
@@ -124,9 +136,14 @@ if ($imagesToKeep.Count -gt 0) {
     }
 }
 
-Write-Host "`n[DELETE] Article files ($($articleFiles.Count)):" -ForegroundColor Yellow
-foreach ($f in $articleFiles) {
-    Write-Host "  DEL   $($f.FullName)"
+if ($ImagesOnly) {
+    Write-Host "`n[KEEP] Articles are not touched (-ImagesOnly)." -ForegroundColor Green
+}
+else {
+    Write-Host "`n[DELETE] Article files ($($articleFilesToDelete.Count)):" -ForegroundColor Yellow
+    foreach ($f in $articleFilesToDelete) {
+        Write-Host "  DEL   $($f.FullName)"
+    }
 }
 
 Write-Host "`n[DELETE] Image files ($($imagesToDelete.Count)):" -ForegroundColor Yellow
@@ -137,7 +154,7 @@ foreach ($img in $imagesToDelete) {
 if ($Force) {
     Write-Host "`nDeleting files..." -ForegroundColor Red
 
-    foreach ($f in $articleFiles) {
+    foreach ($f in $articleFilesToDelete) {
         Remove-Item -Path $f.FullName -Force
         Write-Host "  Deleted $($f.FullName)"
     }
@@ -154,7 +171,7 @@ if ($Force) {
     }
 
     Write-Host "`nStep 1 done." -ForegroundColor Green
-    Write-Host "  Article files deleted: $($articleFiles.Count)" -ForegroundColor Green
+    Write-Host "  Article files deleted: $($articleFilesToDelete.Count)" -ForegroundColor Green
     Write-Host "  Image files deleted:   $($imagesToDelete.Count)" -ForegroundColor Green
     Write-Host "  Images kept:           $($imagesToKeep.Count)" -ForegroundColor Green
 }
@@ -165,7 +182,10 @@ else {
 # ===================== STEP 2: D1 database (likes / like_votes) =====================
 Write-Host "`n===== STEP 2: database (likes / like_votes) =====" -ForegroundColor Cyan
 
-if ($SkipDb) {
+if ($ImagesOnly) {
+    Write-Host "[SKIP] No articles are being deleted (-ImagesOnly), so there's nothing to clean up in the database." -ForegroundColor Yellow
+}
+elseif ($SkipDb) {
     Write-Host "[SKIP] Database step skipped (-SkipDb)." -ForegroundColor Yellow
 }
 else {

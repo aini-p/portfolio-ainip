@@ -13,7 +13,8 @@ rem Double-clicking this file with no arguments runs a DRY RUN (preview only,
 rem nothing is deleted or touched). Pass -Force to actually delete files and
 rem apply to the local dev D1 database. Add -Remote as well to apply to the
 rem production D1 database (irreversible). Add -SkipDb to skip the database
-rem step entirely (e.g. if wrangler/D1 isn't set up).
+rem step entirely (e.g. if wrangler/D1 isn't set up). Add -ImagesOnly to keep
+rem every article and only delete images that aren't referenced anywhere.
 set "ARGS="
 
 :parse
@@ -24,6 +25,8 @@ if /I "%~1"=="-Remote" set "ARGS=%ARGS% -Remote"
 if /I "%~1"=="/Remote" set "ARGS=%ARGS% -Remote"
 if /I "%~1"=="-SkipDb" set "ARGS=%ARGS% -SkipDb"
 if /I "%~1"=="/SkipDb" set "ARGS=%ARGS% -SkipDb"
+if /I "%~1"=="-ImagesOnly" set "ARGS=%ARGS% -ImagesOnly"
+if /I "%~1"=="/ImagesOnly" set "ARGS=%ARGS% -ImagesOnly"
 shift
 goto :parse
 
