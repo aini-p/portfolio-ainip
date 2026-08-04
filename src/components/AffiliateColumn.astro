@@ -1,31 +1,43 @@
 ---
+import DmmAdBanner from "~/components/DmmAdBanner.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
 import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 import { ui } from "~/i18n/ui";
 
 export interface Props {
   lang: "ja" | "en";
+  adBanner?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, adBanner = false } = Astro.props;
 const t = ui[lang];
 ---
 <aside class="sidebar-column sidebar-column-left">
   <SidebarSection title={t["home.affiliateHeading"]}>
-    <div class="affiliate-widget-list">
-      {fanzaAffiliateItems.map((item) => (
-        <a class="affiliate-widget" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
-          <span class="affiliate-widget-badge">PR</span>
-          <div class="affiliate-widget-thumb">
-            <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
-          </div>
-          <p class="affiliate-widget-title">{item.title[lang]}</p>
-        </a>
-      ))}
-    </div>
+    {adBanner ? (
+      <DmmAdBanner class="dmm-widget-banner" />
+    ) : (
+      <div class="affiliate-widget-list">
+        {fanzaAffiliateItems.map((item) => (
+          <a class="affiliate-widget" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
+            <span class="affiliate-widget-badge">PR</span>
+            <div class="affiliate-widget-thumb">
+              <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+            </div>
+            <p class="affiliate-widget-title">{item.title[lang]}</p>
+          </a>
+        ))}
+      </div>
+    )}
   </SidebarSection>
   <slot />
 </aside>
+
+<style is:global>
+  .dmm-widget-banner {
+    grid-column: 1 / -1;
+  }
+</style>
 
 <style is:global>
   .affiliate-widget-list {

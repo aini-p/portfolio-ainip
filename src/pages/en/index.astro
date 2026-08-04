@@ -4,6 +4,8 @@ import { getCollection } from "astro:content";
 import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import Rail from "~/components/Rail.astro";
+import RankingList from "~/components/RankingList.astro";
+import SeriesList from "~/components/SeriesList.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
 import { categories } from "~/constants/categories";
 import { ui } from "~/i18n/ui";
@@ -88,10 +90,6 @@ const recommendArtworks = sortedByDate.slice(0, 3);
 const ownDoujinshi = [...doujinshiList]
   .filter((d) => d.data.isOwnWork !== false)
   .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
-const otherDoujinshiReviews = [...doujinshiList]
-  .filter((d) => d.data.isOwnWork === false)
-  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
-  .slice(0, 12);
 const latestOwnDoujinshi = ownDoujinshi.slice(0, 12);
 const recommendOwnDoujinshi = ownDoujinshi.slice(0, 3);
 
@@ -110,18 +108,25 @@ for (const artwork of sortedByDate) {
     seriesMap.set(series, { count: 1, latest: artwork });
   }
 }
+const SERIES_LIST_LIMIT = 10;
+const hasMoreSeries = seriesMap.size > SERIES_LIST_LIMIT;
 const seriesList = await Promise.all(
   [...seriesMap.entries()]
     .map(([name, data]) => ({ name, count: data.count, latest: data.latest }))
     .sort((a, b) => b.count - a.count)
-    .slice(0, 12)
+    .slice(0, SERIES_LIST_LIMIT)
     .map(async (series) => {
       const optimized = await getImage({
         src: getHeaderImage(series.latest),
         width: 400,
         format: "webp",
       });
-      return { name: series.name, count: series.count, thumb: optimized.src };
+      return {
+        name: series.name,
+        count: series.count,
+        thumb: optimized.src,
+        href: `/en/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`,
+      };
     }),
 );
 
@@ -174,18 +179,29 @@ const rankingIndex = [
     }),
   )),
 ];
+
+// For the left sidebar: doujinshi-only like ranking, filtered from the combined index
+const doujinshiRankingIndex = rankingIndex.filter((entry) =>
+  entry.slug.startsWith("doujinshi-"),
+);
 ---
 <BaseLayout>
   <div class="home">
    <div class="home-grid">
-    <AffiliateColumn lang={lang}>
-      {otherDoujinshiReviews.length > 0 && (
-        <SidebarSection title={t["home.doujinshiReviewHeading"]} href="/en/recommend">
-          {otherDoujinshiReviews.map((item) => (
-            <a class="recommend-card" href={toDoujinshiHref(item.slug)}>
-              <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={240} />
-            </a>
-          ))}
+    <AffiliateColumn lang={lang} adBanner>
+      {doujinshiRankingIndex.length > 0 && (
+        <SidebarSection title={t["home.doujinshiRanking"]}>
+          <RankingList
+            id="home-doujinshi-ranking"
+            rankingIndex={doujinshiRankingIndex}
+            labels={{
+              daily: t["home.rankingDaily"],
+              monthly: t["home.rankingMonthly"],
+              yearly: t["home.rankingYearly"],
+            }}
+            emptyText={t["home.rankingEmpty"]}
+            limit={5}
+          />
         </SidebarSection>
       )}
     </AffiliateColumn>
@@ -325,28 +341,30 @@ const rankingIndex = [
 
     <aside class="sidebar-column sidebar-column-right">
       <SidebarSection title={t["home.ranking"]}>
-        <div class="ranking-tabs" role="tablist">
-          <button type="button" class="ranking-tab" data-period="daily" aria-selected="true">{t["home.rankingDaily"]}</button>
-          <button type="button" class="ranking-tab" data-period="monthly" aria-selected="false">{t["home.rankingMonthly"]}</button>
-          <button type="button" class="ranking-tab" data-period="yearly" aria-selected="false">{t["home.rankingYearly"]}</button>
-        </div>
-        <div id="ranking-list" class="ranking-list" data-empty-text={t["home.rankingEmpty"]}></div>
+        <RankingList
+          id="home-ranking"
+          rankingIndex={rankingIndex}
+          labels={{
+            daily: t["home.rankingDaily"],
+            monthly: t["home.rankingMonthly"],
+            yearly: t["home.rankingYearly"],
+          }}
+          emptyText={t["home.rankingEmpty"]}
+          limit={5}
+          seeMoreHref="/en/ranking"
+          seeMoreLabel={t["home.seeMore"]}
+        />
       </SidebarSection>
 
       {seriesList.length > 0 && (
         <SidebarSection title={t["home.worksListHeading"]}>
-          <div class="series-list">
-            {seriesList.map((series) => (
-              <a class="series-list-item" href={`/en/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`}>
-                <img class="series-list-thumb" src={series.thumb} alt="" loading="lazy" />
-                <div class="series-list-fade"></div>
-                <div class="series-list-text">
-                  <span class="series-list-name">{series.name}</span>
-                  <span class="series-list-count">{series.count}{t["home.seriesCountSuffix"]}</span>
-                </div>
-              </a>
-            ))}
-          </div>
+          <SeriesList
+            id="home-series"
+            items={seriesList}
+            countSuffix={t["home.seriesCountSuffix"]}
+            seeMoreHref={hasMoreSeries ? "/en/gallery/series" : undefined}
+            seeMoreLabel={hasMoreSeries ? t["home.seeMore"] : undefined}
+          />
         </SidebarSection>
       )}
     </aside>
@@ -369,8 +387,6 @@ const rankingIndex = [
     keywords: string[];
   }
 
-  const API_BASE = import.meta.env.PUBLIC_API_BASE as string | undefined;
-
   interface RankingEntry {
     slug: string;
     title: string;
@@ -386,7 +402,6 @@ const rankingIndex = [
   const rankingIndex: RankingEntry[] = rankingIndexScript
     ? JSON.parse(rankingIndexScript.textContent ?? "[]")
     : [];
-  const rankingIndexBySlug = new Map(rankingIndex.map((entry) => [entry.slug, entry]));
 
   function buildCard(entry: IndexEntry) {
     const a = document.createElement("a");
@@ -399,19 +414,6 @@ const rankingIndex = [
         ${entry.isNew ? '<span class="new-badge">NEW</span>' : ""}
       </div>
       <p class="card-title">${entry.title} (all ${entry.imageCount} images)</p>
-    `;
-    return a;
-  }
-
-  function buildRankingCard(entry: RankingEntry) {
-    const a = document.createElement("a");
-    a.className = "artwork-card";
-    a.href = entry.href;
-    a.innerHTML = `
-      <div class="thumb">
-        <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
-      </div>
-      <p class="card-title">${entry.title}</p>
     `;
     return a;
   }
@@ -494,87 +496,8 @@ const rankingIndex = [
     }
   });
 
-  const RANKING_PERIODS = ["daily", "monthly", "yearly"] as const;
-  type RankingPeriod = (typeof RANKING_PERIODS)[number];
-  type RankingRow = { slug: string; count: number };
-
-  const rankingCache = new Map<RankingPeriod, RankingRow[]>();
-
-  function renderRankingPeriod(period: RankingPeriod) {
-    const rankingList = document.getElementById("ranking-list");
-    if (!rankingList) return;
-
-    rankingList.innerHTML = "";
-    const rows = rankingCache.get(period) ?? [];
-    const resolved = rows
-      .map((row) => ({ row, entry: rankingIndexBySlug.get(row.slug) }))
-      .filter((item): item is { row: RankingRow; entry: RankingEntry } => Boolean(item.entry));
-
-    if (resolved.length === 0) {
-      const empty = document.createElement("p");
-      empty.className = "ranking-empty";
-      empty.textContent = rankingList.dataset.emptyText ?? "";
-      rankingList.append(empty);
-      return;
-    }
-
-    resolved.forEach(({ row, entry }, index) => {
-      const card = buildRankingCard(entry);
-      const badge = document.createElement("span");
-      badge.className = "rank-badge";
-      badge.textContent = String(index + 1);
-      card.prepend(badge);
-      const likeBadge = document.createElement("span");
-      likeBadge.className = "like-badge";
-      likeBadge.innerHTML = `<i class="ti ti-heart" aria-hidden="true"></i> ${row.count}`;
-      card.querySelector(".thumb")?.append(likeBadge);
-      rankingList.append(card);
-    });
-  }
-
-  async function loadRanking() {
-    const rankingList = document.getElementById("ranking-list");
-    const rankingSection = rankingList?.closest(".sidebar-section");
-    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".ranking-tab"));
-    if (!rankingList || !rankingSection || !API_BASE) return;
-
-    try {
-      const responses = await Promise.all(
-        RANKING_PERIODS.map((period) =>
-          fetch(`${API_BASE}/likes/ranking?period=${period}&limit=10`)
-            .then((res) => res.json())
-            .then((data) => (data.ranking ?? []) as RankingRow[]),
-        ),
-      );
-
-      let hasAnyData = false;
-      RANKING_PERIODS.forEach((period, i) => {
-        rankingCache.set(period, responses[i]);
-        if (responses[i].some((row) => rankingIndexBySlug.has(row.slug))) {
-          hasAnyData = true;
-        }
-      });
-
-      if (!hasAnyData) return;
-
-      tabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          tabs.forEach((other) => other.setAttribute("aria-selected", "false"));
-          tab.setAttribute("aria-selected", "true");
-          renderRankingPeriod(tab.dataset.period as RankingPeriod);
-        });
-      });
-
-      renderRankingPeriod("daily");
-      rankingSection.removeAttribute("hidden");
-    } catch {
-      // ranking unavailable: keep the section hidden
-    }
-  }
-
-  document.getElementById("ranking-list")?.closest(".sidebar-section")?.setAttribute("hidden", "true");
-  loadRanking();
-
+  // The like ranking's own rendering lives in RankingList.astro's client script;
+  // here we only reuse rankingIndex to build the doujinshi recommend rail's pool.
   const doujinshiPool: RankingEntry[] = rankingIndex.filter((entry) => entry.slug.startsWith("doujinshi-"));
   setupRandomRail("recommend-rail-artworks", searchIndex, 3, buildCard);
   setupRandomRail("recommend-rail-doujinshi", doujinshiPool, 3, buildDoujinshiRecommendCard);
@@ -668,106 +591,6 @@ const rankingIndex = [
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
-  }
-
-  .ranking-list,
-  .series-list {
-    display: grid;
-    gap: 0.6rem;
-    grid-column: 1 / -1;
-  }
-
-  .ranking-tabs {
-    display: flex;
-    gap: 0.4rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .ranking-tab {
-    flex: 1;
-    padding: 0.4rem 0.5rem;
-    border: 0.5px solid var(--border-subtle);
-    border-radius: var(--radius-sm);
-    background: var(--bg-elevated-2);
-    color: var(--text-secondary);
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-  }
-
-  .ranking-tab:hover {
-    color: var(--text-primary);
-  }
-
-  .ranking-tab[aria-selected="true"] {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
-  .ranking-empty {
-    margin: 0;
-    font-size: 0.82rem;
-    color: var(--text-muted);
-  }
-
-  .series-list-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    height: 92px;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background: var(--bg-elevated-2);
-    text-decoration: none;
-    color: var(--text-secondary);
-    transition: color 0.2s ease;
-  }
-  .series-list-item:hover { color: var(--text-primary); }
-
-  .series-list-thumb {
-    position: absolute;
-    inset: 0 0 0 auto;
-    width: auto;
-    max-width: 70%;
-    height: 100%;
-    object-fit: contain;
-    object-position: right center;
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 50%);
-    mask-image: linear-gradient(to right, transparent 0%, #000 50%);
-    z-index: 0;
-  }
-
-  .series-list-fade {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, var(--bg-elevated-2) 0%, var(--bg-elevated-2) 32%, transparent 92%);
-    z-index: 1;
-  }
-
-  .series-list-text {
-    position: relative;
-    z-index: 2;
-    display: grid;
-    gap: 0.25rem;
-    padding: 0 1rem;
-    min-width: 0;
-  }
-
-  .series-list-name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 11rem;
-  }
-
-  .series-list-count {
-    font-size: 0.78rem;
-    color: var(--text-muted);
   }
 
   .rails-view {
@@ -895,24 +718,6 @@ const rankingIndex = [
     background: var(--accent-strong);
   }
 
-  .rank-badge {
-    position: absolute;
-    left: 6px;
-    top: 6px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 22px;
-    height: 22px;
-    padding: 0 5px;
-    border-radius: 999px;
-    background: rgb(0 0 0 / 55%);
-    color: var(--text-primary);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-
   .promo-banner {
     position: relative;
     display: flex;
@@ -958,8 +763,8 @@ const rankingIndex = [
 
   .promo-copy h2 {
     margin: 0 0 0.35rem;
-    font-size: 1.05rem;
-    font-weight: 500;
+    font-size: 1.5rem;
+    font-weight: 700;
     color: var(--text-primary);
   }
 
@@ -996,21 +801,43 @@ const rankingIndex = [
     }
 
     .promo-banner {
-      min-height: 200px;
+      flex-direction: column;
+      align-items: stretch;
+      min-height: 0;
+      padding: 0;
     }
 
     .promo-banner-image {
-      max-width: 85%;
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 30%);
-      mask-image: linear-gradient(to right, transparent 0%, #000 30%);
+      position: static;
+      width: 100%;
+      max-width: 100%;
+      height: 160px;
+      object-fit: cover;
+      object-position: center;
+      -webkit-mask-image: none;
+      mask-image: none;
     }
 
     .promo-banner-fade {
-      background: linear-gradient(to right, var(--accent-soft) 0%, var(--accent-soft) 55%, transparent 92%);
+      display: none;
     }
 
     .promo-copy {
-      max-width: 78%;
+      max-width: 100%;
+      padding: 1.1rem 1.25rem 1.25rem;
+    }
+
+    .promo-copy h2 {
+      font-size: 1.25rem;
+    }
+
+    .promo-copy p {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .promo-cta {
+      font-size: 0.82rem;
     }
 
     .featured-post {

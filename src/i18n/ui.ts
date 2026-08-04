@@ -49,6 +49,7 @@ export const ui = {
     "home.searchPlaceholder": "作品タイトル・キャラクター名で検索",
     "home.affiliateHeading": "PR",
     "home.ranking": "いいねランキング",
+    "home.doujinshiRanking": "同人誌のいいねランキング",
     "home.rankingDaily": "デイリー",
     "home.rankingMonthly": "マンスリー",
     "home.rankingYearly": "年間",
@@ -67,10 +68,19 @@ export const ui = {
       "イラスト制作やSNS投稿を助けるブラウザツールを公開しています。",
     "home.toolsCta": "ツール一覧を見る",
     "home.membershipHeading": "メンバーシップ",
-    "home.membershipBody":
-      "限定イラストやアーカイブが見放題になるファンクラブです。",
+    "home.membershipBody": "塗りつぶし無しのエッチなイラスト見放題",
     "home.membershipCta": "詳しく見る",
     "home.noResults": "該当する作品が見つかりませんでした。",
+    "ranking.pageTitle": "いいねランキング",
+    "ranking.pageDescription":
+      "デイリー・マンスリー・年間の切り替えで見られる、いいね数の多い人気作品ランキングです。",
+    "ranking.heading": "いいねランキング",
+    "ranking.lead": "いいねが多い人気作品を期間別にランキング形式でご紹介します。",
+    "worksList.pageTitle": "作品別記事一覧",
+    "worksList.pageDescription": "シリーズ・作品別にまとめたイラスト記事の一覧です。",
+    "worksList.heading": "作品別記事一覧",
+    "worksList.lead":
+      "シリーズ・作品ごとにまとめたイラスト記事の一覧です。気になる作品をチェックしてみてください。",
     "gallery.pageTitle": "作品一覧",
     "gallery.pageDescription": "投稿したイラスト作品の一覧です。",
     "gallery.heading": "作品一覧",
@@ -116,6 +126,8 @@ export const ui = {
     "membership.heroCta": "プラン一覧を見る",
     "membership.heroImageAlt": "メンバーシップ限定イラストのイメージバナー",
     "membership.featuresHeading": "メンバーシップで体験できること",
+    "membership.carouselDotsNavLabel": "特典カードのページ切り替え",
+    "membership.carouselPageLabel": "ページ",
     "membership.pricingHeading": "選べる3つのプラン",
     "membership.pricingLead":
       "プランによって見られる範囲・ダウンロードの可否が異なります。内容をよく確認の上お選びください。",
@@ -358,6 +370,7 @@ export const ui = {
     "home.searchPlaceholder": "Search by title or character",
     "home.affiliateHeading": "PR",
     "home.ranking": "Like ranking",
+    "home.doujinshiRanking": "Doujinshi like ranking",
     "home.rankingDaily": "Daily",
     "home.rankingMonthly": "Monthly",
     "home.rankingYearly": "Yearly",
@@ -377,9 +390,20 @@ export const ui = {
     "home.toolsCta": "Browse tools",
     "home.membershipHeading": "Membership",
     "home.membershipBody":
-      "A fan club with unlimited access to exclusive artwork and the full archive.",
+      "Unlimited access to unfiltered, spicy artwork.",
     "home.membershipCta": "Learn more",
     "home.noResults": "No matching artworks found.",
+    "ranking.pageTitle": "Like Ranking",
+    "ranking.pageDescription":
+      "The most-liked artworks, ranked daily, monthly, and yearly.",
+    "ranking.heading": "Like Ranking",
+    "ranking.lead": "The most-liked artworks, ranked by period.",
+    "worksList.pageTitle": "Articles by Work",
+    "worksList.pageDescription":
+      "Browse illustration articles grouped by series or original work.",
+    "worksList.heading": "Articles by Work",
+    "worksList.lead":
+      "Illustration articles grouped by series or original work. Pick one you're curious about.",
     "gallery.pageTitle": "Gallery",
     "gallery.pageDescription": "A list of every illustration posted so far.",
     "gallery.heading": "Gallery",
@@ -425,6 +449,8 @@ export const ui = {
     "membership.heroCta": "See the plans",
     "membership.heroImageAlt": "Membership exclusive artwork banner",
     "membership.featuresHeading": "What you get with membership",
+    "membership.carouselDotsNavLabel": "Switch feature card page",
+    "membership.carouselPageLabel": "Page",
     "membership.pricingHeading": "Choose from 3 plans",
     "membership.pricingLead":
       "What you can view and download differs by plan — please check the details before choosing.",

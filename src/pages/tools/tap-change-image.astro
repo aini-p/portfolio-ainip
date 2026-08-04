@@ -1,4 +1,5 @@
 ---
+import DmmAdBanner from "~/components/DmmAdBanner.astro";
 import DualImageComposer from "~/components/DualImageComposer.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
@@ -24,6 +25,8 @@ const appJsonLd = {
   image={{ src: "/images/tap_change_image_chan_twcard.jpg", alt: t["tool.pageTitle"] }}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
+
+  <DmmAdBanner />
 
   <DualImageComposer
     bannerSrc="/images/tap_change_image_chan.jpg"
