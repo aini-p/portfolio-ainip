@@ -1,11 +1,34 @@
-name = "at5fun-api"
+name = "at5fun-api-dev"
 main = "src/index.ts"
 compatibility_date = "2024-11-01"
 
+# トップレベルはローカル開発 (`npm run dev` = `wrangler dev`) のデフォルト。
+# `--local` 実行時はここに実際の database_id がなくてもエミュレーションで動くため、
+# プレースホルダーのままでよい。
+
 [[d1_databases]]
 binding = "DB"
-database_name = "at5fun-db"
+database_name = "at5fun-db-dev"
 database_id = "REPLACE_WITH_D1_DATABASE_ID"
 
+# --- staging: at5fun-staging (Astro側) から呼ばれる検証用 ---
+[env.staging]
+name = "at5fun-api-staging"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "at5fun-db-staging"
+database_id = "REPLACE_WITH_STAGING_D1_DATABASE_ID"
+
+# --- production: at5fun (Astro側/本番) から呼ばれる本番用 ---
+[env.production]
+name = "at5fun-api"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "at5fun-db"
+database_id = "REPLACE_WITH_PRODUCTION_D1_DATABASE_ID"
+
 # Cloudflare Turnstile を有効化する場合のみ設定する（未設定ならコメント投稿の検証はスキップされる）
-# wrangler secret put TURNSTILE_SECRET
+# wrangler secret put TURNSTILE_SECRET --env staging
+# wrangler secret put TURNSTILE_SECRET --env production
