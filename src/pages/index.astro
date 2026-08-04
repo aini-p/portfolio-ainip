@@ -6,7 +6,6 @@ import ArtworkCard from "~/components/ArtworkCard.astro";
 import Rail from "~/components/Rail.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
 import { categories } from "~/constants/categories";
-import { patreonUrl } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -138,6 +137,7 @@ const searchIndex = await Promise.all(
       title: artwork.data.title,
       thumb: optimized.src,
       imageCount: getTotalImageCount(artwork),
+      isNew: isRecentlyPublished(artwork),
       characters: [
         artwork.data.main_character,
         ...(artwork.data.sub_characters ?? []),
@@ -169,6 +169,7 @@ const rankingIndex = [
         title: item.data.title,
         thumb: optimized.src,
         href: toDoujinshiHref(item.slug),
+        isNew: isRecentlyPublished(item),
       };
     }),
   )),
@@ -206,14 +207,14 @@ const rankingIndex = [
               {isRecentlyPublished(featuredArtwork) && <span class="new-badge">NEW</span>}
             </a>
             <div class="featured-body">
-              <h2 class="featured-title">{featuredArtwork.data.title}</h2>
+              <h2 class="featured-title">{featuredArtwork.data.title}{formatImageCountLabel(getTotalImageCount(featuredArtwork), lang)}</h2>
               <p class="featured-excerpt">{featuredArtwork.body?.trim() || featuredArtwork.data.description}</p>
               <a class="featured-cta" href={toHref(featuredArtwork.slug)}>{t["home.readArticle"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
             </div>
           </div>
         )}
 
-        <Rail title={t["home.latest"]}>
+        <Rail title={t["home.latest"]} seeMoreHref="/gallery" seeMoreLabel={t["home.seeMore"]}>
           {latestArtworks.map((artwork, index) => (
             <ArtworkCard
               href={toHref(artwork.slug)}
@@ -227,7 +228,7 @@ const rankingIndex = [
           ))}
         </Rail>
 
-        <Rail title={t["home.recommendHeading"]} seeMoreHref="/recommend" seeMoreLabel={t["home.recommendHeading"]}>
+        <Rail id="recommend-rail-artworks" title={t["home.recommendHeading"]} seeMoreHref="/recommend" seeMoreLabel={t["home.seeMore"]}>
           {recommendArtworks.map((artwork) => (
             <ArtworkCard
               href={toHref(artwork.slug)}
@@ -240,16 +241,18 @@ const rankingIndex = [
           ))}
         </Rail>
 
-        <a class="promo-banner promo-banner-membership" href={patreonUrl} target="_blank" rel="noopener noreferrer">
+        <a class="promo-banner promo-banner-membership" href="/membership">
+          <img class="promo-banner-image" src="/images/patreon-banner.png" alt="" width="3000" height="1000" loading="eager" />
+          <div class="promo-banner-fade" aria-hidden="true"></div>
           <div class="promo-copy">
             <h2>{t["home.membershipHeading"]}</h2>
             <p>{t["home.membershipBody"]}</p>
-            <span class="promo-cta">{t["home.membershipCta"]} <i class="ti ti-external-link" aria-hidden="true"></i></span>
+            <span class="promo-cta">{t["home.membershipCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
           </div>
         </a>
 
         {latestOwnDoujinshi.length > 0 && (
-          <Rail title={t["home.doujinshiLatestHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.doujinshiLatestHeading"]}>
+          <Rail title={t["home.doujinshiLatestHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.seeMore"]}>
             {latestOwnDoujinshi.map((item) => (
               <ArtworkCard
                 href={toDoujinshiHref(item.slug)}
@@ -266,7 +269,7 @@ const rankingIndex = [
         )}
 
         {recommendOwnDoujinshi.length > 0 && (
-          <Rail title={t["home.recommendHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.recommendHeading"]}>
+          <Rail id="recommend-rail-doujinshi" title={t["home.recommendHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.seeMore"]}>
             {recommendOwnDoujinshi.map((item) => (
               <ArtworkCard
                 href={toDoujinshiHref(item.slug)}
@@ -360,6 +363,7 @@ const rankingIndex = [
     title: string;
     thumb: string;
     imageCount: number;
+    isNew: boolean;
     characters: string[];
     series: string;
     keywords: string[];
@@ -372,6 +376,7 @@ const rankingIndex = [
     title: string;
     thumb: string;
     href: string;
+    isNew?: boolean;
   }
 
   const indexScript = document.getElementById("artworks-index");
@@ -387,9 +392,11 @@ const rankingIndex = [
     const a = document.createElement("a");
     a.className = "artwork-card";
     a.href = `/gallery/${entry.slug}`;
+    a.style.cssText = "--aspect: 16 / 9; --fit: cover; --thumb-width: 260px;";
     a.innerHTML = `
       <div class="thumb">
         <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
+        ${entry.isNew ? '<span class="new-badge">NEW</span>' : ""}
       </div>
       <p class="card-title">${entry.title} 全${entry.imageCount}枚</p>
     `;
@@ -407,6 +414,51 @@ const rankingIndex = [
       <p class="card-title">${entry.title}</p>
     `;
     return a;
+  }
+
+  function buildDoujinshiRecommendCard(entry: RankingEntry) {
+    const a = document.createElement("a");
+    a.className = "artwork-card";
+    a.href = entry.href;
+    a.style.cssText = "--aspect: 4 / 3; --fit: contain; --thumb-width: 260px;";
+    a.innerHTML = `
+      <div class="thumb">
+        <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
+        ${entry.isNew ? '<span class="new-badge">NEW</span>' : ""}
+      </div>
+      <p class="card-title">${entry.title}</p>
+    `;
+    return a;
+  }
+
+  // 「こちらもおすすめ」を毎回ランダムな3件で表示し、「もっと見る」クリックで再抽選する
+  function shuffle<T>(list: T[]): T[] {
+    const arr = list.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function setupRandomRail<T>(railId: string, pool: T[], count: number, build: (entry: T) => HTMLElement) {
+    const rail = document.getElementById(railId);
+    const track = rail?.querySelector<HTMLElement>(".rail-track");
+    const seeMore = rail?.querySelector<HTMLAnchorElement>(".see-more");
+    if (!rail || !track || pool.length === 0) return;
+
+    function render() {
+      track!.innerHTML = "";
+      shuffle(pool)
+        .slice(0, Math.min(count, pool.length))
+        .forEach((entry) => track!.append(build(entry)));
+    }
+
+    render();
+    seeMore?.addEventListener("click", (e) => {
+      e.preventDefault();
+      render();
+    });
   }
 
   // 検索・タグ絞り込み
@@ -524,6 +576,10 @@ const rankingIndex = [
 
   document.getElementById("ranking-list")?.closest(".sidebar-section")?.setAttribute("hidden", "true");
   loadRanking();
+
+  const doujinshiPool: RankingEntry[] = rankingIndex.filter((entry) => entry.slug.startsWith("doujinshi-"));
+  setupRandomRail("recommend-rail-artworks", searchIndex, 3, buildCard);
+  setupRandomRail("recommend-rail-doujinshi", doujinshiPool, 3, buildDoujinshiRecommendCard);
 </script>
 
 <style is:global>
@@ -858,13 +914,13 @@ const rankingIndex = [
   }
 
   .promo-banner {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    padding: 1.5rem;
+    min-height: 176px;
+    padding: 1.5rem 1.75rem;
     border-radius: var(--radius-lg);
-    background: var(--bg-elevated);
-    border: 0.5px solid var(--border-subtle);
+    overflow: hidden;
     text-decoration: none;
     transition: border-color 0.2s ease;
   }
@@ -874,12 +930,30 @@ const rankingIndex = [
     border-color: var(--accent-strong);
   }
 
-  .promo-glyph {
-    width: 96px;
-    height: 72px;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
-    flex-shrink: 0;
+  .promo-banner-image {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: auto;
+    max-width: 68%;
+    height: 100%;
+    object-fit: contain;
+    object-position: right center;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 42%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 42%);
+    z-index: 0;
+  }
+
+  .promo-banner-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--accent-soft) 0%, var(--accent-soft) 36%, transparent 90%);
+    z-index: 1;
+  }
+
+  .promo-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 60%;
   }
 
   .promo-copy h2 {
@@ -907,7 +981,7 @@ const rankingIndex = [
 
   .promo-banner-membership {
     background: var(--accent-soft);
-    border-color: var(--accent);
+    border: 0.5px solid var(--accent);
   }
 
   @media (max-width: 960px) {
@@ -922,13 +996,21 @@ const rankingIndex = [
     }
 
     .promo-banner {
-      flex-direction: column;
-      align-items: flex-start;
+      min-height: 200px;
     }
 
-    .promo-glyph {
-      width: 100%;
-      height: 120px;
+    .promo-banner-image {
+      max-width: 85%;
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 30%);
+      mask-image: linear-gradient(to right, transparent 0%, #000 30%);
+    }
+
+    .promo-banner-fade {
+      background: linear-gradient(to right, var(--accent-soft) 0%, var(--accent-soft) 55%, transparent 92%);
+    }
+
+    .promo-copy {
+      max-width: 78%;
     }
 
     .featured-post {
