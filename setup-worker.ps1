@@ -4,8 +4,11 @@
 # (worker/) exist for staging and production, creates whichever is missing,
 # writes the resulting database_id back into worker/wrangler.toml, and
 # applies worker/schema.sql to each (safe to re-run: CREATE TABLE IF NOT
-# EXISTS). Finally it starts the worker's local dev server so you can test
-# right away.
+# EXISTS). Also applies the same schema to the LOCAL dev database used by
+# `wrangler dev` / `npm run dev` (a separate, machine-local SQLite emulation -
+# without this step "npm run dev" starts fine but every request 500s with
+# "no such table: likes"). Finally it starts the worker's local dev server
+# so you can test right away.
 #
 # Requires: you are already logged in via `npx wrangler login` (run once,
 # opens a browser). If you are not, this script stops and tells you to run
@@ -140,7 +143,7 @@ try {
         Sync-DatabaseId -Section $t.Section -NewId $databaseId
 
         Write-Host "Applying schema (safe to repeat: CREATE TABLE IF NOT EXISTS)..."
-        npx wrangler d1 execute $t.DbName --config wrangler.toml --env $t.Env --remote --file=schema.sql
+        npx wrangler d1 execute $t.DbName --config wrangler.toml --env $t.Env --remote --yes --file=schema.sql
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to apply schema to '$($t.DbName)'."
         }
@@ -148,6 +151,13 @@ try {
     }
 
     Write-Host "`nAll requested D1 databases are ready." -ForegroundColor Green
+
+    Write-Host "`nEnsuring the LOCAL dev database (used by 'npm run dev') has the schema too..." -ForegroundColor Cyan
+    npx wrangler d1 execute at5fun-db-dev --config wrangler.toml --local --file=schema.sql
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to apply schema to the local dev database."
+    }
+    Write-Host "  Local schema OK." -ForegroundColor Green
 
     if ($SkipDev) {
         Write-Host "`n-SkipDev was set, not starting a local server." -ForegroundColor DarkGray

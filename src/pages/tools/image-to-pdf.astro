@@ -1,4 +1,5 @@
 ---
+import DmmAdBanner from "~/components/DmmAdBanner.astro";
 import ImageToPdfComposer from "~/components/ImageToPdfComposer.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
@@ -23,6 +24,8 @@ const appJsonLd = {
   keywords="画像PDF, 画像連結, PDF生成, フォルダドロップ, ZIP, 自動採番, ブラウザツール"
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
+
+  <DmmAdBanner />
 
   <ImageToPdfComposer
     shareUrl={new URL("/tools/image-to-pdf", Astro.site).toString()}

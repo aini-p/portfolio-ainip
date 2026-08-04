@@ -156,8 +156,8 @@ npx wrangler d1 create at5fun-db                                # 本番用デ�
 表示された `database_id` を、それぞれ [worker/wrangler.toml](worker/wrangler.toml) の `REPLACE_WITH_STAGING_D1_DATABASE_ID` / `REPLACE_WITH_PRODUCTION_D1_DATABASE_ID` に書き込む。
 
 ```bash
-npx wrangler d1 execute at5fun-db-staging --config wrangler.toml --env staging --remote --file=schema.sql
-npx wrangler d1 execute at5fun-db --config wrangler.toml --env production --remote --file=schema.sql
+npx wrangler d1 execute at5fun-db-staging --config wrangler.toml --env staging --remote --yes --file=schema.sql
+npx wrangler d1 execute at5fun-db --config wrangler.toml --env production --remote --yes --file=schema.sql
 ```
 
 → それぞれのデータベースにテーブル(`likes`, `like_votes`)を作成する。`CREATE TABLE IF NOT EXISTS` なので何度実行しても安全。

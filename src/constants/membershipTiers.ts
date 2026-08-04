@@ -124,8 +124,8 @@ export const membershipTiers: MembershipTier[] = [
       },
       {
         text: {
-          ja: "🎨 リクエスト対応！ご相談の上、好きなキャラのオーダーイラストを1点制作！",
-          en: "🎨 Custom requests — a one-of-a-kind illustration made just for you, based on a quick consultation!",
+          ja: "🎨 リクエスト対応！ご相談の上、好きなキャラのオーダーイラストを制作！",
+          en: "🎨 Custom requests — illustrations made just for you, based on a quick consultation!",
         },
       },
     ],

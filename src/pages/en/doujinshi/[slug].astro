@@ -1,11 +1,13 @@
 ---
-import { Image } from "astro:assets";
+import { getImage, Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import AuthorComment from "~/components/AuthorComment.astro";
 import LikeButton from "~/components/LikeButton.astro";
+import RankingList from "~/components/RankingList.astro";
+import SeriesList from "~/components/SeriesList.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
 import { ui } from "~/i18n/ui";
@@ -44,26 +46,140 @@ const compiledFrom = item.data.compiledFrom
     })
   : [];
 
-const otherDoujinshi = (
-  await getCollection("doujinshi", ({ id }) => id.startsWith(`${lang}/`))
-)
-  .filter((d) => d.slug !== item.slug)
-  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf())
-  .slice(0, 6);
+const allArtworks = await getCollection("artworks", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
+const allDoujinshi = await getCollection("doujinshi", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
 
-const sameSeriesArtworks = item.data.series
-  ? (await getCollection("artworks", ({ id }) => id.startsWith(`${lang}/`)))
+const RELATED_DOUJINSHI_LIMIT = 4;
+const otherDoujinshiAll = allDoujinshi
+  .filter((d) => d.slug !== item.slug)
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const hasMoreOtherDoujinshi = otherDoujinshiAll.length > RELATED_DOUJINSHI_LIMIT;
+const otherDoujinshi = otherDoujinshiAll.slice(0, RELATED_DOUJINSHI_LIMIT);
+
+const RELATED_ARTWORKS_LIMIT = 10;
+const sameSeriesArtworksAll = item.data.series
+  ? allArtworks
       .filter((a) => a.data.series === item.data.series)
       .sort(
         (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
       )
-      .slice(0, 6)
   : [];
+const hasMoreSameSeriesArtworks = sameSeriesArtworksAll.length > RELATED_ARTWORKS_LIMIT;
+const sameSeriesArtworks = sameSeriesArtworksAll.slice(0, RELATED_ARTWORKS_LIMIT);
+
+// Left sidebar like rankings: artworks ranking covers everything, doujinshi ranking is own works only
+const artworkRankingIndex = await Promise.all(
+  allArtworks.map(async (a) => {
+    const optimized = await getImage({
+      src: getHeaderImage(a),
+      width: 480,
+      format: "webp",
+    });
+    return {
+      slug: a.slug.replace(`${lang}/`, ""),
+      title: a.data.title,
+      thumb: optimized.src,
+      href: `/en/gallery/${a.slug.replace(`${lang}/`, "")}`,
+    };
+  }),
+);
+const doujinshiRankingIndex = await Promise.all(
+  allDoujinshi
+    .filter((d) => d.data.isOwnWork !== false)
+    .map(async (d) => {
+      const optimized = await getImage({
+        src: d.data.packageImage,
+        width: 480,
+        format: "webp",
+      });
+      return {
+        slug: `doujinshi-${d.slug.replace(`${lang}/`, "")}`,
+        title: d.data.title,
+        thumb: optimized.src,
+        href: `/en/doujinshi/${d.slug.replace(`${lang}/`, "")}`,
+      };
+    }),
+);
+
+// "Articles by work" list at the bottom of the right sidebar
+const seriesMap = new Map<
+  string,
+  { count: number; latest: (typeof allArtworks)[number] }
+>();
+for (const a of [...allArtworks].sort(
+  (x, y) => y.data.publishDate.valueOf() - x.data.publishDate.valueOf(),
+)) {
+  const series = a.data.series;
+  if (!series) continue;
+  const existing = seriesMap.get(series);
+  if (existing) {
+    existing.count += 1;
+  } else {
+    seriesMap.set(series, { count: 1, latest: a });
+  }
+}
+const SERIES_LIST_LIMIT = 10;
+const hasMoreSeries = seriesMap.size > SERIES_LIST_LIMIT;
+const seriesList = await Promise.all(
+  [...seriesMap.entries()]
+    .map(([name, data]) => ({ name, count: data.count, latest: data.latest }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, SERIES_LIST_LIMIT)
+    .map(async (series) => {
+      const optimized = await getImage({
+        src: getHeaderImage(series.latest),
+        width: 400,
+        format: "webp",
+      });
+      return {
+        name: series.name,
+        count: series.count,
+        thumb: optimized.src,
+        href: `/en/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`,
+      };
+    }),
+);
 ---
 <BaseLayout title={item.data.title} description={item.data.description}>
   <div class="detail-shell">
    <div class="detail-grid">
-    <AffiliateColumn lang={lang} />
+    <AffiliateColumn lang={lang} adBanner>
+      <SidebarSection title={t["home.ranking"]}>
+        <RankingList
+          id="doujinshi-ranking-artworks"
+          rankingIndex={artworkRankingIndex}
+          labels={{
+            daily: t["home.rankingDaily"],
+            monthly: t["home.rankingMonthly"],
+            yearly: t["home.rankingYearly"],
+          }}
+          emptyText={t["home.rankingEmpty"]}
+          limit={5}
+          seeMoreHref="/en/ranking"
+          seeMoreLabel={t["home.seeMore"]}
+        />
+      </SidebarSection>
+
+      {doujinshiRankingIndex.length > 0 && (
+        <SidebarSection title={t["home.doujinshiRanking"]}>
+          <RankingList
+            id="doujinshi-ranking-doujinshi"
+            rankingIndex={doujinshiRankingIndex}
+            labels={{
+              daily: t["home.rankingDaily"],
+              monthly: t["home.rankingMonthly"],
+              yearly: t["home.rankingYearly"],
+            }}
+            emptyText={t["home.rankingEmpty"]}
+            limit={5}
+          />
+        </SidebarSection>
+      )}
+    </AffiliateColumn>
 
     <article class="main-column">
       <a class="back-link" href="/en/doujinshi">{t["doujinshi.backToList"]}</a>
@@ -197,7 +313,11 @@ const sameSeriesArtworks = item.data.series
 
     <aside class="sidebar-column sidebar-column-right">
       {otherDoujinshi.length > 0 && (
-        <SidebarSection title={t["doujinshi.heading"]} href="/en/doujinshi">
+        <SidebarSection
+          title={t["doujinshi.heading"]}
+          seeMoreHref={hasMoreOtherDoujinshi ? "/en/doujinshi" : undefined}
+          seeMoreLabel={hasMoreOtherDoujinshi ? t["home.seeMore"] : undefined}
+        >
           {otherDoujinshi.map((other) => (
             <a class="recommend-card" href={`/en/doujinshi/${other.slug.replace(`${lang}/`, '')}`}>
               <Image src={other.data.packageImage} alt={other.data.title} format="webp" width={240} />
@@ -209,7 +329,8 @@ const sameSeriesArtworks = item.data.series
       {sameSeriesArtworks.length > 0 && (
         <SidebarSection
           title={`${item.data.series}${t["sidebar.moreBySeries"]}`}
-          href={`/en/gallery/series/${encodeURIComponent(toPathSafeSlug(item.data.series ?? ""))}`}
+          seeMoreHref={hasMoreSameSeriesArtworks ? `/en/gallery/series/${encodeURIComponent(toPathSafeSlug(item.data.series ?? ""))}` : undefined}
+          seeMoreLabel={hasMoreSameSeriesArtworks ? t["home.seeMore"] : undefined}
         >
           {sameSeriesArtworks.map((artwork) => (
             <ArtworkCard
@@ -222,6 +343,17 @@ const sameSeriesArtworks = item.data.series
         </SidebarSection>
       )}
 
+      {seriesList.length > 0 && (
+        <SidebarSection title={t["home.worksListHeading"]}>
+          <SeriesList
+            id="doujinshi-series"
+            items={seriesList}
+            countSuffix={t["home.seriesCountSuffix"]}
+            seeMoreHref={hasMoreSeries ? "/en/gallery/series" : undefined}
+            seeMoreLabel={hasMoreSeries ? t["home.seeMore"] : undefined}
+          />
+        </SidebarSection>
+      )}
     </aside>
    </div>
   </div>

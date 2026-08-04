@@ -1,0 +1,122 @@
+---
+import { getImage } from "astro:assets";
+import { getCollection } from "astro:content";
+import RankingList from "~/components/RankingList.astro";
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getHeaderImage } from "~/utils/artwork";
+
+const lang = "en";
+const t = ui[lang];
+
+const artworks = await getCollection("artworks", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
+const doujinshiList = await getCollection("doujinshi", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
+const ownDoujinshi = doujinshiList.filter((d) => d.data.isOwnWork !== false);
+
+function toSlug(fullSlug: string) {
+  return fullSlug.replace(`${lang}/`, "");
+}
+function toHref(fullSlug: string) {
+  return `/en/gallery/${toSlug(fullSlug)}`;
+}
+function toDoujinshiHref(fullSlug: string) {
+  return `/en/doujinshi/${toSlug(fullSlug)}`;
+}
+
+// For resolving the like ranking. Combines artworks and doujinshi into one index,
+// matching LikeButton's slug format (artworks use the plain slug, doujinshi use a "doujinshi-" prefix)
+const rankingIndex = [
+  ...(await Promise.all(
+    artworks.map(async (artwork) => {
+      const optimized = await getImage({
+        src: getHeaderImage(artwork),
+        width: 480,
+        format: "webp",
+      });
+      return {
+        slug: toSlug(artwork.slug),
+        title: artwork.data.title,
+        thumb: optimized.src,
+        href: toHref(artwork.slug),
+      };
+    }),
+  )),
+  ...(await Promise.all(
+    ownDoujinshi.map(async (item) => {
+      const optimized = await getImage({
+        src: item.data.packageImage,
+        width: 480,
+        format: "webp",
+      });
+      return {
+        slug: `doujinshi-${toSlug(item.slug)}`,
+        title: item.data.title,
+        thumb: optimized.src,
+        href: toDoujinshiHref(item.slug),
+      };
+    }),
+  )),
+];
+---
+<BaseLayout title={t["ranking.pageTitle"]} description={t["ranking.pageDescription"]}>
+  <div class="ranking-shell">
+    <header class="ranking-page-header">
+      <h1>{t["ranking.heading"]}</h1>
+      <p>{t["ranking.lead"]}</p>
+    </header>
+
+    <RankingList
+      id="full-ranking"
+      rankingIndex={rankingIndex}
+      labels={{
+        daily: t["home.rankingDaily"],
+        monthly: t["home.rankingMonthly"],
+        yearly: t["home.rankingYearly"],
+      }}
+      emptyText={t["home.rankingEmpty"]}
+      limit={50}
+    />
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .ranking-shell {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.25rem 1.25rem 3rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .ranking-page-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.7rem, 3.4vw, 2.35rem);
+    color: var(--text-primary);
+  }
+
+  .ranking-page-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 65ch;
+  }
+
+  .ranking-widget[data-widget-id="full-ranking"] {
+    grid-column: auto;
+  }
+
+  .ranking-widget[data-widget-id="full-ranking"] .ranking-list {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+
+  @media (width <= 768px) {
+    .ranking-shell {
+      padding: 1rem 1rem 2rem;
+      gap: 1.25rem;
+    }
+  }
+</style>

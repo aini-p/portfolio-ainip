@@ -19,8 +19,8 @@ npx wrangler d1 create at5fun-db
 出力に含まれる `database_id` を、それぞれ `wrangler.toml` の `REPLACE_WITH_STAGING_D1_DATABASE_ID` / `REPLACE_WITH_PRODUCTION_D1_DATABASE_ID` に貼り付ける。
 
 ```bash
-npx wrangler d1 execute at5fun-db-staging --config wrangler.toml --env staging --remote --file=schema.sql
-npx wrangler d1 execute at5fun-db --config wrangler.toml --env production --remote --file=schema.sql
+npx wrangler d1 execute at5fun-db-staging --config wrangler.toml --env staging --remote --yes --file=schema.sql
+npx wrangler d1 execute at5fun-db --config wrangler.toml --env production --remote --yes --file=schema.sql
 ```
 
 ## デプロイ

@@ -1,4 +1,5 @@
 ---
+import DmmAdBanner from "~/components/DmmAdBanner.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
@@ -54,6 +55,8 @@ const itemListJsonLd = {
       <h1>{t["tools.heading"]}</h1>
       <p>{t["tools.lead"]}</p>
     </header>
+
+    <DmmAdBanner />
 
     <ul class="tools-grid">
       <li>

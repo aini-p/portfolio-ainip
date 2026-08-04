@@ -1,0 +1,21 @@
+---
+// DMMアフィリエイトウィジェット広告。ローカル環境では登録ドメイン外のため空枠のまま表示される。
+export interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+<div class:list={["dmm-ad-banner", className]}>
+  <ins class="dmm-widget-placement" data-id="9bddd2da159d7b021902d34b336afc17" style="background:transparent"></ins>
+</div>
+<script is:inline src="https://widget-view.dmm.co.jp/js/placement.js" class="dmm-widget-scripts" data-id="9bddd2da159d7b021902d34b336afc17"></script>
+
+<style is:global>
+  .dmm-ad-banner {
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+</style>

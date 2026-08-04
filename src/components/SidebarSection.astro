@@ -2,14 +2,26 @@
 export interface Props {
   title: string;
   href?: string;
+  // 表示件数を絞ったリストの残りへの導線。href（見出し全体のリンク）とは別に、
+  // 見出し右側に小さな「もっと見る」リンクとして表示する
+  seeMoreHref?: string;
+  seeMoreLabel?: string;
 }
 
-const { title, href } = Astro.props;
+const { title, href, seeMoreHref, seeMoreLabel } = Astro.props;
 ---
 <section class="sidebar-section">
-  <h3>
-    {href ? <a href={href}>{title}</a> : title}
-  </h3>
+  <div class="sidebar-section-head">
+    <h3>
+      {href ? <a href={href}>{title}</a> : title}
+    </h3>
+    {seeMoreHref && seeMoreLabel && (
+      <a class="sidebar-section-see-more" href={seeMoreHref}>
+        {seeMoreLabel}
+        <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      </a>
+    )}
+  </div>
   <div class="sidebar-grid">
     <slot />
   </div>
@@ -19,6 +31,13 @@ const { title, href } = Astro.props;
   .sidebar-section {
     display: grid;
     gap: 0.65rem;
+  }
+
+  .sidebar-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
   }
 
   .sidebar-section h3 {
@@ -35,6 +54,21 @@ const { title, href } = Astro.props;
 
   .sidebar-section h3 a:hover {
     color: var(--accent-strong);
+  }
+
+  .sidebar-section-see-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .sidebar-section-see-more:hover {
+    color: var(--text-primary);
   }
 
   .sidebar-grid {
