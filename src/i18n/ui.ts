@@ -87,6 +87,11 @@ export const ui = {
     "doujinshi.detailsTitle": "タイトル",
     "doujinshi.detailsAuthor": "著者",
     "doujinshi.detailsPageCount": "枚数",
+    "doujinshi.membershipDiscountBadge": "メンバーシップ限定",
+    "doujinshi.membershipDiscountHeading": "メンバーシップなら同人誌が全品25%OFF",
+    "doujinshi.membershipDiscountBody":
+      "メンバーシップに登録すると、この作品を含む同人誌・グッズがすべて25%OFFで購入できます。",
+    "doujinshi.membershipDiscountCta": "メンバーシップの詳細を見る",
     "doujinshi.buyHeading": "購入はこちら",
     "doujinshi.fanzaButton": "FANZAで購入",
     "doujinshi.patreonButton": "Patreonで購入",
@@ -393,6 +398,11 @@ export const ui = {
     "doujinshi.detailsTitle": "Title",
     "doujinshi.detailsAuthor": "Author",
     "doujinshi.detailsPageCount": "Pages",
+    "doujinshi.membershipDiscountBadge": "Members only",
+    "doujinshi.membershipDiscountHeading": "Members get 25% off every doujinshi",
+    "doujinshi.membershipDiscountBody":
+      "Join the membership and get 25% off this doujinshi and everything else in the shop.",
+    "doujinshi.membershipDiscountCta": "See membership details",
     "doujinshi.buyHeading": "Where to buy",
     "doujinshi.fanzaButton": "Buy on FANZA",
     "doujinshi.patreonButton": "View on Patreon",

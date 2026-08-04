@@ -154,17 +154,28 @@ const sameSeriesArtworks = item.data.series
         </table>
       </section>
 
+      {item.data.isOwnWork !== false && (
+        <a class="membership-discount-banner" href="/membership">
+          <div class="membership-discount-copy">
+            <span class="membership-discount-badge">{t["doujinshi.membershipDiscountBadge"]}</span>
+            <h2>{t["doujinshi.membershipDiscountHeading"]}</h2>
+            <p>{t["doujinshi.membershipDiscountBody"]}</p>
+          </div>
+          <span class="membership-discount-cta">{t["doujinshi.membershipDiscountCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+        </a>
+      )}
+
       <section class="lp-buy">
         <h2>{t["doujinshi.buyHeading"]}</h2>
         <div class="buy-buttons">
-          {item.data.fanzaUrl && (
-            <a href={item.data.fanzaUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-fanza">
-              {t["doujinshi.fanzaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
-            </a>
-          )}
           {item.data.patreonUrl && (
             <a href={item.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="buy-btn buy-patreon">
               {t["doujinshi.patreonButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          )}
+          {item.data.fanzaUrl && (
+            <a href={item.data.fanzaUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-fanza">
+              {t["doujinshi.fanzaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
             </a>
           )}
           {item.data.dlsiteUrl && (
@@ -417,6 +428,60 @@ const sameSeriesArtworks = item.data.series
     border-bottom: none;
   }
 
+  .membership-discount-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--accent-soft);
+    border: 0.5px solid var(--accent);
+    text-decoration: none;
+    transition: border-color 0.2s ease;
+  }
+  .membership-discount-banner:hover,
+  .membership-discount-banner:focus-visible {
+    border-color: var(--accent-strong);
+  }
+
+  .membership-discount-badge {
+    display: inline-block;
+    margin-bottom: 0.4rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .membership-discount-copy h2 {
+    margin: 0 0 0.3rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .membership-discount-copy p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .membership-discount-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
   .lp-buy {
     padding: 1.5rem;
     border-radius: var(--radius-lg);
@@ -519,5 +584,6 @@ const sameSeriesArtworks = item.data.series
     .detail-shell { padding: 1rem; gap: 1.25rem; }
     h1 { font-size: 1.6rem; }
     .hero-frame { max-width: 100%; }
+    .membership-discount-banner { flex-direction: column; align-items: flex-start; }
   }
 </style>
