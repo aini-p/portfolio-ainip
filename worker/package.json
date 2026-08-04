@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy:staging": "wrangler deploy --env staging",
-    "deploy:production": "wrangler deploy --env production"
+    "dev": "wrangler dev --config wrangler.toml",
+    "deploy:staging": "wrangler deploy --config wrangler.toml --env staging",
+    "deploy:production": "wrangler deploy --config wrangler.toml --env production"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241106.0",

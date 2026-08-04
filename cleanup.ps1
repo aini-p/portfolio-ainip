@@ -12,7 +12,8 @@
 # Usage:
 #   Preview only (nothing is changed):          .\cleanup.ps1
 #   Delete files + apply to local dev D1:       .\cleanup.ps1 -Force
-#   Delete files + apply to production D1:      .\cleanup.ps1 -Force -Remote
+#   Delete files + apply to staging D1:         .\cleanup.ps1 -Force -Remote
+#   Delete files + apply to production D1:      .\cleanup.ps1 -Force -Remote -Env production
 #   Delete files only, skip the D1 step:        .\cleanup.ps1 -Force -SkipDb
 #
 #   Only sweep orphaned images, keep every article:
@@ -21,14 +22,24 @@
 #   (-ImagesOnly leaves articles untouched, so the D1 step is skipped too -
 #   nothing references a slug that no longer has an article, so there's
 #   nothing to clean up there.)
+#
+# -Env defaults to "staging" on purpose: with -Remote this hits a real,
+# shared D1 database, and staging is the lower-risk target. Pass
+# "-Env production" explicitly when you really mean to touch at5fun-db.
 
 param(
     [switch]$Force,
     [switch]$Remote,
     [switch]$SkipDb,
     [switch]$ImagesOnly,
-    [string]$DatabaseName = "at5fun-db"
+    [ValidateSet("staging", "production")]
+    [string]$Env = "staging",
+    [string]$DatabaseName
 )
+
+if (-not $DatabaseName) {
+    $DatabaseName = if ($Env -eq "production") { "at5fun-db" } else { "at5fun-db-staging" }
+}
 
 $ErrorActionPreference = "Stop"
 $rootDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -245,12 +256,13 @@ else {
         if (-not $Force) {
             Write-Host "`n[DRY RUN] Database was not touched." -ForegroundColor Magenta
             Write-Host "  Re-run with -Force to apply to the LOCAL dev D1 database." -ForegroundColor Magenta
-            Write-Host "  Add -Remote as well to apply to the PRODUCTION D1 database (irreversible)." -ForegroundColor Magenta
+            Write-Host "  Add -Remote as well to apply to the real D1 database for -Env ($Env), currently: $DatabaseName (irreversible)." -ForegroundColor Magenta
         }
         else {
             $target = if ($Remote) { "--remote" } else { "--local" }
             if ($Remote) {
-                Write-Host "`n[WARNING] Applying to the PRODUCTION D1 database ($DatabaseName)." -ForegroundColor Red
+                $label = if ($Env -eq "production") { "PRODUCTION" } else { "STAGING" }
+                Write-Host "`n[WARNING] Applying to the $label D1 database ($DatabaseName)." -ForegroundColor Red
             }
             else {
                 Write-Host "`nApplying to the LOCAL dev D1 database ($DatabaseName)..." -ForegroundColor Yellow
@@ -258,7 +270,7 @@ else {
 
             Push-Location $workerDir
             try {
-                npx wrangler d1 execute $DatabaseName $target --file=".generated-cleanup.sql"
+                npx wrangler d1 execute $DatabaseName $target --config wrangler.toml --env $Env --file=".generated-cleanup.sql"
             }
             finally {
                 Pop-Location
