@@ -4,6 +4,7 @@ import { getCollection } from "astro:content";
 import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
+import AuthorComment from "~/components/AuthorComment.astro";
 import LikeButton from "~/components/LikeButton.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
@@ -129,7 +130,11 @@ const relatedArtworks = artwork.data.relatedImages
         <ShareButtons lang={lang} url={pageUrl} text={artwork.data.title} />
       </div>
 
-      {hasBody && <div class="artwork-body"><Content /></div>}
+      {hasBody && (
+        <AuthorComment heading={t["doujinshi.authorCommentHeading"]} profileLabel={t["nav.profile"]}>
+          <Content />
+        </AuthorComment>
+      )}
 
       <div class="membership-intro">
         <div class="membership-intro-copy">
@@ -276,7 +281,6 @@ const relatedArtworks = artwork.data.relatedImages
   }
 
   h1 { font-size: 2.0rem; margin: 0; color: var(--text-primary); }
-  .artwork-body { line-height: 1.85; color: var(--text-secondary); }
 
   .artwork-meta {
     display: flex;
