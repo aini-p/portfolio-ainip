@@ -156,10 +156,8 @@ const sameSeriesArtworks = item.data.series
 
       {item.data.isOwnWork !== false && (
         <a class="membership-discount-banner" href="/membership">
-          <div class="membership-discount-main">
-            <span class="membership-discount-badge">{t["doujinshi.membershipDiscountBadge"]}</span>
-            <span class="membership-discount-text">{t["doujinshi.membershipDiscountHeading"]}</span>
-          </div>
+          <span class="membership-discount-badge">{t["doujinshi.membershipDiscountBadge"]}</span>
+          <span class="membership-discount-text">{t["doujinshi.membershipDiscountHeading"]}</span>
           <span class="membership-discount-cta">{t["doujinshi.membershipDiscountCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
         </a>
       )}
@@ -428,10 +426,9 @@ const sameSeriesArtworks = item.data.series
   }
 
   .membership-discount-banner {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
     gap: 0.75rem;
     padding: 1.4rem 1.5rem;
     border-radius: var(--radius-md);
@@ -442,14 +439,6 @@ const sameSeriesArtworks = item.data.series
   .membership-discount-banner:hover,
   .membership-discount-banner:focus-visible {
     background: var(--accent-strong);
-  }
-
-  .membership-discount-main {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    min-width: 0;
   }
 
   .membership-discount-badge {
@@ -466,6 +455,7 @@ const sameSeriesArtworks = item.data.series
   }
 
   .membership-discount-text {
+    text-align: center;
     font-size: 0.92rem;
     font-weight: 600;
     color: #fff;
@@ -587,6 +577,13 @@ const sameSeriesArtworks = item.data.series
     .detail-shell { padding: 1rem; gap: 1.25rem; }
     h1 { font-size: 1.6rem; }
     .hero-frame { max-width: 100%; }
-    .membership-discount-banner { flex-direction: column; align-items: flex-start; }
+    .membership-discount-banner {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "badge cta" "text text";
+      row-gap: 0.5rem;
+    }
+    .membership-discount-banner .membership-discount-badge { grid-area: badge; justify-self: start; }
+    .membership-discount-banner .membership-discount-cta { grid-area: cta; justify-self: end; }
+    .membership-discount-banner .membership-discount-text { grid-area: text; text-align: left; }
   }
 </style>
