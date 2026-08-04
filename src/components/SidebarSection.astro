@@ -1,6 +1,7 @@
 ---
 export interface Props {
-  title: string;
+  // 見出しなしで使いたい場合（例: 広告バナー単体）はtitleを省略できる
+  title?: string;
   href?: string;
   // 表示件数を絞ったリストの残りへの導線。href（見出し全体のリンク）とは別に、
   // 見出し右側に小さな「もっと見る」リンクとして表示する
@@ -11,17 +12,19 @@ export interface Props {
 const { title, href, seeMoreHref, seeMoreLabel } = Astro.props;
 ---
 <section class="sidebar-section">
-  <div class="sidebar-section-head">
-    <h3>
-      {href ? <a href={href}>{title}</a> : title}
-    </h3>
-    {seeMoreHref && seeMoreLabel && (
-      <a class="sidebar-section-see-more" href={seeMoreHref}>
-        {seeMoreLabel}
-        <i class="ti ti-arrow-right" aria-hidden="true"></i>
-      </a>
-    )}
-  </div>
+  {title && (
+    <div class="sidebar-section-head">
+      <h3>
+        {href ? <a href={href}>{title}</a> : title}
+      </h3>
+      {seeMoreHref && seeMoreLabel && (
+        <a class="sidebar-section-see-more" href={seeMoreHref}>
+          {seeMoreLabel}
+          <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </a>
+      )}
+    </div>
+  )}
   <div class="sidebar-grid">
     <slot />
   </div>

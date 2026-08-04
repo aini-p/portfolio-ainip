@@ -2,7 +2,6 @@
 import DmmAdBanner from "~/components/DmmAdBanner.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
 import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
-import { ui } from "~/i18n/ui";
 
 export interface Props {
   lang: "ja" | "en";
@@ -10,10 +9,9 @@ export interface Props {
 }
 
 const { lang, adBanner = false } = Astro.props;
-const t = ui[lang];
 ---
 <aside class="sidebar-column sidebar-column-left">
-  <SidebarSection title={t["home.affiliateHeading"]}>
+  <SidebarSection>
     {adBanner ? (
       <DmmAdBanner class="dmm-widget-banner" />
     ) : (
