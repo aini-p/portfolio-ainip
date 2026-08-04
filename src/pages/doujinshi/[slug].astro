@@ -156,10 +156,9 @@ const sameSeriesArtworks = item.data.series
 
       {item.data.isOwnWork !== false && (
         <a class="membership-discount-banner" href="/membership">
-          <div class="membership-discount-copy">
+          <div class="membership-discount-main">
             <span class="membership-discount-badge">{t["doujinshi.membershipDiscountBadge"]}</span>
-            <h2>{t["doujinshi.membershipDiscountHeading"]}</h2>
-            <p>{t["doujinshi.membershipDiscountBody"]}</p>
+            <span class="membership-discount-text">{t["doujinshi.membershipDiscountHeading"]}</span>
           </div>
           <span class="membership-discount-cta">{t["doujinshi.membershipDiscountCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
         </a>
@@ -432,54 +431,61 @@ const sameSeriesArtworks = item.data.series
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.25rem;
-    padding: 1.25rem 1.5rem;
-    border-radius: var(--radius-lg);
-    background: var(--accent-soft);
-    border: 0.5px solid var(--accent);
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated-2);
+    border: 0.5px solid var(--border-subtle);
+    border-left: 3px solid var(--heart);
     text-decoration: none;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease;
   }
   .membership-discount-banner:hover,
   .membership-discount-banner:focus-visible {
-    border-color: var(--accent-strong);
+    background: var(--bg-elevated);
+    border-color: var(--heart);
+  }
+
+  .membership-discount-main {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    min-width: 0;
   }
 
   .membership-discount-badge {
     display: inline-block;
-    margin-bottom: 0.4rem;
-    padding: 0.15rem 0.6rem;
+    flex-shrink: 0;
+    padding: 0.15rem 0.55rem;
     border-radius: 999px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.72rem;
+    background: var(--heart);
+    color: #2b1810;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.02em;
+    white-space: nowrap;
   }
 
-  .membership-discount-copy h2 {
-    margin: 0 0 0.3rem;
-    font-size: 1.05rem;
+  .membership-discount-text {
+    font-size: 0.92rem;
     font-weight: 600;
     color: var(--text-primary);
-  }
-
-  .membership-discount-copy p {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    line-height: 1.6;
   }
 
   .membership-discount-cta {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.25rem;
     flex-shrink: 0;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     white-space: nowrap;
+  }
+  .membership-discount-banner:hover .membership-discount-cta {
+    color: var(--text-primary);
   }
 
   .lp-buy {
