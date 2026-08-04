@@ -4,11 +4,12 @@ export interface Props {
   icon?: string;
   seeMoreHref?: string;
   seeMoreLabel?: string;
+  id?: string;
 }
 
-const { title, icon, seeMoreHref, seeMoreLabel } = Astro.props;
+const { title, icon, seeMoreHref, seeMoreLabel, id } = Astro.props;
 ---
-<section class="rail">
+<section class="rail" id={id}>
   <div class="rail-head">
     <h2>
       {icon && <i class={icon} aria-hidden="true"></i>}

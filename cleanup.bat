@@ -11,10 +11,12 @@ if not exist "%PS1_PATH%" (
 
 rem Double-clicking this file with no arguments runs a DRY RUN (preview only,
 rem nothing is deleted or touched). Pass -Force to actually delete files and
-rem apply to the local dev D1 database. Add -Remote as well to apply to the
-rem production D1 database (irreversible). Add -SkipDb to skip the database
-rem step entirely (e.g. if wrangler/D1 isn't set up). Add -ImagesOnly to keep
-rem every article and only delete images that aren't referenced anywhere.
+rem apply to the local dev D1 database. Add -Remote as well to apply to a
+rem real D1 database (irreversible) - which one is controlled by -Env
+rem (staging|production, defaults to staging). Add -SkipDb to skip the
+rem database step entirely (e.g. if wrangler/D1 isn't set up). Add
+rem -ImagesOnly to keep every article and only delete images that aren't
+rem referenced anywhere.
 set "ARGS="
 
 :parse
@@ -27,6 +29,14 @@ if /I "%~1"=="-SkipDb" set "ARGS=%ARGS% -SkipDb"
 if /I "%~1"=="/SkipDb" set "ARGS=%ARGS% -SkipDb"
 if /I "%~1"=="-ImagesOnly" set "ARGS=%ARGS% -ImagesOnly"
 if /I "%~1"=="/ImagesOnly" set "ARGS=%ARGS% -ImagesOnly"
+if /I "%~1"=="-Env" (
+  set "ARGS=%ARGS% -Env %~2"
+  shift
+)
+if /I "%~1"=="/Env" (
+  set "ARGS=%ARGS% -Env %~2"
+  shift
+)
 shift
 goto :parse
 

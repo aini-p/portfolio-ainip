@@ -30,7 +30,7 @@ export const membershipTiers: MembershipTier[] = [
     },
     price: { ja: "$5", en: "$5" },
     period: { ja: "/ 月", en: "/ month" },
-    thumbnail: "/images/placeholder-tier-trial.svg",
+    thumbnail: "/images/placeholder-tier-trial.jpg",
     features: [
       {
         text: {
@@ -58,7 +58,7 @@ export const membershipTiers: MembershipTier[] = [
     period: { ja: "/ 月", en: "/ month" },
     popular: true,
     badge: { ja: "一番人気", en: "MOST POPULAR" },
-    thumbnail: "/images/placeholder-tier-standard.svg",
+    thumbnail: "/images/placeholder-tier-standard.jpg",
     features: [
       {
         text: {
@@ -96,7 +96,7 @@ export const membershipTiers: MembershipTier[] = [
     },
     price: { ja: "$100", en: "$100" },
     period: { ja: "/ 月", en: "/ month" },
-    thumbnail: "/images/placeholder-tier-partner.svg",
+    thumbnail: "/images/placeholder-tier-partner.jpg",
     features: [
       {
         text: {
