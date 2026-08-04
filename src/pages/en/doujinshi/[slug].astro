@@ -57,7 +57,8 @@ const RELATED_DOUJINSHI_LIMIT = 4;
 const otherDoujinshiAll = allDoujinshi
   .filter((d) => d.slug !== item.slug)
   .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
-const hasMoreOtherDoujinshi = otherDoujinshiAll.length > RELATED_DOUJINSHI_LIMIT;
+const hasMoreOtherDoujinshi =
+  otherDoujinshiAll.length > RELATED_DOUJINSHI_LIMIT;
 const otherDoujinshi = otherDoujinshiAll.slice(0, RELATED_DOUJINSHI_LIMIT);
 
 const RELATED_ARTWORKS_LIMIT = 10;
@@ -68,8 +69,12 @@ const sameSeriesArtworksAll = item.data.series
         (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
       )
   : [];
-const hasMoreSameSeriesArtworks = sameSeriesArtworksAll.length > RELATED_ARTWORKS_LIMIT;
-const sameSeriesArtworks = sameSeriesArtworksAll.slice(0, RELATED_ARTWORKS_LIMIT);
+const hasMoreSameSeriesArtworks =
+  sameSeriesArtworksAll.length > RELATED_ARTWORKS_LIMIT;
+const sameSeriesArtworks = sameSeriesArtworksAll.slice(
+  0,
+  RELATED_ARTWORKS_LIMIT,
+);
 
 // Left sidebar like rankings: artworks ranking covers everything, doujinshi ranking is own works only
 const artworkRankingIndex = await Promise.all(
@@ -397,10 +402,10 @@ const seriesList = await Promise.all(
 
   @media (min-width: 1480px) {
     .detail-shell {
-      max-width: 1520px;
+      max-width: 1540px;
     }
     .detail-grid {
-      grid-template-columns: 280px 1fr 300px;
+      grid-template-columns: 300px 1fr 300px;
     }
     .sidebar-column-left {
       display: grid;

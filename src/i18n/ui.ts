@@ -75,9 +75,11 @@ export const ui = {
     "ranking.pageDescription":
       "デイリー・マンスリー・年間の切り替えで見られる、いいね数の多い人気作品ランキングです。",
     "ranking.heading": "いいねランキング",
-    "ranking.lead": "いいねが多い人気作品を期間別にランキング形式でご紹介します。",
+    "ranking.lead":
+      "いいねが多い人気作品を期間別にランキング形式でご紹介します。",
     "worksList.pageTitle": "作品別記事一覧",
-    "worksList.pageDescription": "シリーズ・作品別にまとめたイラスト記事の一覧です。",
+    "worksList.pageDescription":
+      "シリーズ・作品別にまとめたイラスト記事の一覧です。",
     "worksList.heading": "作品別記事一覧",
     "worksList.lead":
       "シリーズ・作品ごとにまとめたイラスト記事の一覧です。気になる作品をチェックしてみてください。",
@@ -389,8 +391,7 @@ export const ui = {
       "Free browser tools that help with illustration and posting workflows.",
     "home.toolsCta": "Browse tools",
     "home.membershipHeading": "Membership",
-    "home.membershipBody":
-      "Unlimited access to unfiltered, spicy artwork.",
+    "home.membershipBody": "Unlimited access to unfiltered, spicy artwork.",
     "home.membershipCta": "Learn more",
     "home.noResults": "No matching artworks found.",
     "ranking.pageTitle": "Like Ranking",
