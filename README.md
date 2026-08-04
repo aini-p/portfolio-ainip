@@ -53,6 +53,7 @@
 │   ├── schema.sql                       … データベースの構造(テーブル定義)
 │   └── wrangler.toml                    … Cloudflareへの接続設定
 ├── cleanup.ps1 / cleanup.bat             … 記事・画像・いいねデータの一括削除ツール
+├── setup-worker.ps1 / setup-worker.bat   … D1(staging/production)の存在チェック・作成・スキーマ適用・ローカルAPI起動
 └── deploy.bat / start.bat                … サイト本体のビルド/起動ショートカット
 ```
 
@@ -127,23 +128,39 @@ npm run build
 
 `worker/wrangler.toml` は `staging` / `production` の2環境を持っている(それぞれ別のWorker・別のD1データベース)。コマンドには必ず `--config wrangler.toml` を付けること(リポジトリのルートにサイト側の `wrangler.jsonc` があるため、これを付けないと `worker/` 内で実行しても誤ってルートの設定を読み込んでしまう)。
 
-**初回セットアップのみ(staging・production それぞれ1回ずつ):**
+**初回セットアップ(staging・production の存在チェック→なければ作成→スキーマ適用→ローカルサーバー起動まで一括):**
+
+```bash
+npx wrangler login   # 初回のみ。Cloudflareアカウントでログイン(ブラウザが開きます)
+setup-worker.bat
+```
+
+(または [setup-worker.ps1](setup-worker.ps1) をダブルクリック相当で実行)。すでに存在するデータベースはスキップされ、`database_id` が未設定/古い場合のみ [worker/wrangler.toml](worker/wrangler.toml) に書き込まれるので、何度実行しても安全(冪等)。オプション:
+
+```bash
+setup-worker.bat -Only staging      # stagingだけ対象にする
+setup-worker.bat -Only production   # productionだけ対象にする
+setup-worker.bat -SkipDev           # DB確認/作成/スキーマ適用だけ行い、ローカルサーバーは起動しない
+```
+
+最後に `http://localhost:8787` でローカル用のAPIサーバーが起動する(Ctrl+Cで停止)。これはWranglerのローカルD1エミュレーションを使うので、実際のstaging/production側のデータには一切触れない。
+
+手動で個別のコマンドを打ちたい場合は次の通り(`setup-worker.bat` が内部で実行しているのと同じ内容):
 
 ```bash
 cd worker
-npx wrangler login                                              # Cloudflareアカウントでログイン(ブラウザが開きます)
-npx wrangler d1 create at5fun-db-staging                        # 検証用データベースを作成
+npx wrangler d1 create at5fun-db-staging                        # 検証用データベースを作成(既に存在する場合は `d1 info` で確認)
 npx wrangler d1 create at5fun-db                                # 本番用データベースを作成
 ```
 
-表示された `database_id` を、それぞれ [worker/wrangler.toml](worker/wrangler.toml) の `REPLACE_WITH_STAGING_D1_DATABASE_ID` / `REPLACE_WITH_PRODUCTION_D1_DATABASE_ID` に書き込む(**現状このファイルはプレースホルダーのままなので、どちらのデータベースもまだ作成・接続されていない**)。
+表示された `database_id` を、それぞれ [worker/wrangler.toml](worker/wrangler.toml) の `REPLACE_WITH_STAGING_D1_DATABASE_ID` / `REPLACE_WITH_PRODUCTION_D1_DATABASE_ID` に書き込む。
 
 ```bash
 npx wrangler d1 execute at5fun-db-staging --config wrangler.toml --env staging --remote --file=schema.sql
 npx wrangler d1 execute at5fun-db --config wrangler.toml --env production --remote --file=schema.sql
 ```
 
-→ それぞれのデータベースにテーブル(`likes`, `like_votes`)を作成する。これは最初の1回だけでOK。
+→ それぞれのデータベースにテーブル(`likes`, `like_votes`)を作成する。`CREATE TABLE IF NOT EXISTS` なので何度実行しても安全。
 
 **コードを更新した後、staging/本番に反映するとき:**
 
