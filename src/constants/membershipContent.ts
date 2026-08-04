@@ -118,7 +118,7 @@ export const membershipFaq: FaqItem[] = [
     },
     answer: {
       ja: "メンバーシップはPatreon経由でのご契約となります。ページ下部にある「今すぐメンバーシップを始める」ボタンからPatreonのページへ移動し、お好きなプランをお選びください。",
-      en: "Membership is handled through Patreon. Tap the \"Start your membership now\" button at the bottom of this page to head to Patreon and choose the plan you'd like.",
+      en: 'Membership is handled through Patreon. Tap the "Start your membership now" button at the bottom of this page to head to Patreon and choose the plan you\'d like.',
     },
   },
   {

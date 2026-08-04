@@ -57,7 +57,8 @@ const RELATED_DOUJINSHI_LIMIT = 4;
 const otherDoujinshiAll = allDoujinshi
   .filter((d) => d.slug !== item.slug)
   .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
-const hasMoreOtherDoujinshi = otherDoujinshiAll.length > RELATED_DOUJINSHI_LIMIT;
+const hasMoreOtherDoujinshi =
+  otherDoujinshiAll.length > RELATED_DOUJINSHI_LIMIT;
 const otherDoujinshi = otherDoujinshiAll.slice(0, RELATED_DOUJINSHI_LIMIT);
 
 const RELATED_ARTWORKS_LIMIT = 10;
@@ -68,8 +69,12 @@ const sameSeriesArtworksAll = item.data.series
         (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
       )
   : [];
-const hasMoreSameSeriesArtworks = sameSeriesArtworksAll.length > RELATED_ARTWORKS_LIMIT;
-const sameSeriesArtworks = sameSeriesArtworksAll.slice(0, RELATED_ARTWORKS_LIMIT);
+const hasMoreSameSeriesArtworks =
+  sameSeriesArtworksAll.length > RELATED_ARTWORKS_LIMIT;
+const sameSeriesArtworks = sameSeriesArtworksAll.slice(
+  0,
+  RELATED_ARTWORKS_LIMIT,
+);
 
 // 左サイドバー用のいいねランキング。投稿記事は全作品、同人誌は自作のみを対象にする
 const artworkRankingIndex = await Promise.all(

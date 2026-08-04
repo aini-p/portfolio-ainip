@@ -93,6 +93,12 @@ const {
 
     if (!list || !API_BASE) return;
 
+    // APIは投稿記事・同人誌を区別せず横断でランキングを返すため、表示件数(limit)だけを
+    // 取得件数にすると、このウィジェットが対象とする種別（rankingIndexに含まれる方）が
+    // 上位に少ない場合に表示件数が足りなくなる。取得件数は多めに確保し、種別で絞り込んだ
+    // 上で改めてlimit件に切り詰める
+    const fetchLimit = Math.max(limit * 10, 50);
+
     const cache = new Map<RankingPeriod, RankingRow[]>();
 
     function buildCard(entry: RankingEntry, rank: number, count: number) {
@@ -118,7 +124,8 @@ const {
       const rows = cache.get(period) ?? [];
       const resolved = rows
         .map((row) => ({ row, entry: rankingIndexBySlug.get(row.slug) }))
-        .filter((item): item is { row: RankingRow; entry: RankingEntry } => Boolean(item.entry));
+        .filter((item): item is { row: RankingRow; entry: RankingEntry } => Boolean(item.entry))
+        .slice(0, limit);
 
       if (resolved.length === 0) {
         const empty = document.createElement("p");
@@ -137,7 +144,7 @@ const {
       try {
         const responses = await Promise.all(
           PERIODS.map((period) =>
-            fetch(`${API_BASE}/likes/ranking?period=${period}&limit=${limit}`)
+            fetch(`${API_BASE}/likes/ranking?period=${period}&limit=${fetchLimit}`)
               .then((res) => res.json())
               .then((data) => (data.ranking ?? []) as RankingRow[]),
           ),
@@ -192,11 +199,12 @@ const {
 
   .ranking-tab {
     flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.3rem;
-    padding: 0.5rem 0.4rem;
+    gap: 0.25rem;
+    padding: 0.5rem 0.3rem;
     border: none;
     border-radius: 999px;
     background: transparent;
@@ -208,7 +216,14 @@ const {
   }
 
   .ranking-tab i {
+    flex-shrink: 0;
     font-size: 14px;
+  }
+
+  .ranking-tab span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .ranking-tab:hover {
