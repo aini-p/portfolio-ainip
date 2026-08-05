@@ -1,4 +1,5 @@
 ---
+import { getImage } from "astro:assets";
 import { type CollectionEntry, getCollection } from "astro:content";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
@@ -6,6 +7,8 @@ import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
   formatImageCountLabel,
+  formatSeriesPageDescription,
+  formatSeriesPageKeywords,
   getHeaderImage,
   getTotalImageCount,
 } from "~/utils/artwork";
@@ -49,8 +52,19 @@ export async function getStaticPaths() {
 }
 
 const { artworks, seriesName } = Astro.props;
+
+const shareImage = await getImage({
+  src: getHeaderImage(artworks[0]),
+  format: "webp",
+  width: 1200,
+});
 ---
-<BaseLayout title={`${seriesName} - ${t['nav.gallery']}`}>
+<BaseLayout
+  title={`${seriesName} - ${t['nav.gallery']}`}
+  description={formatSeriesPageDescription(seriesName, lang)}
+  keywords={formatSeriesPageKeywords(seriesName, lang)}
+  image={{ src: shareImage.src, alt: seriesName }}
+>
   <div class="sidebar-page-shell">
    <div class="sidebar-page-grid">
     <HomeStyleSidebars lang={lang}>

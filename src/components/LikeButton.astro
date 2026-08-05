@@ -53,6 +53,11 @@ const { slug } = Astro.props;
     countEl.textContent = String(current + 1);
     localStorage.setItem(likedKey(slug), "1");
 
+    const gtag = (window as typeof window & { gtag?: (...args: unknown[]) => void }).gtag;
+    if (typeof gtag === "function") {
+      gtag("event", "like_click", { slug });
+    }
+
     try {
       const res = await fetch(`${API_BASE}/likes/${encodeURIComponent(slug)}`, {
         method: "POST",

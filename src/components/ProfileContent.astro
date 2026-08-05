@@ -110,10 +110,24 @@ const snsLinks = [
   <section class="membership-card">
     <h2>{t["profile.fansite"]}</h2>
     <p class="membership-lead">{t["profile.membershipLead"]}</p>
-    <a href={patreonUrl} target="_blank" rel="noopener noreferrer" class="membership-banner-link">
+    <a
+      href={patreonUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="membership-banner-link"
+      data-ga-event="membership_cta_click"
+      data-ga-source="profile_banner"
+    >
       <img src="/images/patreon-banner.png" alt="Patreon" />
     </a>
-    <a href={patreonUrl} target="_blank" rel="noopener noreferrer" class="membership-cta">
+    <a
+      href={patreonUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="membership-cta"
+      data-ga-event="membership_cta_click"
+      data-ga-source="profile_cta"
+    >
       {t["profile.membershipCta"]}
       <i class="ti ti-arrow-right" aria-hidden="true"></i>
     </a>

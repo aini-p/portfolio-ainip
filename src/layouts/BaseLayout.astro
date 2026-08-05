@@ -140,6 +140,29 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
         </script>
       </>
     )}
+
+    {/* 収益に直結するCTA（メンバーシップ導線・購入リンク・いいね・ツール利用）のクリックをGA4イベントとして計測する。
+        要素に data-ga-event="イベント名" を付け、他の data-ga-* 属性はそのままイベントパラメータとして送られる。
+        本番以外はwindow.gtagが存在しないため何もしない */}
+    <script is:inline>
+      document.addEventListener('click', function (e) {
+        if (typeof window.gtag !== 'function') return;
+        var el = e.target.closest('[data-ga-event]');
+        if (!el) return;
+        var eventName = el.getAttribute('data-ga-event');
+        var params = {};
+        for (var i = 0; i < el.attributes.length; i++) {
+          var attr = el.attributes[i];
+          if (attr.name.indexOf('data-ga-') === 0 && attr.name !== 'data-ga-event') {
+            var key = attr.name.slice('data-ga-'.length).replace(/-([a-z])/g, function (_, c) {
+              return c.toUpperCase();
+            });
+            params[key] = attr.value;
+          }
+        }
+        window.gtag('event', eventName, params);
+      }, true);
+    </script>
   </head>
   <body>
     <Header />

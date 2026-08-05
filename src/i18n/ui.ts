@@ -71,6 +71,10 @@ export const ui = {
     "home.membershipBody": "塗りつぶし無しのエッチなイラスト見放題",
     "home.membershipCta": "詳しく見る",
     "home.noResults": "該当する作品が見つかりませんでした。",
+    "home.pageTitle": "垢BANまで",
+    "home.pageDescription":
+      "人気作品の二次創作イラストや同人誌を投稿しているポートフォリオサイト「あと5分。」。新作イラストや同人誌の頒布情報、メンバーシップ限定コンテンツを掲載しています。",
+    "home.pageKeywords": "二次創作, ファンアート, 同人イラスト, 同人誌, AIイラスト, メンバーシップ",
     "ranking.pageTitle": "いいねランキング",
     "ranking.pageDescription":
       "デイリー・マンスリー・年間の切り替えで見られる、いいね数の多い人気作品ランキングです。",
@@ -394,6 +398,10 @@ export const ui = {
     "home.membershipBody": "Unlimited access to unfiltered, spicy artwork.",
     "home.membershipCta": "Learn more",
     "home.noResults": "No matching artworks found.",
+    "home.pageTitle": "5Min2BAN",
+    "home.pageDescription":
+      "At5Fun's portfolio site featuring fan art illustrations and doujinshi based on popular series, plus new releases and exclusive membership content.",
+    "home.pageKeywords": "fan art, doujin illustration, doujinshi, AI art, membership",
     "ranking.pageTitle": "Like Ranking",
     "ranking.pageDescription":
       "The most-liked artworks, ranked daily, monthly, and yearly.",
