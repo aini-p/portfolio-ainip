@@ -56,6 +56,9 @@ const doujinshiCollection = defineCollection({
       publishDate: z.date(),
       // 表紙画像。縦長（例: 小説の表紙）・横長どちらも許容
       packageImage: image(),
+      // SNSシェアカード用の横長(16:9)画像。表紙(縦長)を右寄せで全体表示し、タイトル・ブランド情報を
+      // 焼き込み済み。image-tagging-appのpublish時に自動生成される。未設定時はpackageImageにフォールバック
+      packageEmbedImageUrl: image().optional(),
       sampleImages: z.array(image()).optional(),
       description: z.string(),
       // artworksのseriesと一致させることで、記事詳細ページの「同タイトルの同人誌」枠に表示される

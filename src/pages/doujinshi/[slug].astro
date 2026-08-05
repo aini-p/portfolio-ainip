@@ -40,7 +40,9 @@ const itemSlug = item.slug.replace(`${lang}/`, "");
 const pageUrl = new URL(`/doujinshi/${itemSlug}`, Astro.site).toString();
 
 const shareImage = await getImage({
-  src: item.data.packageImage,
+  // SNSシェアカードは横長(16:9)のpackageEmbedImageUrlを優先し、未生成の旧記事は
+  // 縦長のpackageImageにフォールバックする
+  src: item.data.packageEmbedImageUrl ?? item.data.packageImage,
   format: "webp",
   width: 1200,
 });

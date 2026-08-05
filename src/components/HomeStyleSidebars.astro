@@ -18,8 +18,12 @@ export interface Props {
 
 const { lang } = Astro.props;
 const t = ui[lang];
-const { rankingIndex, doujinshiRankingIndex, seriesList, hasMoreSeries } =
-  await buildHomeSidebarData(lang);
+const {
+  artworkRankingIndex,
+  doujinshiRankingIndex,
+  seriesList,
+  hasMoreSeries,
+} = await buildHomeSidebarData(lang);
 
 const rankingHref = lang === "en" ? "/en/ranking" : "/ranking";
 const seriesHref = lang === "en" ? "/en/gallery/series" : "/gallery/series";
@@ -50,7 +54,7 @@ const rankingLabels = {
   <SidebarSection title={t["home.ranking"]}>
     <RankingList
       id="page-ranking"
-      rankingIndex={rankingIndex}
+      rankingIndex={artworkRankingIndex}
       labels={rankingLabels}
       emptyText={t["home.rankingEmpty"]}
       limit={5}
