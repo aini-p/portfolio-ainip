@@ -55,7 +55,9 @@ export async function buildHomeSidebarData(
   );
   const ownDoujinshi = doujinshiList
     .filter((d) => d.data.isOwnWork !== false)
-    .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+    .sort(
+      (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+    );
 
   const sortedByDate = [...artworks].sort(
     (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
