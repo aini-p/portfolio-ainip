@@ -74,7 +74,8 @@ export const ui = {
     "home.pageTitle": "垢BANまで",
     "home.pageDescription":
       "人気作品の二次創作イラストや同人誌を投稿しているポートフォリオサイト「あと5分。」。新作イラストや同人誌の頒布情報、メンバーシップ限定コンテンツを掲載しています。",
-    "home.pageKeywords": "二次創作, ファンアート, 同人イラスト, 同人誌, AIイラスト, メンバーシップ",
+    "home.pageKeywords":
+      "二次創作, ファンアート, 同人イラスト, 同人誌, AIイラスト, メンバーシップ",
     "ranking.pageTitle": "いいねランキング",
     "ranking.pageDescription":
       "デイリー・マンスリー・年間の切り替えで見られる、いいね数の多い人気作品ランキングです。",
@@ -401,7 +402,8 @@ export const ui = {
     "home.pageTitle": "5Min2BAN",
     "home.pageDescription":
       "At5Fun's portfolio site featuring fan art illustrations and doujinshi based on popular series, plus new releases and exclusive membership content.",
-    "home.pageKeywords": "fan art, doujin illustration, doujinshi, AI art, membership",
+    "home.pageKeywords":
+      "fan art, doujin illustration, doujinshi, AI art, membership",
     "ranking.pageTitle": "Like Ranking",
     "ranking.pageDescription":
       "The most-liked artworks, ranked daily, monthly, and yearly.",
