@@ -23,7 +23,8 @@ export interface SidebarSeriesEntry {
 }
 
 export interface HomeSidebarData {
-  rankingIndex: SidebarRankingEntry[];
+  // 右サイドバーの「いいねランキング」は投稿記事(イラスト)のみのスコープにする
+  artworkRankingIndex: SidebarRankingEntry[];
   doujinshiRankingIndex: SidebarRankingEntry[];
   seriesList: SidebarSeriesEntry[];
   hasMoreSeries: boolean;
@@ -64,45 +65,40 @@ export async function buildHomeSidebarData(
   );
 
   // いいねランキング解決用。LikeButtonのslug形式（作品=素のslug、同人誌="doujinshi-"接頭辞）に
-  // 合わせて、アートワークと同人誌の両方を1つのインデックスにまとめる
-  const rankingIndex: SidebarRankingEntry[] = [
-    ...(await Promise.all(
-      artworks.map(async (artwork) => {
-        const optimized = await getImage({
-          src: getHeaderImage(artwork),
-          width: 480,
-          format: "webp",
-        });
-        return {
-          slug: toSlug(artwork.slug),
-          title: artwork.data.title,
-          thumb: optimized.src,
-          href: `${galleryPrefix}/${toSlug(artwork.slug)}`,
-          isNew: isRecentlyPublished(artwork),
-        };
-      }),
-    )),
-    ...(await Promise.all(
-      ownDoujinshi.map(async (item) => {
-        const optimized = await getImage({
-          src: item.data.packageImage,
-          width: 480,
-          format: "webp",
-        });
-        return {
-          slug: `doujinshi-${toSlug(item.slug)}`,
-          title: item.data.title,
-          thumb: optimized.src,
-          href: `${doujinshiPrefix}/${toSlug(item.slug)}`,
-          isNew: isRecentlyPublished(item),
-        };
-      }),
-    )),
-  ];
+  // 合わせてスラッグを組み立てる。右サイドバー用（投稿記事のみ）と左サイドバー用（同人誌のみ）を
+  // それぞれ独立したインデックスとして構築する
+  const artworkRankingIndex: SidebarRankingEntry[] = await Promise.all(
+    artworks.map(async (artwork) => {
+      const optimized = await getImage({
+        src: getHeaderImage(artwork),
+        width: 480,
+        format: "webp",
+      });
+      return {
+        slug: toSlug(artwork.slug),
+        title: artwork.data.title,
+        thumb: optimized.src,
+        href: `${galleryPrefix}/${toSlug(artwork.slug)}`,
+        isNew: isRecentlyPublished(artwork),
+      };
+    }),
+  );
 
-  // 左サイドバー用: 同人誌のいいねランキングは同人誌エントリのみに絞り込む
-  const doujinshiRankingIndex = rankingIndex.filter((entry) =>
-    entry.slug.startsWith("doujinshi-"),
+  const doujinshiRankingIndex: SidebarRankingEntry[] = await Promise.all(
+    ownDoujinshi.map(async (item) => {
+      const optimized = await getImage({
+        src: item.data.packageImage,
+        width: 480,
+        format: "webp",
+      });
+      return {
+        slug: `doujinshi-${toSlug(item.slug)}`,
+        title: item.data.title,
+        thumb: optimized.src,
+        href: `${doujinshiPrefix}/${toSlug(item.slug)}`,
+        isNew: isRecentlyPublished(item),
+      };
+    }),
   );
 
   // 右サイドバー最下部の「作品別記事一覧」: シリーズごとの件数と最新作をまとめる
@@ -141,5 +137,5 @@ export async function buildHomeSidebarData(
       }),
   );
 
-  return { rankingIndex, doujinshiRankingIndex, seriesList, hasMoreSeries };
+  return { artworkRankingIndex, doujinshiRankingIndex, seriesList, hasMoreSeries };
 }
