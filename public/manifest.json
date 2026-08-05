@@ -1,7 +1,7 @@
 {
-  "name": "",
-  "short_name": "",
-  "description": "",
+  "name": "あと5分。",
+  "short_name": "At5Fun",
+  "description": "同人イラスト・同人誌ポートフォリオサイト「あと5分。」",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",

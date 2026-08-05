@@ -10,7 +10,7 @@ import RankingList from "~/components/RankingList.astro";
 import SeriesList from "~/components/SeriesList.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
-import { patreonMembershipUrl } from "~/constants/social";
+import { patreonMembershipUrl, profileNames } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -58,6 +58,23 @@ const shareImage = await getImage({
   format: "webp",
   width: 1200,
 });
+
+const artworkJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  name: artwork.data.title,
+  description: artwork.data.description,
+  image: new URL(shareImage.src, Astro.site).toString(),
+  url: pageUrl,
+  inLanguage: lang,
+  datePublished: artwork.data.publishDate.toISOString(),
+  keywords: artwork.data.keywords.join(", "),
+  author: { "@type": "Person", name: profileNames[lang] },
+  creator: { "@type": "Person", name: profileNames[lang] },
+  ...(artwork.data.series
+    ? { isPartOf: { "@type": "CreativeWorkSeries", name: artwork.data.series } }
+    : {}),
+};
 
 const allArtworks = await getCollection("artworks", ({ id }) =>
   id.startsWith(`${lang}/`),
@@ -181,6 +198,7 @@ const relatedArtworks = artwork.data.relatedImages
   keywords={artwork.data.keywords.join(', ')}
   image={{ src: shareImage.src, alt: artwork.data.title }}
 >
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(artworkJsonLd)} />
   <div class="detail-shell">
    <div class="detail-grid">
     <AffiliateColumn lang={lang} adBanner>
@@ -278,7 +296,15 @@ const relatedArtworks = artwork.data.relatedImages
 
       <div class="membership-outro">
         <p class="membership-cta-lead">{formatMembershipCtaLead(totalImageCount, lang)}</p>
-        <a href={patreonMembershipUrl} target="_blank" rel="noopener noreferrer" class="membership-cta">
+        <a
+          href={patreonMembershipUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="membership-cta"
+          data-ga-event="membership_cta_click"
+          data-ga-source="article"
+          data-ga-item={artwork.slug.replace(`${lang}/`, "")}
+        >
           <span class="membership-cta-text">
             <strong>{t["artwork.membershipCta"]}</strong>
             <i class="ti ti-external-link" aria-hidden="true"></i>

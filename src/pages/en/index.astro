@@ -185,7 +185,11 @@ const doujinshiRankingIndex = rankingIndex.filter((entry) =>
   entry.slug.startsWith("doujinshi-"),
 );
 ---
-<BaseLayout>
+<BaseLayout
+  title={t["home.pageTitle"]}
+  description={t["home.pageDescription"]}
+  keywords={t["home.pageKeywords"]}
+>
   <div class="home">
    <div class="home-grid">
     <AffiliateColumn lang={lang} adBanner>

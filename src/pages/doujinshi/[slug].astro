@@ -10,6 +10,7 @@ import RankingList from "~/components/RankingList.astro";
 import SeriesList from "~/components/SeriesList.astro";
 import ShareButtons from "~/components/ShareButtons.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
+import { profileNames } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -37,6 +38,30 @@ const { Content } = await item.render();
 const itemSlug = item.slug.replace(`${lang}/`, "");
 
 const pageUrl = new URL(`/doujinshi/${itemSlug}`, Astro.site).toString();
+
+const shareImage = await getImage({
+  src: item.data.packageImage,
+  format: "webp",
+  width: 1200,
+});
+
+const doujinshiJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  name: item.data.title,
+  description: item.data.description,
+  image: new URL(shareImage.src, Astro.site).toString(),
+  url: pageUrl,
+  inLanguage: lang,
+  datePublished: item.data.publishDate.toISOString(),
+  author: { "@type": "Person", name: item.data.author ?? profileNames[lang] },
+  ...(item.data.keywords && item.data.keywords.length > 0
+    ? { keywords: item.data.keywords.join(", ") }
+    : {}),
+  ...(item.data.series
+    ? { isPartOf: { "@type": "CreativeWorkSeries", name: item.data.series } }
+    : {}),
+};
 
 const compiledFrom = item.data.compiledFrom
   ? await getCollection("doujinshi", ({ id, slug }) => {
@@ -149,7 +174,12 @@ const seriesList = await Promise.all(
     }),
 );
 ---
-<BaseLayout title={item.data.title} description={item.data.description}>
+<BaseLayout
+  title={item.data.title}
+  description={item.data.description}
+  image={{ src: shareImage.src, alt: item.data.title }}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(doujinshiJsonLd)} />
   <div class="detail-shell">
    <div class="detail-grid">
     <AffiliateColumn lang={lang} adBanner>
@@ -287,22 +317,54 @@ const seriesList = await Promise.all(
         <h2>{t["doujinshi.buyHeading"]}</h2>
         <div class="buy-buttons">
           {item.data.patreonUrl && (
-            <a href={item.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="buy-btn buy-patreon">
+            <a
+              href={item.data.patreonUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="buy-btn buy-patreon"
+              data-ga-event="purchase_link_click"
+              data-ga-platform="patreon"
+              data-ga-item={itemSlug}
+            >
               {t["doujinshi.patreonButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
             </a>
           )}
           {item.data.fanzaUrl && (
-            <a href={item.data.fanzaUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-fanza">
+            <a
+              href={item.data.fanzaUrl}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="buy-btn buy-fanza"
+              data-ga-event="purchase_link_click"
+              data-ga-platform="fanza"
+              data-ga-item={itemSlug}
+            >
               {t["doujinshi.fanzaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
             </a>
           )}
           {item.data.dlsiteUrl && (
-            <a href={item.data.dlsiteUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-dlsite">
+            <a
+              href={item.data.dlsiteUrl}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="buy-btn buy-dlsite"
+              data-ga-event="purchase_link_click"
+              data-ga-platform="dlsite"
+              data-ga-item={itemSlug}
+            >
               {t["doujinshi.dlsiteButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
             </a>
           )}
           {item.data.digiketUrl && (
-            <a href={item.data.digiketUrl} target="_blank" rel="noopener noreferrer sponsored" class="buy-btn buy-digiket">
+            <a
+              href={item.data.digiketUrl}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="buy-btn buy-digiket"
+              data-ga-event="purchase_link_click"
+              data-ga-platform="digiket"
+              data-ga-item={itemSlug}
+            >
               {t["doujinshi.digiketButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
             </a>
           )}

@@ -146,8 +146,8 @@ const xShareHref = shareUrl
       </div>
 
       <div class="action-row">
-        <button class="action-button" data-role="download-pdf" type="button" disabled>{copy.downloadPdf}</button>
-        <button class="action-button" data-role="download-zip" type="button" disabled>{copy.downloadZip}</button>
+        <button class="action-button" data-role="download-pdf" type="button" disabled data-ga-event="tool_download" data-ga-tool="image-to-pdf" data-ga-format="pdf">{copy.downloadPdf}</button>
+        <button class="action-button" data-role="download-zip" type="button" disabled data-ga-event="tool_download" data-ga-tool="image-to-pdf" data-ga-format="zip">{copy.downloadZip}</button>
       </div>
 
       <p class="status-text" data-role="status" aria-live="polite">{copy.statusIdle}</p>

@@ -71,3 +71,41 @@ export function formatMembershipCtaLead(
     ? `続き全${count}枚を塗りつぶしなしで見るなら`
     : `See all ${count} images, unfiltered —`;
 }
+
+// キャラクター別一覧ページ用のmeta description・keywords
+export function formatCharacterPageDescription(
+  characterName: string,
+  lang: "ja" | "en",
+): string {
+  return lang === "ja"
+    ? `${characterName}が登場する二次創作イラストの一覧です。`
+    : `A list of fan art illustrations featuring ${characterName}.`;
+}
+
+export function formatCharacterPageKeywords(
+  characterName: string,
+  lang: "ja" | "en",
+): string {
+  return lang === "ja"
+    ? `${characterName}, 二次創作, ファンアート, イラスト`
+    : `${characterName}, fan art, illustration`;
+}
+
+// シリーズ別一覧ページ用のmeta description・keywords
+export function formatSeriesPageDescription(
+  seriesName: string,
+  lang: "ja" | "en",
+): string {
+  return lang === "ja"
+    ? `${seriesName}を題材にした二次創作イラストの一覧です。`
+    : `A list of fan art illustrations based on ${seriesName}.`;
+}
+
+export function formatSeriesPageKeywords(
+  seriesName: string,
+  lang: "ja" | "en",
+): string {
+  return lang === "ja"
+    ? `${seriesName}, 二次創作, ファンアート, イラスト`
+    : `${seriesName}, fan art, illustration`;
+}

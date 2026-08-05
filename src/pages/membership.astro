@@ -119,6 +119,9 @@ const latestDoujinshi = [...doujinshiList]
                 target="_blank"
                 rel="noopener noreferrer"
                 class:list={["tier-cta", { "tier-cta-premium": tier.popular }]}
+                data-ga-event="membership_cta_click"
+                data-ga-source="pricing_tier"
+                data-ga-tier={tier.id}
               >
                 {t["membership.tierCta"]} <i class="ti ti-external-link" aria-hidden="true"></i>
               </a>
@@ -248,7 +251,15 @@ const latestDoujinshi = [...doujinshiList]
     <section class="mship-footer-cta">
       <div class="mship-container">
         <h2>{t["membership.footerCatch"]}</h2>
-        <a href={partnerTier.patreonTierUrl} target="_blank" rel="noopener noreferrer" class="footer-cta-button">
+        <a
+          href={partnerTier.patreonTierUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="footer-cta-button"
+          data-ga-event="membership_cta_click"
+          data-ga-source="footer_cta"
+          data-ga-tier={partnerTier.id}
+        >
           {t["membership.footerCta"]}
         </a>
       </div>
