@@ -1,6 +1,7 @@
 ---
 import { type CollectionEntry, getCollection } from "astro:content";
 import ArtworkCard from "~/components/ArtworkCard.astro";
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -52,23 +53,31 @@ export async function getStaticPaths() {
 const { artworks, characterName } = Astro.props;
 ---
 <BaseLayout title={`${characterName} - ${t['nav.gallery']}`}>
-  <div class="list-container">
-    <h1>{characterName}</h1>
-    <section class="card-grid">
-      {artworks.map((artwork, index) => (
-        <ArtworkCard
-          href={`/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
-          title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
-          image={getHeaderImage(artwork)}
-          slug={artwork.slug.replace(`${lang}/`, "")}
-          eager={index < 8}
-        />
-      ))}
-    </section>
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <div class="list-container">
+          <h1>{characterName}</h1>
+          <section class="card-grid">
+            {artworks.map((artwork, index) => (
+              <ArtworkCard
+                href={`/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
+                title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+                image={getHeaderImage(artwork)}
+                slug={artwork.slug.replace(`${lang}/`, "")}
+                eager={index < 8}
+              />
+            ))}
+          </section>
+        </div>
+      </div>
+    </HomeStyleSidebars>
+   </div>
   </div>
 </BaseLayout>
 <style is:inline>
-  .list-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+  .list-container { display: grid; }
   h1 { font-size: 2rem; font-weight: 500; margin-bottom: 1.5rem; color: var(--text-primary); }
   .card-grid {
     display: grid;
@@ -76,7 +85,6 @@ const { artworks, characterName } = Astro.props;
     gap: 1.1rem;
   }
   @media (max-width: 768px) {
-    .list-container { padding: 1rem; }
     h1 { font-size: 1.5rem; }
     .card-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.85rem; }
   }

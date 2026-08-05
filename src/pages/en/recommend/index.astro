@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
@@ -16,44 +17,49 @@ const sorted = [...items].sort(
 );
 ---
 <BaseLayout title={t["recommend.pageTitle"]} description={t["recommend.pageDescription"]}>
-  <div class="recommend-shell">
-    <header class="recommend-header">
-      <h1>{t["recommend.heading"]}</h1>
-      <p>{t["recommend.lead"]}</p>
-    </header>
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <div class="recommend-shell">
+          <header class="recommend-header">
+            <h1>{t["recommend.heading"]}</h1>
+            <p>{t["recommend.lead"]}</p>
+          </header>
 
-    {sorted.length > 0 ? (
-      <div class="doujinshi-grid">
-        {sorted.map((item) => (
-          <a class="doujinshi-card" href={`/en/doujinshi/${item.slug.replace(`${lang}/`, "")}`}>
-            <div class="package-frame">
-              <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={400} />
+          {sorted.length > 0 ? (
+            <div class="doujinshi-grid">
+              {sorted.map((item) => (
+                <a class="doujinshi-card" href={`/en/doujinshi/${item.slug.replace(`${lang}/`, "")}`}>
+                  <div class="package-frame">
+                    <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={400} />
+                  </div>
+                  <div class="card-body">
+                    {item.data.rating != null && (
+                      <div class="card-rating" style={`--rating: ${item.data.rating};`}>
+                        <span class="card-rating-stars" aria-hidden="true"></span>
+                        <span class="card-rating-value">{item.data.rating.toFixed(1)}</span>
+                      </div>
+                    )}
+                    <h2>{item.data.title}</h2>
+                    <p>{item.data.description}</p>
+                    <span class="card-cta">{t["doujinshi.viewButton"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+                  </div>
+                </a>
+              ))}
             </div>
-            <div class="card-body">
-              {item.data.rating != null && (
-                <div class="card-rating" style={`--rating: ${item.data.rating};`}>
-                  <span class="card-rating-stars" aria-hidden="true"></span>
-                  <span class="card-rating-value">{item.data.rating.toFixed(1)}</span>
-                </div>
-              )}
-              <h2>{item.data.title}</h2>
-              <p>{item.data.description}</p>
-              <span class="card-cta">{t["doujinshi.viewButton"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
-            </div>
-          </a>
-        ))}
+          ) : (
+            <p class="recommend-empty">{t["recommend.empty"]}</p>
+          )}
+        </div>
       </div>
-    ) : (
-      <p class="recommend-empty">{t["recommend.empty"]}</p>
-    )}
+    </HomeStyleSidebars>
+   </div>
   </div>
 </BaseLayout>
 
 <style is:inline>
   .recommend-shell {
-    max-width: 1040px;
-    margin: 0 auto;
-    padding: 1.25rem;
     display: grid;
     gap: 1.5rem;
   }
@@ -181,7 +187,7 @@ const sorted = [...items].sort(
   }
 
   @media (width <= 768px) {
-    .recommend-shell { padding: 1rem; gap: 1.25rem; }
+    .recommend-shell { gap: 1.25rem; }
     .doujinshi-grid { grid-template-columns: 1fr; }
   }
 </style>

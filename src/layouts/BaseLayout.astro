@@ -224,4 +224,56 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     display: flex;
     justify-content: center;
   }
+
+  /* トップページと同じ左右サイドバー（HomeStyleSidebars.astro）を使う一覧・ハブ系ページ向けの
+     共通グリッド。ページ側は外側を .sidebar-page-shell > .sidebar-page-grid で囲み、
+     中に HomeStyleSidebars（左サイドバー＋中央<slot/>＋右サイドバー）を1回だけ配置する */
+  .sidebar-page-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.25rem 1.25rem 3rem;
+  }
+
+  .sidebar-page-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .main-column {
+    display: grid;
+    gap: 2.25rem;
+    min-width: 0;
+  }
+
+  .sidebar-column {
+    display: grid;
+    gap: 1.75rem;
+    min-width: 0;
+    position: sticky;
+    top: 96px;
+  }
+
+  /* 左のアフィリエイト欄は、メインコンテンツ幅を圧迫しない十分な余白がある画面幅でのみ表示する */
+  .sidebar-column-left {
+    display: none;
+  }
+
+  @media (min-width: 1480px) {
+    .sidebar-page-shell {
+      max-width: 1540px;
+    }
+    .sidebar-page-grid {
+      grid-template-columns: 300px 1fr 300px;
+    }
+    .sidebar-column-left {
+      display: grid;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .sidebar-page-grid { grid-template-columns: 1fr; }
+    .sidebar-column { position: static; }
+  }
 </style>

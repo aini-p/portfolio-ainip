@@ -1,4 +1,5 @@
 ---
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
 import ProfileContent from "~/components/ProfileContent.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
@@ -18,5 +19,13 @@ const pageUrl = new URL("/en/", Astro.site).toString();
   keywords={profileKeywords}
   image={{ src: "/images/profile-share-card.png", alt: "Share card image for profile page" }}
 >
-  <ProfileContent lang={lang} profileDescription={profileDescription} pageUrl={pageUrl} />
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <ProfileContent lang={lang} profileDescription={profileDescription} pageUrl={pageUrl} />
+      </div>
+    </HomeStyleSidebars>
+   </div>
+  </div>
 </BaseLayout>

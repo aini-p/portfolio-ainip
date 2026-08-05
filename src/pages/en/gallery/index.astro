@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import ArtworkCard from "~/components/ArtworkCard.astro";
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import {
@@ -27,31 +28,36 @@ function toHref(fullSlug: string) {
 }
 ---
 <BaseLayout title={t["gallery.pageTitle"]} description={t["gallery.pageDescription"]}>
-  <div class="gallery-shell">
-    <header class="gallery-header">
-      <h1>{t["gallery.heading"]}</h1>
-      <p>{t["gallery.lead"]}</p>
-    </header>
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <div class="gallery-shell">
+          <header class="gallery-header">
+            <h1>{t["gallery.heading"]}</h1>
+            <p>{t["gallery.lead"]}</p>
+          </header>
 
-    <div class="gallery-grid">
-      {sorted.map((artwork, index) => (
-        <ArtworkCard
-          href={toHref(artwork.slug)}
-          title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
-          image={getHeaderImage(artwork)}
-          slug={toSlug(artwork.slug)}
-          eager={index < 8}
-        />
-      ))}
-    </div>
+          <div class="gallery-grid">
+            {sorted.map((artwork, index) => (
+              <ArtworkCard
+                href={toHref(artwork.slug)}
+                title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+                image={getHeaderImage(artwork)}
+                slug={toSlug(artwork.slug)}
+                eager={index < 8}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </HomeStyleSidebars>
+   </div>
   </div>
 </BaseLayout>
 
 <style is:inline>
   .gallery-shell {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1.25rem 1.25rem 3rem;
     display: grid;
     gap: 1.5rem;
   }
@@ -76,7 +82,7 @@ function toHref(fullSlug: string) {
   }
 
   @media (width <= 768px) {
-    .gallery-shell { padding: 1rem 1rem 2rem; gap: 1.25rem; }
+    .gallery-shell { gap: 1.25rem; }
     .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   }
 </style>

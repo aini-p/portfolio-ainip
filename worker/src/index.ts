@@ -4,6 +4,7 @@ export interface Env {
 
 const ALLOWED_ORIGINS = new Set([
   "https://at5fun.com",
+  "https://at5fun-staging.aini-h-panda.workers.dev",
   "http://localhost:4321",
   "http://127.0.0.1:4321",
 ]);

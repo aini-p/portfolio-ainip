@@ -1,5 +1,5 @@
 ---
-import DmmAdBanner from "~/components/DmmAdBanner.astro";
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
 import RandomPackImageComposer from "~/components/RandomPackImageComposer.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
@@ -26,46 +26,52 @@ const appJsonLd = {
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
 
-  <DmmAdBanner />
-
-  <RandomPackImageComposer
-    bannerSrc="/images/random_pack_image_chan.jpg"
-    bannerAlt={t["tool5.pageTitle"]}
-    shareUrl={new URL("/en/tools/random-pack-image", Astro.site).toString()}
-    copy={{
-      title: t["tool5.pageTitle"],
-      lead: t["tool5.lead"],
-      imagesInput: t["tool5.imagesInput"],
-      dropHint: t["tool5.dropHint"],
-      chooseButton: t["tool5.chooseButton"],
-      fileHint: t["tool5.fileHint"],
-      imageCount: t["tool5.imageCount"],
-      removeImage: t["tool5.removeImage"],
-      shuffleButton: t["tool5.shuffleButton"],
-      resolutionLabel: t["tool5.resolutionLabel"],
-      resolutionHelp: t["tool5.resolutionHelp"],
-      paddingLabel: t["tool5.paddingLabel"],
-      paddingHelp: t["tool5.paddingHelp"],
-      rotationLabel: t["tool5.rotationLabel"],
-      rotationHelp: t["tool5.rotationHelp"],
-      scaleLabel: t["tool5.scaleLabel"],
-      scaleHelp: t["tool5.scaleHelp"],
-      generateScale: t["tool5.generateScale"],
-      generate: t["tool5.generate"],
-      download: t["tool5.download"],
-      preview: t["tool5.preview"],
-      statusIdle: t["tool5.statusIdle"],
-      statusNeedImages: t["tool5.statusNeedImages"],
-      statusWorking: t["tool5.statusWorking"],
-      statusReady: t["tool5.statusReady"],
-      statusError: t["tool5.statusError"],
-      noteOptimization: t["tool5.noteOptimization"],
-      notePadding: t["tool5.notePadding"],
-      contactLabel: t["tool5.contactLabel"],
-      contactLinkText: t["tool5.contactLinkText"],
-      contactHref: new URL("/en/profile", Astro.site).toString(),
-      shareButton: t["tool5.shareButton"],
-      shareText: t["tool5.shareText"],
-    }}
-  />
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <RandomPackImageComposer
+          bannerSrc="/images/random_pack_image_chan.jpg"
+          bannerAlt={t["tool5.pageTitle"]}
+          shareUrl={new URL("/en/tools/random-pack-image", Astro.site).toString()}
+          copy={{
+            title: t["tool5.pageTitle"],
+            lead: t["tool5.lead"],
+            imagesInput: t["tool5.imagesInput"],
+            dropHint: t["tool5.dropHint"],
+            chooseButton: t["tool5.chooseButton"],
+            fileHint: t["tool5.fileHint"],
+            imageCount: t["tool5.imageCount"],
+            removeImage: t["tool5.removeImage"],
+            shuffleButton: t["tool5.shuffleButton"],
+            resolutionLabel: t["tool5.resolutionLabel"],
+            resolutionHelp: t["tool5.resolutionHelp"],
+            paddingLabel: t["tool5.paddingLabel"],
+            paddingHelp: t["tool5.paddingHelp"],
+            rotationLabel: t["tool5.rotationLabel"],
+            rotationHelp: t["tool5.rotationHelp"],
+            scaleLabel: t["tool5.scaleLabel"],
+            scaleHelp: t["tool5.scaleHelp"],
+            generateScale: t["tool5.generateScale"],
+            generate: t["tool5.generate"],
+            download: t["tool5.download"],
+            preview: t["tool5.preview"],
+            statusIdle: t["tool5.statusIdle"],
+            statusNeedImages: t["tool5.statusNeedImages"],
+            statusWorking: t["tool5.statusWorking"],
+            statusReady: t["tool5.statusReady"],
+            statusError: t["tool5.statusError"],
+            noteOptimization: t["tool5.noteOptimization"],
+            notePadding: t["tool5.notePadding"],
+            contactLabel: t["tool5.contactLabel"],
+            contactLinkText: t["tool5.contactLinkText"],
+            contactHref: new URL("/en/profile", Astro.site).toString(),
+            shareButton: t["tool5.shareButton"],
+            shareText: t["tool5.shareText"],
+          }}
+        />
+      </div>
+    </HomeStyleSidebars>
+   </div>
+  </div>
 </BaseLayout>
