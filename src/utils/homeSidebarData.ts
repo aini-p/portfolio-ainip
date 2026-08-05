@@ -137,5 +137,10 @@ export async function buildHomeSidebarData(
       }),
   );
 
-  return { artworkRankingIndex, doujinshiRankingIndex, seriesList, hasMoreSeries };
+  return {
+    artworkRankingIndex,
+    doujinshiRankingIndex,
+    seriesList,
+    hasMoreSeries,
+  };
 }

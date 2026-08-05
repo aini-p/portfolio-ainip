@@ -184,6 +184,10 @@ const rankingIndex = [
 const doujinshiRankingIndex = rankingIndex.filter((entry) =>
   entry.slug.startsWith("doujinshi-"),
 );
+// For the right sidebar: like ranking scoped to artworks (posts) only
+const artworkRankingIndex = rankingIndex.filter(
+  (entry) => !entry.slug.startsWith("doujinshi-"),
+);
 ---
 <BaseLayout
   title={t["home.pageTitle"]}
@@ -347,7 +351,7 @@ const doujinshiRankingIndex = rankingIndex.filter((entry) =>
       <SidebarSection title={t["home.ranking"]}>
         <RankingList
           id="home-ranking"
-          rankingIndex={rankingIndex}
+          rankingIndex={artworkRankingIndex}
           labels={{
             daily: t["home.rankingDaily"],
             monthly: t["home.rankingMonthly"],

@@ -18,8 +18,12 @@ export interface Props {
 
 const { lang } = Astro.props;
 const t = ui[lang];
-const { artworkRankingIndex, doujinshiRankingIndex, seriesList, hasMoreSeries } =
-  await buildHomeSidebarData(lang);
+const {
+  artworkRankingIndex,
+  doujinshiRankingIndex,
+  seriesList,
+  hasMoreSeries,
+} = await buildHomeSidebarData(lang);
 
 const rankingHref = lang === "en" ? "/en/ranking" : "/ranking";
 const seriesHref = lang === "en" ? "/en/gallery/series" : "/gallery/series";
