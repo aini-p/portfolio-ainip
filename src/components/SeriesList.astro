@@ -1,0 +1,125 @@
+---
+export interface SeriesItem {
+  name: string;
+  count: number;
+  thumb: string;
+  href: string;
+}
+
+export interface Props {
+  // ホームサイドバーと専用ページ（/gallery/series）の両方で使うため、
+  // ページ側のCSSからグリッド列数などを個別に上書きできるよう識別用idを付ける
+  id: string;
+  items: SeriesItem[];
+  countSuffix: string;
+  seeMoreHref?: string;
+  seeMoreLabel?: string;
+}
+
+const { id, items, countSuffix, seeMoreHref, seeMoreLabel } = Astro.props;
+---
+<div class="series-list" data-widget-id={id}>
+  {items.map((series) => (
+    <a class="series-list-item" href={series.href}>
+      <img class="series-list-thumb" src={series.thumb} alt="" loading="lazy" />
+      <div class="series-list-fade" aria-hidden="true"></div>
+      <div class="series-list-text">
+        <span class="series-list-name">{series.name}</span>
+        <span class="series-list-count">{series.count}{countSuffix}</span>
+      </div>
+    </a>
+  ))}
+</div>
+{seeMoreHref && seeMoreLabel && (
+  <a class="series-list-see-more" href={seeMoreHref}>
+    {seeMoreLabel}
+    <i class="ti ti-arrow-right" aria-hidden="true"></i>
+  </a>
+)}
+
+<style is:global>
+  .series-list {
+    display: grid;
+    gap: 0.6rem;
+    grid-column: 1 / -1;
+  }
+
+  .series-list-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 92px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+  .series-list-item:hover {
+    color: var(--text-primary);
+  }
+
+  .series-list-thumb {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: auto;
+    max-width: 70%;
+    height: 100%;
+    object-fit: contain;
+    object-position: right center;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 50%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 50%);
+    z-index: 0;
+  }
+
+  .series-list-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--bg-elevated-2) 0%, var(--bg-elevated-2) 32%, transparent 92%);
+    z-index: 1;
+  }
+
+  .series-list-text {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: 0.25rem;
+    padding: 0 1rem;
+    min-width: 0;
+  }
+
+  .series-list-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 11rem;
+  }
+
+  .series-list-count {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .series-list-see-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    justify-self: end;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .series-list-see-more:hover {
+    color: var(--text-primary);
+  }
+
+  @media (width <= 768px) {
+    .series-list-name {
+      max-width: 8.5rem;
+    }
+  }
+</style>

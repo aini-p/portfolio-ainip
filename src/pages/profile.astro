@@ -1,26 +1,17 @@
 ---
-import {
-  discordUrl,
-  patreonUrl,
-  profileNames,
-  xAccountNames,
-  xAccountUrls,
-} from "~/constants/social";
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
+import ProfileContent from "~/components/ProfileContent.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
 const lang = "ja"; // 日本語ページとして固定
 const t = ui[lang];
 
-const profileName = profileNames[lang];
 const profileDescription =
   "イラストレーター / AI+加筆 / お仕事のご依頼はDMまで。";
 const profilePageTitle = t["nav.profile"];
 const profileKeywords = "プロフィール, イラスト, AIイラスト, あと5分。";
-const xNames = xAccountNames[lang];
 const pageUrl = new URL("/", Astro.site).toString();
-const shareText = t["profile.shareText"];
-const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(pageUrl)}`;
 ---
 <BaseLayout
   title={profilePageTitle}
@@ -28,255 +19,13 @@ const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareTex
   keywords={profileKeywords}
   image={{ src: "/images/profile-share-card.png", alt: "プロフィールページのシェアカード画像" }}
 >
-  <div class="container">
-    <section class="profile-section">
-      <img src="/images/icon.png" alt="プロフィールアイコン" class="profile-icon" />
-      <div class="profile-text">
-        <h1>{profileName}</h1>
-        <p>{profileDescription}</p>
-        <div class="contact-links">
-          <a href={discordUrl} target="_blank" rel="noopener noreferrer" class="icon-link discord-icon" aria-label="Discordで連絡する">
-            <img src="/Discord_Symbol_Color/Discord-Symbol-Blurple.svg" alt="Discord" />
-          </a>
-          <a href={xShareUrl} target="_blank" rel="noopener noreferrer" class="x-share-button" aria-label={t["profile.shareButton"]}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623 5.905-5.623Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-            <span>{t["profile.shareButton"]}</span>
-          </a>
-          <!--<a href="https://www.pixiv.net/users/your-id" target="_blank" rel="noopener noreferrer" class="icon-link pixiv-icon" aria-label="Pixivプロフィールを見る">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="20" font-weight="bold">P</text>
-            </svg>
-          </a>-->
-        </div>
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <ProfileContent lang={lang} profileDescription={profileDescription} pageUrl={pageUrl} />
       </div>
-    </section>
-    <section class="links-section">
-      <h2>X (Twitter)</h2>
-      <div class="x-accounts">
-        <a href={xAccountUrls[0]} target="_blank" rel="noopener noreferrer">
-          <img src="/images/icon_x1.jpg" alt="X Icon" />
-          <span>{xNames[0]}</span>
-        </a>
-        <a href={xAccountUrls[1]} target="_blank" rel="noopener noreferrer">
-          <img src="/images/icon_x2.jpg" alt="X Icon" />
-          <span>{xNames[1]}</span>
-        </a>
-        <a href={xAccountUrls[3]} target="_blank" rel="noopener noreferrer">
-          <img src="/images/icon.png" alt="X Icon" />
-          <span>{xNames[3]}</span>
-        </a>
-        <a href={xAccountUrls[4]} target="_blank" rel="noopener noreferrer">
-          <img src="/images/icon_x5.jpg" alt="X Icon" />
-          <span>{xNames[4]}</span>
-        </a>
-      </div>
-    </section>
-    <section class="links-section">
-      <h2>{t['profile.fansite']}</h2>
-      <div class="banner-links">
-        <a href={patreonUrl} target="_blank" rel="noopener noreferrer" class="banner-link">
-          <img src="/images/patreon-banner.png" alt="Patreon" />
-        </a>
-      </div>
-    </section>
+    </HomeStyleSidebars>
+   </div>
   </div>
 </BaseLayout>
-<style is:inline>
-  .container {
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 1.4rem;
-    display: grid;
-    gap: 1.4rem;
-  }
-
-  .profile-section,
-  .links-section {
-    border: 1px solid rgb(226 223 214);
-    border-radius: 22px;
-    background: rgb(255 255 255);
-  }
-
-  .profile-section {
-    border: none;
-    background: rgb(255 255 255);
-  }
-
-  .profile-section {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    gap: 1.8rem;
-    padding: 1.4rem;
-  }
-
-  .profile-icon {
-    width: 168px;
-    height: 168px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .profile-text h1 {
-    margin: 0 0 0.65rem;
-    font-size: clamp(1.7rem, 3.5vw, 2.25rem);
-  }
-
-  .profile-text p {
-    margin: 0;
-    font-size: 1.08rem;
-    line-height: 1.85;
-  }
-
-  .contact-links {
-    display: flex;
-    gap: 0.8rem;
-    margin-top: 1.05rem;
-  }
-
-  .icon-link {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 1px solid rgb(222 218 208);
-    background: rgb(247 245 239);
-    transition: transform 0.24s ease, box-shadow 0.24s ease;
-  }
-
-  .icon-link:hover,
-  .icon-link:focus-visible {
-    transform: scale(1.02);
-    box-shadow: 0 8px 18px rgb(39 30 18 / 12%);
-  }
-
-  .discord-icon img {
-    width: 26px;
-    height: 26px;
-  }
-
-  .links-section {
-    padding: 1.25rem 1.3rem 1.35rem;
-  }
-
-  h2 {
-    margin: 0 0 1rem;
-    font-size: 1.35rem;
-    letter-spacing: 0.02em;
-  }
-
-  .x-accounts {
-    display: flex;
-    gap: 0.8rem;
-    overflow-x: auto;
-    padding: 0.45rem 0.45rem 1rem;
-    scrollbar-width: thin;
-  }
-
-  .x-accounts a {
-    display: flex;
-    flex: 0 0 clamp(150px, 18vw, 190px);
-    align-items: center;
-    gap: 0.7rem;
-    padding: 0.7rem 0.8rem;
-    border-radius: 14px;
-    border: 1px solid rgb(226 223 214);
-    background: rgb(255 255 255 / 92%);
-    text-decoration: none;
-    color: inherit;
-    transition: box-shadow 0.24s ease;
-  }
-
-  .x-accounts a:hover,
-  .x-accounts a:focus-visible {
-    box-shadow: 0 8px 16px rgb(39 30 18 / 9%);
-  }
-
-  .x-accounts::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  .x-accounts::-webkit-scrollbar-thumb {
-    background: rgb(186 180 168 / 75%);
-    border-radius: 999px;
-  }
-
-  .x-accounts img {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-  }
-
-  .x-share-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    margin-top: 0;
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    background: #000;
-    color: #fff;
-    font-size: 0.88rem;
-    font-weight: 600;
-    text-decoration: none;
-    width: fit-content;
-    transition: background 0.15s ease;
-  }
-
-  .x-share-button:hover,
-  .x-share-button:focus-visible {
-    background: #1a1a1a;
-  }
-
-  .banner-links {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .banner-link img {
-    width: 100%;
-    border-radius: 14px;
-    border: 1px solid rgb(223 218 206);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .banner-link:hover img,
-  .banner-link:focus-visible img {
-    transform: scale(1.01);
-    box-shadow: 0 12px 24px rgb(39 30 18 / 12%);
-  }
-
-  @media (width <= 768px) {
-    .container {
-      padding: 1rem;
-      gap: 1rem;
-    }
-
-    .profile-section {
-      grid-template-columns: 1fr;
-      justify-items: center;
-      text-align: center;
-      gap: 1rem;
-      padding: 1rem;
-    }
-
-    .profile-icon {
-      width: 132px;
-      height: 132px;
-    }
-
-    .profile-text {
-      display: grid;
-      justify-items: center;
-      gap: 0.1rem;
-    }
-
-    .links-section {
-      padding: 1rem;
-    }
-  }
-</style>

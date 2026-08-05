@@ -1,0 +1,1111 @@
+---
+export interface Props {
+  bannerSrc?: string;
+  bannerAlt?: string;
+  shareUrl?: string;
+  copy: {
+    title: string;
+    lead: string;
+    imagesInput: string;
+    dropHint: string;
+    chooseButton: string;
+    fileHint: string;
+    imageCount: string;
+    removeImage: string;
+    shuffleButton: string;
+    resolutionLabel: string;
+    resolutionHelp: string;
+    paddingLabel: string;
+    paddingHelp: string;
+    rotationLabel: string;
+    rotationHelp: string;
+    scaleLabel: string;
+    scaleHelp: string;
+    generateScale: string;
+    generate: string;
+    download: string;
+    preview: string;
+    statusIdle: string;
+    statusNeedImages: string;
+    statusWorking: string;
+    statusReady: string;
+    statusError: string;
+    noteOptimization: string;
+    notePadding: string;
+    contactLabel: string;
+    contactLinkText: string;
+    contactHref: string;
+    shareButton: string;
+    shareText: string;
+  };
+}
+
+const { copy, bannerSrc, bannerAlt = "", shareUrl } = Astro.props;
+const xShareHref = shareUrl
+  ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(copy.shareText)}&url=${encodeURIComponent(shareUrl)}`
+  : undefined;
+---
+
+<section
+  class="tool-shell"
+  data-random-pack-tool
+  data-status-idle={copy.statusIdle}
+  data-status-need-images={copy.statusNeedImages}
+  data-status-working={copy.statusWorking}
+  data-status-ready={copy.statusReady}
+  data-status-error={copy.statusError}
+>
+  <div class="hero-card">
+    {bannerSrc && (
+      <>
+        <img class="hero-banner" src={bannerSrc} alt={bannerAlt} />
+        <div class="hero-overlay" aria-hidden="true"></div>
+      </>
+    )}
+    <div class="hero-content">
+      <p class="eyebrow">Random Pack Tool</p>
+      <h1>{copy.title}</h1>
+      <p class="lead">{copy.lead}</p>
+      {xShareHref && (
+        <a class="share-button" href={xShareHref} target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623 5.905-5.623Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          {copy.shareButton}
+        </a>
+      )}
+    </div>
+  </div>
+
+  <div class="workspace-grid">
+    <form class="control-panel">
+      <label class="file-field file-dropzone" data-role="drop-source">
+        <span>{copy.imagesInput}</span>
+        <p class="drop-hint">{copy.dropHint}</p>
+        <button class="browse-button" data-role="browse-source" type="button">{copy.chooseButton}</button>
+        <p class="image-count" data-role="image-count"></p>
+        <div class="image-list" data-role="image-list"></div>
+        <input data-role="input-source" type="file" accept="image/*" multiple />
+      </label>
+
+      <button class="shuffle-button" data-role="shuffle-button" type="button" disabled>{copy.shuffleButton}</button>
+
+      <label class="range-field">
+        <span>{copy.resolutionLabel}</span>
+        <div class="resolution-inputs">
+          <div class="input-group">
+            <label for="res-width">幅（px）</label>
+            <input id="res-width" data-role="res-width" type="number" min="320" max="2560" step="1" value="1920" />
+          </div>
+          <div class="input-group">
+            <label for="res-height">高さ（px）</label>
+            <input id="res-height" data-role="res-height" type="number" min="180" max="1440" step="1" value="1080" />
+          </div>
+        </div>
+        <p class="help-text">{copy.resolutionHelp}</p>
+      </label>
+
+      <label class="range-field">
+        <span>{copy.paddingLabel}</span>
+        <input data-role="padding-input" type="number" min="0" max="100" step="1" value="8" />
+        <p class="help-text">{copy.paddingHelp}</p>
+      </label>
+
+      <label class="range-field">
+        <span>{copy.rotationLabel}</span>
+        <input data-role="rotation-input" type="range" min="-180" max="180" step="1" value="0" />
+        <p class="rotation-value" data-role="rotation-value">0°</p>
+        <p class="help-text">{copy.rotationHelp}</p>
+      </label>
+
+      <label class="range-field">
+        <span>{copy.scaleLabel}</span>
+        <input data-role="scale-input" type="range" min="0.5" max="2.0" step="0.1" value="1.0" />
+        <p class="scale-value" data-role="scale-value">100%</p>
+        <p class="help-text">{copy.scaleHelp}</p>
+      </label>
+
+      <p class="scale-info" data-role="scale-info"></p>
+
+      <div class="action-row">
+        <button data-role="generate-button" type="button" disabled>{copy.generate}</button>
+        <button data-role="download-button" type="button" disabled data-ga-event="tool_download" data-ga-tool="random-pack-image">{copy.download}</button>
+      </div>
+
+      <p class="status-text" data-role="status" aria-live="polite">{copy.statusIdle}</p>
+    </form>
+
+    <div class="preview-panel">
+      <div class="preview-card">
+        <p>{copy.preview}</p>
+        <canvas class="preview-canvas" data-role="preview-canvas" width="640" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <section class="notes-panel">
+    <ul class="notes-list">
+      <li>{copy.fileHint}</li>
+      <li>{copy.noteOptimization}</li>
+      <li>{copy.notePadding}</li>
+      <li>
+        {copy.contactLabel}
+        <a class="notes-link" href={copy.contactHref}>{copy.contactLinkText}</a>
+      </li>
+    </ul>
+  </section>
+</section>
+
+<style>
+  .tool-shell {
+    --panel-border: color-mix(in srgb, currentcolor 16%, transparent);
+    --panel-bg: color-mix(in srgb, canvas 92%, #f4d6bc 8%);
+    --accent: #d45500;
+
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .hero-card,
+  .control-panel,
+  .preview-card {
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    background: var(--panel-bg);
+    box-shadow: 0 18px 40px rgb(15 23 42 / 8%);
+  }
+
+  .hero-card {
+    position: relative;
+    min-height: 320px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    background: #fff;
+  }
+
+  .hero-banner {
+    position: absolute;
+    inset: 0;
+    left: auto;
+    right: 0;
+    height: 100%;
+    width: auto;
+    max-width: 60%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0 24px 24px 0;
+    display: block;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    background: linear-gradient(
+      to right,
+      #fff 16%,
+      rgb(255 255 255 / 76%) 42%,
+      rgb(255 255 255 / 0%) 74%
+    );
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+    display: grid;
+    gap: 0.5rem;
+    align-self: center;
+    max-width: 68%;
+  }
+
+  .share-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.6rem;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: #000;
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    width: fit-content;
+    transition: background 0.15s ease;
+  }
+
+  .share-button:hover {
+    background: #1a1a1a;
+  }
+
+  .eyebrow {
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.82;
+  }
+
+  h1 {
+    margin-top: 0;
+    font-size: clamp(1.2rem, 2.7vw, 2rem);
+    line-height: 1.15;
+  }
+
+  .lead {
+    margin-top: 0;
+    max-width: 62ch;
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .control-panel {
+    padding: 1.4rem;
+    display: grid;
+    gap: 1rem;
+    position: sticky;
+    top: 96px;
+  }
+
+  .file-field {
+    display: grid;
+    gap: 0.45rem;
+    position: relative;
+    font-weight: 600;
+    padding: 0.95rem;
+    border: 1px dashed color-mix(in srgb, currentcolor 22%, transparent);
+    border-radius: 14px;
+    background: color-mix(in srgb, canvas 94%, #ffedd5 6%);
+  }
+
+  .file-field input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .drop-hint,
+  .image-count,
+  .help-text {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 500;
+    opacity: 0.82;
+  }
+
+  .image-count {
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+
+  .browse-button {
+    justify-self: start;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, #ffedd5 55%, canvas 45%);
+    color: inherit;
+    border-radius: 999px;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .browse-button:hover,
+  .browse-button:focus-visible {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #fed7aa 65%, canvas 35%);
+  }
+
+  .image-list {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .image-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.6rem;
+    background: color-mix(in srgb, #fff 85%, canvas 15%);
+    border-radius: 8px;
+    font-size: 0.8rem;
+  }
+
+  .image-item-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .image-item-remove {
+    border: 0;
+    background: color-mix(in srgb, #ef4444 30%, transparent);
+    color: #dc2626;
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .image-item-remove:hover {
+    background: color-mix(in srgb, #ef4444 50%, transparent);
+  }
+
+  .file-dropzone.is-dragover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #fdba74 30%, canvas 70%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .shuffle-button {
+    border: 1px solid color-mix(in srgb, currentcolor 20%, transparent);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 70%);
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .shuffle-button:hover:not(:disabled),
+  .shuffle-button:focus-visible:not(:disabled) {
+    border-color: var(--accent);
+    background: color-mix(in srgb, #fed7aa 65%, canvas 35%);
+  }
+
+  .shuffle-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .range-field {
+    display: grid;
+    gap: 0.45rem;
+    font-weight: 600;
+    border: 1px solid color-mix(in srgb, currentcolor 16%, transparent);
+    border-radius: 14px;
+    padding: 0.9rem;
+    background: color-mix(in srgb, canvas 94%, #fff1e0 6%);
+  }
+
+  .range-field input {
+    width: 100%;
+  }
+
+  .rotation-value {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+
+  .scale-value {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+
+  .resolution-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+  }
+
+  .input-group {
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .input-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+
+  .input-group input {
+    width: 100%;
+  }
+
+  .scale-info {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+
+  .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+
+  .action-row button {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.85rem 1.25rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .action-row button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: none;
+  }
+
+  .action-row button:hover:not(:disabled),
+  .action-row button:focus-visible:not(:disabled) {
+    transform: scale(1.01);
+    box-shadow: 0 10px 18px rgb(212 85 0 / 24%);
+  }
+
+  .action-row button[data-role="generate-button"] {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .action-row button[data-role="download-button"] {
+    background: color-mix(in srgb, currentcolor 12%, canvas 88%);
+    color: inherit;
+  }
+
+  .status-text {
+    min-height: 1.6em;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .preview-panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .preview-card {
+    padding: 1rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .preview-card p {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .preview-canvas {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid rgb(148 163 184 / 25%);
+    background: #fff;
+  }
+
+  .notes-panel {
+    padding: 1rem 1.2rem 0.2rem;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .notes-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.45rem;
+    opacity: 0.86;
+    font-size: 0.95rem;
+  }
+
+  .notes-link {
+    margin-left: 0.3rem;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  @media (width <= 920px) {
+    .workspace-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .control-panel {
+      position: static;
+    }
+  }
+
+  @media (width <= 640px) {
+    .tool-shell {
+      padding: 1rem;
+    }
+
+    .hero-card {
+      flex-direction: column;
+      align-items: stretch;
+      min-height: unset;
+    }
+
+    .hero-banner {
+      position: relative;
+      inset: auto;
+      max-width: 100%;
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .hero-overlay {
+      display: none;
+    }
+
+    .hero-content {
+      padding: 1.2rem;
+      max-width: 100%;
+    }
+
+    .hero-card,
+    .control-panel,
+    .preview-card {
+      border-radius: 20px;
+    }
+
+    .action-row button {
+      width: 100%;
+    }
+
+    .resolution-inputs {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script is:inline>
+  function initRandomPackTool(root) {
+    if (root.dataset.initialized === "true") {
+      return;
+    }
+    root.dataset.initialized = "true";
+
+    const sourceInput = root.querySelector('[data-role="input-source"]');
+    const sourceDropzone = root.querySelector('[data-role="drop-source"]');
+    const sourceBrowseButton = root.querySelector('[data-role="browse-source"]');
+    const imageCount = root.querySelector('[data-role="image-count"]');
+    const imageList = root.querySelector('[data-role="image-list"]');
+    const shuffleButton = root.querySelector('[data-role="shuffle-button"]');
+    const resWidthInput = root.querySelector('[data-role="res-width"]');
+    const resHeightInput = root.querySelector('[data-role="res-height"]');
+    const paddingInput = root.querySelector('[data-role="padding-input"]');
+    const rotationInput = root.querySelector('[data-role="rotation-input"]');
+    const rotationValue = root.querySelector('[data-role="rotation-value"]');
+    const scaleInput = root.querySelector('[data-role="scale-input"]');
+    const scaleValue = root.querySelector('[data-role="scale-value"]');
+    const generateButton = root.querySelector('[data-role="generate-button"]');
+    const downloadButton = root.querySelector('[data-role="download-button"]');
+    const status = root.querySelector('[data-role="status"]');
+    const previewCanvas = root.querySelector('[data-role="preview-canvas"]');
+
+    const labels = {
+      idle: root.dataset.statusIdle || "",
+      needImages: root.dataset.statusNeedImages || "",
+      working: root.dataset.statusWorking || "",
+      ready: root.dataset.statusReady || "",
+      error: root.dataset.statusError || "",
+    };
+
+    const state = {
+      files: [],
+      images: [],
+      order: [],
+      rotation: 0,
+      scale: 1.0,
+      outputCanvas: null,
+      previewUrl: "",
+    };
+
+    function setStatus(message) {
+      if (status) {
+        status.textContent = message;
+      }
+    }
+
+    function setGenerateReady(ready) {
+      if (generateButton) {
+        generateButton.disabled = !ready;
+      }
+    }
+
+    function setDownloadReady(ready) {
+      if (downloadButton) {
+        downloadButton.disabled = !ready;
+      }
+    }
+
+    function invalidateGeneratedOutput() {
+      state.outputCanvas = null;
+      setDownloadReady(false);
+      if (state.files.length >= 2) {
+        setGenerateReady(true);
+      }
+    }
+
+    function revokeUrl(url) {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    function updateFileLabel() {
+      if (!imageCount) {
+        return;
+      }
+      const count = state.files.length;
+      imageCount.textContent = count > 0 ? `選択済み: ${count}枚` : "";
+      setGenerateReady(count >= 2);
+      if (shuffleButton) {
+        shuffleButton.disabled = count < 2;
+      }
+    }
+
+    function renderImageList() {
+      if (!imageList) {
+        return;
+      }
+      imageList.innerHTML = "";
+      state.files.forEach((file, index) => {
+        const item = document.createElement("div");
+        item.className = "image-item";
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "image-item-name";
+        nameSpan.textContent = file.name;
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "image-item-remove";
+        removeBtn.type = "button";
+        removeBtn.textContent = "削除";
+        removeBtn.onclick = (e) => {
+          e.preventDefault();
+          removeImageAt(index);
+        };
+        item.appendChild(nameSpan);
+        item.appendChild(removeBtn);
+        imageList.appendChild(item);
+      });
+    }
+
+    function removeImageAt(index) {
+      state.files.splice(index, 1);
+      state.images.splice(index, 1);
+      state.order.splice(index, 1);
+      invalidateGeneratedOutput();
+      updateFileLabel();
+      renderImageList();
+    }
+
+    function shuffleOrder() {
+      if (state.files.length < 2) {
+        return;
+      }
+      state.order = state.files.map((_, i) => i);
+      for (let i = state.order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [state.order[i], state.order[j]] = [state.order[j], state.order[i]];
+      }
+      invalidateGeneratedOutput();
+    }
+
+    function loadImageFromFile(file) {
+      return new Promise((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(image);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("image-load-failed"));
+        };
+        image.src = objectUrl;
+      });
+    }
+
+    async function loadAllImages() {
+      const loadedImages = [];
+      for (let i = 0; i < state.files.length; i++) {
+        try {
+          const img = await loadImageFromFile(state.files[i]);
+          loadedImages.push(img);
+        } catch (err) {
+          console.error("Failed to load image:", err);
+          setStatus(labels.error);
+          return null;
+        }
+      }
+      return loadedImages;
+    }
+
+    function calculateLayout(images, outputWidth, outputHeight, padding, rotation, scale) {
+      const totalImages = images.length;
+      if (totalImages === 0) return [];
+
+      const rad = (rotation * Math.PI) / 180;
+
+      const aspectRatios = images.map((img) => img.naturalWidth / img.naturalHeight);
+      const avgAspect = aspectRatios.reduce((a, b) => a + b) / aspectRatios.length;
+
+      let colsFactor = 1;
+      if (rotation !== 0 && rotation !== 180 && rotation !== -180) {
+        colsFactor = Math.abs(Math.cos(rad));
+      }
+
+      const cols = Math.max(1, Math.ceil(Math.sqrt(totalImages * avgAspect * colsFactor)));
+      // 外周余白は持たず、画像間のパディングだけ維持する
+      const availableWidth = Math.max(1, outputWidth - padding * (cols - 1));
+      const rows = [];
+      let idx = 0;
+
+      while (idx < totalImages) {
+        const rowImageIndexes = [];
+        let rowTotalAspect = 0;
+
+        for (let i = 0; i < cols && idx < totalImages; i++) {
+          const orderIndex = state.order[idx];
+          rowImageIndexes.push(orderIndex);
+          rowTotalAspect += aspectRatios[orderIndex];
+          idx++;
+        }
+
+        const rowHeight = (availableWidth / Math.max(rowTotalAspect, 0.001)) * scale;
+        const widths = rowImageIndexes.map((imgIdx) => rowHeight * aspectRatios[imgIdx]);
+        const rowWidth = widths.reduce((sum, width) => sum + width, 0);
+        rows.push({ rowImageIndexes, rowHeight, widths, rowWidth });
+      }
+
+      const totalHeight =
+        rows.reduce((sum, row) => sum + row.rowHeight, 0) + padding * Math.max(rows.length - 1, 0);
+      let y = (outputHeight - totalHeight) / 2;
+      const positions = [];
+
+      rows.forEach((row) => {
+        const rowBoxWidth = row.rowWidth + padding * Math.max(row.rowImageIndexes.length - 1, 0);
+        let x = (outputWidth - rowBoxWidth) / 2;
+
+        row.rowImageIndexes.forEach((imgIdx, rowIndex) => {
+          const imgWidth = row.widths[rowIndex];
+          positions.push({
+            index: imgIdx,
+            x,
+            y,
+            width: imgWidth,
+            height: row.rowHeight,
+          });
+          x += imgWidth + padding;
+        });
+
+        y += row.rowHeight + padding;
+      });
+
+      return positions;
+    }
+
+    function drawImage(ctx, image, x, y, width, height) {
+      // 元の画像のアスペクト比を保ったまま描画
+      const srcW = image.naturalWidth;
+      const srcH = image.naturalHeight;
+      const srcRatio = srcW / srcH;
+
+      // 領域の高さを基準に、元の画像のアスペクト比を保った幅を計算
+      const baseHeight = height;
+      const baseWidth = baseHeight * srcRatio;
+
+      // 領域の中央を基準に配置
+      const drawX = x + (width - baseWidth) / 2;
+      const drawY = y + (height - baseHeight) / 2;
+
+      ctx.drawImage(image, 0, 0, srcW, srcH, drawX, drawY, baseWidth, baseHeight);
+    }
+
+    function renderToCanvas(images, width, height, padding, rotation, scale) {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        throw new Error("Failed to get canvas context");
+      }
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+
+      const positions = calculateLayout(images, width, height, padding, rotation, scale);
+      if (rotation !== 0) {
+        ctx.save();
+        ctx.translate(width / 2, height / 2);
+        ctx.rotate((rotation * Math.PI) / 180);
+        ctx.translate(-width / 2, -height / 2);
+      }
+
+      positions.forEach((pos) => {
+        drawImage(ctx, images[pos.index], pos.x, pos.y, pos.width, pos.height);
+      });
+
+      if (rotation !== 0) {
+        ctx.restore();
+      }
+
+      return canvas;
+    }
+
+    function getOutputSize() {
+      const width = Math.min(Math.max(parseInt(resWidthInput.value) || 1920, 320), 2560);
+      const height = Math.min(Math.max(parseInt(resHeightInput.value) || 1080, 180), 1440);
+      return { width, height };
+    }
+
+    function syncPreviewCanvasSize() {
+      if (!previewCanvas) {
+        return;
+      }
+      const { width, height } = getOutputSize();
+      previewCanvas.width = width;
+      previewCanvas.height = height;
+    }
+
+    function drawPreview() {
+      if (!previewCanvas) {
+        return;
+      }
+
+      syncPreviewCanvasSize();
+
+      if (state.images.length === 0) {
+        return;
+      }
+
+      const previewW = previewCanvas.width;
+      const previewH = previewCanvas.height;
+      const ctx = previewCanvas.getContext("2d");
+      if (!ctx) {
+        return;
+      }
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, previewW, previewH);
+
+      try {
+        const { width, height } = getOutputSize();
+        const tempCanvas = renderToCanvas(
+          state.images,
+          width,
+          height,
+          parseInt(paddingInput.value) || 8,
+          state.rotation,
+          state.scale
+        );
+        ctx.drawImage(tempCanvas, 0, 0, previewW, previewH);
+      } catch (err) {
+        console.error("Preview render failed:", err);
+      }
+    }
+
+    async function generateComposite() {
+      setStatus(labels.working);
+      setGenerateReady(false);
+      setDownloadReady(false);
+
+      try {
+        const { width, height } = getOutputSize();
+        const padding = Math.max(parseInt(paddingInput.value) || 8, 0);
+
+        state.images = await loadAllImages();
+        if (!state.images || state.images.length === 0) {
+          setStatus(labels.error);
+          return;
+        }
+
+        state.outputCanvas = renderToCanvas(state.images, width, height, padding, state.rotation, state.scale);
+
+        revokeUrl(state.previewUrl);
+        state.previewUrl = state.outputCanvas.toDataURL("image/png");
+
+        setStatus(labels.ready);
+        setDownloadReady(true);
+        drawPreview();
+      } catch (err) {
+        console.error("Generation failed:", err);
+        setStatus(labels.error);
+        setGenerateReady(true);
+      }
+    }
+
+    function downloadComposite() {
+      if (!state.outputCanvas) {
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = state.outputCanvas.toDataURL("image/png");
+      link.download = "random-pack-image.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function handleFilesSelected(files) {
+      Array.from(files).forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          state.files.push(file);
+        }
+      });
+
+      state.order = state.files.map((_, i) => i);
+      shuffleOrder();
+      invalidateGeneratedOutput();
+      updateFileLabel();
+      renderImageList();
+      setStatus(state.files.length >= 2 ? labels.idle : labels.needImages);
+    }
+
+    // Event listeners
+    if (sourceBrowseButton) {
+      sourceBrowseButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        sourceInput?.click();
+      });
+    }
+
+    if (sourceInput) {
+      sourceInput.addEventListener("change", (e) => {
+        const target = e.target;
+        if (target && target.files) {
+          handleFilesSelected(target.files);
+        }
+      });
+    }
+
+    if (sourceDropzone) {
+      sourceDropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        sourceDropzone.classList.add("is-dragover");
+      });
+
+      sourceDropzone.addEventListener("dragleave", () => {
+        sourceDropzone.classList.remove("is-dragover");
+      });
+
+      sourceDropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        sourceDropzone.classList.remove("is-dragover");
+        if (e.dataTransfer && e.dataTransfer.files) {
+          handleFilesSelected(e.dataTransfer.files);
+        }
+      });
+    }
+
+    if (shuffleButton) {
+      shuffleButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        shuffleOrder();
+        drawPreview();
+      });
+    }
+
+    if (rotationInput) {
+      rotationInput.addEventListener("input", (e) => {
+        const target = e.target;
+        if (target) {
+          state.rotation = parseInt(target.value) || 0;
+          if (rotationValue) {
+            rotationValue.textContent = `${state.rotation}°`;
+          }
+          invalidateGeneratedOutput();
+        }
+      });
+    }
+
+    if (scaleInput) {
+      scaleInput.addEventListener("input", (e) => {
+        const target = e.target;
+        if (target) {
+          state.scale = parseFloat(target.value) || 1.0;
+          if (scaleValue) {
+            scaleValue.textContent = `${Math.round(state.scale * 100)}%`;
+          }
+          invalidateGeneratedOutput();
+          drawPreview();
+        }
+      });
+    }
+
+    if (resWidthInput) {
+      resWidthInput.addEventListener("input", () => {
+        invalidateGeneratedOutput();
+        drawPreview();
+      });
+    }
+
+    if (resHeightInput) {
+      resHeightInput.addEventListener("input", () => {
+        invalidateGeneratedOutput();
+        drawPreview();
+      });
+    }
+
+    if (paddingInput) {
+      paddingInput.addEventListener("input", () => {
+        invalidateGeneratedOutput();
+        drawPreview();
+      });
+    }
+
+    if (generateButton) {
+      generateButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        generateComposite();
+      });
+    }
+
+    if (downloadButton) {
+      downloadButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        downloadComposite();
+      });
+    }
+
+    syncPreviewCanvasSize();
+    setStatus(labels.idle);
+  }
+
+  document.querySelectorAll("[data-random-pack-tool]").forEach((root) => {
+    initRandomPackTool(root);
+  });
+
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll("[data-random-pack-tool]").forEach((root) => {
+      if (root.dataset.initialized !== "true") {
+        initRandomPackTool(root);
+      }
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+</script>
+</script>

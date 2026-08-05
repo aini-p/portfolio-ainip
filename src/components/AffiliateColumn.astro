@@ -1,0 +1,98 @@
+---
+import DmmAdBanner from "~/components/DmmAdBanner.astro";
+import SidebarSection from "~/components/SidebarSection.astro";
+import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
+
+export interface Props {
+  lang: "ja" | "en";
+  adBanner?: boolean;
+}
+
+const { lang, adBanner = false } = Astro.props;
+---
+<aside class="sidebar-column sidebar-column-left">
+  <SidebarSection>
+    {adBanner ? (
+      <DmmAdBanner class="dmm-widget-banner" />
+    ) : (
+      <div class="affiliate-widget-list">
+        {fanzaAffiliateItems.map((item) => (
+          <a class="affiliate-widget" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
+            <span class="affiliate-widget-badge">PR</span>
+            <div class="affiliate-widget-thumb">
+              <img src={item.imageUrl} alt={item.title[lang]} loading="lazy" />
+            </div>
+            <p class="affiliate-widget-title">{item.title[lang]}</p>
+          </a>
+        ))}
+      </div>
+    )}
+  </SidebarSection>
+  <slot />
+</aside>
+
+<style is:global>
+  .dmm-widget-banner {
+    grid-column: 1 / -1;
+  }
+</style>
+
+<style is:global>
+  .affiliate-widget-list {
+    display: grid;
+    gap: 0.85rem;
+    grid-column: 1 / -1;
+  }
+
+  .affiliate-widget {
+    position: relative;
+    display: block;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s ease;
+  }
+  .affiliate-widget:hover {
+    border-color: var(--accent-strong);
+  }
+
+  .affiliate-widget-thumb {
+    aspect-ratio: 4 / 3;
+    background: var(--bg-elevated-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .affiliate-widget-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .affiliate-widget-badge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .affiliate-widget-title {
+    margin: 0;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+</style>

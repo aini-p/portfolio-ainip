@@ -1,0 +1,79 @@
+---
+import { ui } from "~/i18n/ui";
+
+export interface Props {
+  lang: "ja" | "en";
+  url: string;
+  text: string;
+}
+
+const { lang, url, text } = Astro.props;
+const t = ui[lang];
+const xShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+---
+<div class="share-buttons">
+  <a href={xShareUrl} target="_blank" rel="noopener noreferrer" class="share-btn share-x" aria-label={t["share.x"]}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="15" height="15">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623 5.905-5.623Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+    <span>{t["share.x"]}</span>
+  </a>
+  <button type="button" class="share-btn share-copy" data-url={url} data-label={t["share.copy"]} data-copied-label={t["share.copied"]}>
+    <i class="ti ti-link" aria-hidden="true"></i>
+    <span>{t["share.copy"]}</span>
+  </button>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>(".share-copy").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const url = button.dataset.url ?? "";
+      const label = button.dataset.label ?? "";
+      const copiedLabel = button.dataset.copiedLabel ?? "";
+      const span = button.querySelector("span");
+      try {
+        await navigator.clipboard.writeText(url);
+        if (span) span.textContent = copiedLabel;
+        setTimeout(() => {
+          if (span) span.textContent = label;
+        }, 1800);
+      } catch {
+        // clipboard unavailable; no-op
+      }
+    });
+  });
+</script>
+
+<style>
+  .share-buttons {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.95rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .share-btn:hover,
+  .share-btn:focus-visible {
+    border-color: var(--accent-strong);
+    background: var(--bg-elevated-2);
+  }
+
+  .share-btn i {
+    font-size: 14px;
+  }
+</style>

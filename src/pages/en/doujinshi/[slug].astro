@@ -1,0 +1,790 @@
+---
+import { getImage, Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import AffiliateColumn from "~/components/AffiliateColumn.astro";
+import ArticleImageStack from "~/components/ArticleImageStack.astro";
+import ArtworkCard from "~/components/ArtworkCard.astro";
+import AuthorComment from "~/components/AuthorComment.astro";
+import LikeButton from "~/components/LikeButton.astro";
+import RankingList from "~/components/RankingList.astro";
+import SeriesList from "~/components/SeriesList.astro";
+import ShareButtons from "~/components/ShareButtons.astro";
+import SidebarSection from "~/components/SidebarSection.astro";
+import { profileNames } from "~/constants/social";
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import {
+  formatImageCountLabel,
+  getHeaderImage,
+  getTotalImageCount,
+} from "~/utils/artwork";
+import { toPathSafeSlug } from "~/utils/slug";
+
+const lang = "en";
+const t = ui[lang];
+
+export async function getStaticPaths() {
+  const items = await getCollection("doujinshi", ({ id }) =>
+    id.startsWith("en/"),
+  );
+  return items.map((item) => ({
+    params: { slug: item.slug.replace(/^en\//, "") },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+const { Content } = await item.render();
+const itemSlug = item.slug.replace(`${lang}/`, "");
+
+const pageUrl = new URL(`/en/doujinshi/${itemSlug}`, Astro.site).toString();
+
+const shareImage = await getImage({
+  src: item.data.packageImage,
+  format: "webp",
+  width: 1200,
+});
+
+const doujinshiJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  name: item.data.title,
+  description: item.data.description,
+  image: new URL(shareImage.src, Astro.site).toString(),
+  url: pageUrl,
+  inLanguage: lang,
+  datePublished: item.data.publishDate.toISOString(),
+  author: { "@type": "Person", name: item.data.author ?? profileNames[lang] },
+  ...(item.data.keywords && item.data.keywords.length > 0
+    ? { keywords: item.data.keywords.join(", ") }
+    : {}),
+  ...(item.data.series
+    ? { isPartOf: { "@type": "CreativeWorkSeries", name: item.data.series } }
+    : {}),
+};
+
+const compiledFrom = item.data.compiledFrom
+  ? await getCollection("doujinshi", ({ id, slug }) => {
+      const itemLang = id.split("/")[0];
+      const otherSlug = slug.replace(/^en\//, "");
+      return itemLang === lang && item.data.compiledFrom?.includes(otherSlug);
+    })
+  : [];
+
+const allArtworks = await getCollection("artworks", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
+const allDoujinshi = await getCollection("doujinshi", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
+
+const RELATED_DOUJINSHI_LIMIT = 4;
+const otherDoujinshiAll = allDoujinshi
+  .filter((d) => d.slug !== item.slug)
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const hasMoreOtherDoujinshi =
+  otherDoujinshiAll.length > RELATED_DOUJINSHI_LIMIT;
+const otherDoujinshi = otherDoujinshiAll.slice(0, RELATED_DOUJINSHI_LIMIT);
+
+const RELATED_ARTWORKS_LIMIT = 10;
+const sameSeriesArtworksAll = item.data.series
+  ? allArtworks
+      .filter((a) => a.data.series === item.data.series)
+      .sort(
+        (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+      )
+  : [];
+const hasMoreSameSeriesArtworks =
+  sameSeriesArtworksAll.length > RELATED_ARTWORKS_LIMIT;
+const sameSeriesArtworks = sameSeriesArtworksAll.slice(
+  0,
+  RELATED_ARTWORKS_LIMIT,
+);
+
+// Left sidebar like rankings: artworks ranking covers everything, doujinshi ranking is own works only
+const artworkRankingIndex = await Promise.all(
+  allArtworks.map(async (a) => {
+    const optimized = await getImage({
+      src: getHeaderImage(a),
+      width: 480,
+      format: "webp",
+    });
+    return {
+      slug: a.slug.replace(`${lang}/`, ""),
+      title: a.data.title,
+      thumb: optimized.src,
+      href: `/en/gallery/${a.slug.replace(`${lang}/`, "")}`,
+    };
+  }),
+);
+const doujinshiRankingIndex = await Promise.all(
+  allDoujinshi
+    .filter((d) => d.data.isOwnWork !== false)
+    .map(async (d) => {
+      const optimized = await getImage({
+        src: d.data.packageImage,
+        width: 480,
+        format: "webp",
+      });
+      return {
+        slug: `doujinshi-${d.slug.replace(`${lang}/`, "")}`,
+        title: d.data.title,
+        thumb: optimized.src,
+        href: `/en/doujinshi/${d.slug.replace(`${lang}/`, "")}`,
+      };
+    }),
+);
+
+// "Articles by work" list at the bottom of the right sidebar
+const seriesMap = new Map<
+  string,
+  { count: number; latest: (typeof allArtworks)[number] }
+>();
+for (const a of [...allArtworks].sort(
+  (x, y) => y.data.publishDate.valueOf() - x.data.publishDate.valueOf(),
+)) {
+  const series = a.data.series;
+  if (!series) continue;
+  const existing = seriesMap.get(series);
+  if (existing) {
+    existing.count += 1;
+  } else {
+    seriesMap.set(series, { count: 1, latest: a });
+  }
+}
+const SERIES_LIST_LIMIT = 10;
+const hasMoreSeries = seriesMap.size > SERIES_LIST_LIMIT;
+const seriesList = await Promise.all(
+  [...seriesMap.entries()]
+    .map(([name, data]) => ({ name, count: data.count, latest: data.latest }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, SERIES_LIST_LIMIT)
+    .map(async (series) => {
+      const optimized = await getImage({
+        src: getHeaderImage(series.latest),
+        width: 400,
+        format: "webp",
+      });
+      return {
+        name: series.name,
+        count: series.count,
+        thumb: optimized.src,
+        href: `/en/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`,
+      };
+    }),
+);
+---
+<BaseLayout
+  title={item.data.title}
+  description={item.data.description}
+  image={{ src: shareImage.src, alt: item.data.title }}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(doujinshiJsonLd)} />
+  <div class="detail-shell">
+   <div class="detail-grid">
+    <AffiliateColumn lang={lang} adBanner>
+      <SidebarSection title={t["home.ranking"]}>
+        <RankingList
+          id="doujinshi-ranking-artworks"
+          rankingIndex={artworkRankingIndex}
+          labels={{
+            daily: t["home.rankingDaily"],
+            monthly: t["home.rankingMonthly"],
+            yearly: t["home.rankingYearly"],
+          }}
+          emptyText={t["home.rankingEmpty"]}
+          limit={5}
+          seeMoreHref="/en/ranking"
+          seeMoreLabel={t["home.seeMore"]}
+        />
+      </SidebarSection>
+
+      {doujinshiRankingIndex.length > 0 && (
+        <SidebarSection title={t["home.doujinshiRanking"]}>
+          <RankingList
+            id="doujinshi-ranking-doujinshi"
+            rankingIndex={doujinshiRankingIndex}
+            labels={{
+              daily: t["home.rankingDaily"],
+              monthly: t["home.rankingMonthly"],
+              yearly: t["home.rankingYearly"],
+            }}
+            emptyText={t["home.rankingEmpty"]}
+            limit={5}
+          />
+        </SidebarSection>
+      )}
+    </AffiliateColumn>
+
+    <article class="main-column">
+      <a class="back-link" href="/en/doujinshi">{t["doujinshi.backToList"]}</a>
+
+      <h1>{item.data.title}</h1>
+
+      <div class="hero-frame">
+        <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={640} />
+      </div>
+
+      {(item.data.series || (item.data.characters && item.data.characters.length > 0)) && (
+        <div class="lp-characters">
+          {item.data.series && (
+            <a class="series-tag" href={`/en/gallery/series/${encodeURIComponent(toPathSafeSlug(item.data.series))}`}>{item.data.series}</a>
+          )}
+          {item.data.characters && item.data.characters.map((char) => (
+            <a class="character-tag" href={`/en/gallery/character/${encodeURIComponent(toPathSafeSlug(char))}`}>{char}</a>
+          ))}
+        </div>
+      )}
+
+      <div class="action-row">
+        <LikeButton slug={`doujinshi-${itemSlug}`} />
+        <ShareButtons lang={lang} url={pageUrl} text={item.data.title} />
+      </div>
+
+      {item.data.isOwnWork === false && item.data.rating != null && (
+        <div class="rating-row" style={`--rating: ${item.data.rating};`}>
+          <span class="rating-stars" aria-hidden="true"></span>
+          <span class="rating-number">{item.data.rating.toFixed(1)} / 5.0</span>
+          <span class="rating-label">{t["doujinshi.ratingLabel"]}</span>
+        </div>
+      )}
+
+      <AuthorComment
+        heading={item.data.isOwnWork === false ? t["doujinshi.recommendPointsHeading"] : t["doujinshi.authorCommentHeading"]}
+        profileLabel={t["nav.profile"]}
+        profileHref="/en/profile"
+      >
+        <Content />
+      </AuthorComment>
+
+      {item.data.sampleImages && item.data.sampleImages.length > 0 && (
+        <section class="lp-samples">
+          <h2>{t["doujinshi.sampleHeading"]}</h2>
+          <ArticleImageStack images={item.data.sampleImages} groupId="doujinshi-samples" eagerCount={1} />
+        </section>
+      )}
+
+      {compiledFrom.length > 0 && (
+        <section class="lp-compiled">
+          <h2>{t["doujinshi.compiledHeading"]}</h2>
+          <div class="doujinshi-grid">
+            {compiledFrom.map((included) => (
+              <a class="doujinshi-card" href={`/en/doujinshi/${included.slug.replace(`${lang}/`, '')}`}>
+                <div class="package-frame">
+                  <Image src={included.data.packageImage} alt={included.data.title} format="webp" width={400} />
+                </div>
+                <div class="card-body">
+                  <h2>{included.data.title}</h2>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section class="lp-details">
+        <h2>{t["doujinshi.detailsHeading"]}</h2>
+        <table class="details-table">
+          <tbody>
+            <tr>
+              <th>{t["doujinshi.detailsTitle"]}</th>
+              <td>{item.data.title}</td>
+            </tr>
+            {item.data.author && (
+              <tr>
+                <th>{t["doujinshi.detailsAuthor"]}</th>
+                <td>{item.data.author}</td>
+              </tr>
+            )}
+            {item.data.pageCount && (
+              <tr>
+                <th>{t["doujinshi.detailsPageCount"]}</th>
+                <td>{item.data.pageCount} pages</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </section>
+
+      {item.data.isOwnWork !== false && (
+        <a class="membership-discount-banner" href="/en/membership">
+          <span class="membership-discount-badge">{t["doujinshi.membershipDiscountBadge"]}</span>
+          <span class="membership-discount-text">{t["doujinshi.membershipDiscountHeading"]}</span>
+          <span class="membership-discount-cta">{t["doujinshi.membershipDiscountCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+        </a>
+      )}
+
+      <section class="lp-buy">
+        <h2>{t["doujinshi.buyHeading"]}</h2>
+        <div class="buy-buttons">
+          {item.data.patreonUrl && (
+            <a
+              href={item.data.patreonUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="buy-btn buy-patreon"
+              data-ga-event="purchase_link_click"
+              data-ga-platform="patreon"
+              data-ga-item={itemSlug}
+            >
+              {t["doujinshi.patreonButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          )}
+          {item.data.fanzaUrl && (
+            <a
+              href={item.data.fanzaUrl}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="buy-btn buy-fanza"
+              data-ga-event="purchase_link_click"
+              data-ga-platform="fanza"
+              data-ga-item={itemSlug}
+            >
+              {t["doujinshi.fanzaButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          )}
+          {item.data.dlsiteUrl && (
+            <a
+              href={item.data.dlsiteUrl}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="buy-btn buy-dlsite"
+              data-ga-event="purchase_link_click"
+              data-ga-platform="dlsite"
+              data-ga-item={itemSlug}
+            >
+              {t["doujinshi.dlsiteButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          )}
+          {item.data.digiketUrl && (
+            <a
+              href={item.data.digiketUrl}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="buy-btn buy-digiket"
+              data-ga-event="purchase_link_click"
+              data-ga-platform="digiket"
+              data-ga-item={itemSlug}
+            >
+              {t["doujinshi.digiketButton"]} <i class="ti ti-external-link" aria-hidden="true"></i>
+            </a>
+          )}
+        </div>
+      </section>
+
+      <div class="action-row action-row-bottom">
+        <LikeButton slug={`doujinshi-${itemSlug}`} />
+        <ShareButtons lang={lang} url={pageUrl} text={item.data.title} />
+      </div>
+    </article>
+
+    <aside class="sidebar-column sidebar-column-right">
+      {otherDoujinshi.length > 0 && (
+        <SidebarSection
+          title={t["doujinshi.heading"]}
+          seeMoreHref={hasMoreOtherDoujinshi ? "/en/doujinshi" : undefined}
+          seeMoreLabel={hasMoreOtherDoujinshi ? t["home.seeMore"] : undefined}
+        >
+          {otherDoujinshi.map((other) => (
+            <a class="recommend-card" href={`/en/doujinshi/${other.slug.replace(`${lang}/`, '')}`}>
+              <Image src={other.data.packageImage} alt={other.data.title} format="webp" width={240} />
+            </a>
+          ))}
+        </SidebarSection>
+      )}
+
+      {sameSeriesArtworks.length > 0 && (
+        <SidebarSection
+          title={`${item.data.series}${t["sidebar.moreBySeries"]}`}
+          seeMoreHref={hasMoreSameSeriesArtworks ? `/en/gallery/series/${encodeURIComponent(toPathSafeSlug(item.data.series ?? ""))}` : undefined}
+          seeMoreLabel={hasMoreSameSeriesArtworks ? t["home.seeMore"] : undefined}
+        >
+          {sameSeriesArtworks.map((artwork) => (
+            <ArtworkCard
+              href={`/en/gallery/${artwork.slug.replace(`${lang}/`, '')}`}
+              title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+              image={getHeaderImage(artwork)}
+              slug={artwork.slug.replace(`${lang}/`, '')}
+            />
+          ))}
+        </SidebarSection>
+      )}
+
+      {seriesList.length > 0 && (
+        <SidebarSection title={t["home.worksListHeading"]}>
+          <SeriesList
+            id="doujinshi-series"
+            items={seriesList}
+            countSuffix={t["home.seriesCountSuffix"]}
+            seeMoreHref={hasMoreSeries ? "/en/gallery/series" : undefined}
+            seeMoreLabel={hasMoreSeries ? t["home.seeMore"] : undefined}
+          />
+        </SidebarSection>
+      )}
+    </aside>
+   </div>
+  </div>
+</BaseLayout>
+
+<style is:inline>
+  .detail-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .main-column {
+    display: grid;
+    gap: 1.6rem;
+    min-width: 0;
+  }
+
+  .sidebar-column {
+    display: grid;
+    gap: 1.75rem;
+    min-width: 0;
+    position: sticky;
+    top: 96px;
+  }
+
+  /* Only show the left affiliate column when there's enough spare width that it
+     won't eat into the main content column */
+  .sidebar-column-left {
+    display: none;
+  }
+
+  @media (min-width: 1480px) {
+    .detail-shell {
+      max-width: 1540px;
+    }
+    .detail-grid {
+      grid-template-columns: 300px 1fr 300px;
+    }
+    .sidebar-column-left {
+      display: grid;
+    }
+  }
+
+  .back-link {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--text-primary); }
+
+  h1 { margin: 0; font-size: 2.0rem; color: var(--text-primary); }
+
+  .hero-frame {
+    max-width: 480px;
+    max-height: 640px;
+    margin: 0 auto;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-frame img {
+    max-width: 100%;
+    max-height: 640px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .lp-characters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .character-tag {
+    font-size: 0.82rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--border-strong);
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .character-tag:hover { border-color: var(--accent-strong); color: var(--text-primary); }
+
+  .series-tag {
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    text-decoration: none;
+  }
+  .series-tag:hover { background: var(--accent); color: #fff; }
+
+  .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .action-row-bottom {
+    padding-top: 1.6rem;
+    border-top: 0.5px solid var(--border-subtle);
+  }
+
+  .rating-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .rating-stars {
+    position: relative;
+    display: inline-block;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--border-strong);
+  }
+  .rating-stars::before,
+  .rating-stars::after {
+    content: "★★★★★";
+    white-space: nowrap;
+  }
+  .rating-stars::after {
+    position: absolute;
+    inset: 0;
+    width: calc(var(--rating) / 5 * 100%);
+    overflow: hidden;
+    color: var(--accent-strong);
+  }
+
+  .rating-number {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .rating-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+  }
+
+  .lp-samples h2,
+  .lp-details h2,
+  .lp-buy h2,
+  .lp-compiled h2 {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .lp-details {
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+  }
+
+  .details-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .details-table th,
+  .details-table td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.92rem;
+    border-bottom: 0.5px solid var(--border-subtle);
+  }
+  .details-table th {
+    width: 30%;
+    color: var(--text-secondary);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .details-table td {
+    color: var(--text-primary);
+  }
+  .details-table tr:last-child th,
+  .details-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .membership-discount-banner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.4rem 1.5rem;
+    border-radius: var(--radius-md);
+    background: var(--accent);
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .membership-discount-banner:hover,
+  .membership-discount-banner:focus-visible {
+    background: var(--accent-strong);
+  }
+
+  .membership-discount-badge {
+    display: inline-block;
+    flex-shrink: 0;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--accent-strong);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .membership-discount-text {
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .membership-discount-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgb(255 255 255 / 85%);
+    white-space: nowrap;
+  }
+  .membership-discount-banner:hover .membership-discount-cta {
+    color: #fff;
+  }
+
+  .lp-buy {
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--accent-soft);
+    border: 0.5px solid var(--accent);
+  }
+
+  .buy-buttons {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .buy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.75rem 1.4rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+  }
+
+  .buy-fanza {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+  }
+  .buy-fanza:hover { border-color: var(--accent-strong); }
+
+  .buy-patreon {
+    background: var(--accent);
+    color: #fff;
+  }
+  .buy-patreon:hover { background: var(--accent-strong); }
+
+  .buy-dlsite,
+  .buy-digiket {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+  }
+  .buy-dlsite:hover,
+  .buy-digiket:hover { border-color: var(--accent-strong); }
+
+  .doujinshi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .doujinshi-card {
+    display: grid;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 0.5px solid var(--border-subtle);
+    background: var(--bg-elevated);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s ease;
+  }
+  .doujinshi-card:hover { border-color: var(--accent-strong); }
+  .lp-compiled .card-body { padding: 0.75rem 0.9rem; }
+  .lp-compiled .card-body h2 { margin: 0; font-size: 0.9rem; font-weight: 500; }
+
+  .lp-compiled .package-frame {
+    aspect-ratio: 4 / 3;
+    background: var(--bg-elevated-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lp-compiled .package-frame img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .recommend-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
+  }
+  .recommend-card img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+
+  @media (max-width: 960px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .sidebar-column { position: static; }
+  }
+
+  @media (width <= 768px) {
+    .detail-shell { padding: 1rem; gap: 1.25rem; }
+    h1 { font-size: 1.6rem; }
+    .hero-frame { max-width: 100%; }
+    .membership-discount-banner {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "badge cta" "text text";
+      row-gap: 0.5rem;
+    }
+    .membership-discount-banner .membership-discount-badge { grid-area: badge; justify-self: start; }
+    .membership-discount-banner .membership-discount-cta { grid-area: cta; justify-self: end; }
+    .membership-discount-banner .membership-discount-text { grid-area: text; text-align: left; }
+  }
+</style>

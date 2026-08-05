@@ -1,0 +1,356 @@
+---
+export interface RankingEntry {
+  slug: string;
+  title: string;
+  thumb: string;
+  href: string;
+}
+
+export interface Props {
+  // 同一ページに複数配置される可能性はないが、JSON埋め込みとwidget側の紐付けに使う
+  id: string;
+  labels: { daily: string; monthly: string; yearly: string };
+  emptyText: string;
+  rankingIndex: RankingEntry[];
+  // ワーカーAPIへのlimitパラメータ。サイドバーでは上位10件、専用ページでは上限50件まで
+  limit?: number;
+  seeMoreHref?: string;
+  seeMoreLabel?: string;
+}
+
+const {
+  id,
+  labels,
+  emptyText,
+  rankingIndex,
+  limit = 10,
+  seeMoreHref,
+  seeMoreLabel,
+} = Astro.props;
+---
+<div class="ranking-widget" data-widget-id={id} data-limit={limit}>
+  <div class="ranking-tabs" role="tablist">
+    <button type="button" class="ranking-tab" data-period="daily" aria-selected="true">
+      <i class="ti ti-bolt" aria-hidden="true"></i>
+      <span>{labels.daily}</span>
+    </button>
+    <button type="button" class="ranking-tab" data-period="monthly" aria-selected="false">
+      <i class="ti ti-calendar" aria-hidden="true"></i>
+      <span>{labels.monthly}</span>
+    </button>
+    <button type="button" class="ranking-tab" data-period="yearly" aria-selected="false">
+      <i class="ti ti-calendar-stats" aria-hidden="true"></i>
+      <span>{labels.yearly}</span>
+    </button>
+  </div>
+  <div class="ranking-list" data-empty-text={emptyText}></div>
+  {seeMoreHref && seeMoreLabel && (
+    <a class="ranking-see-more" href={seeMoreHref}>
+      {seeMoreLabel}
+      <i class="ti ti-arrow-right" aria-hidden="true"></i>
+    </a>
+  )}
+</div>
+<script is:inline type="application/json" class="ranking-widget-index" data-widget-id={id} set:html={JSON.stringify(rankingIndex)} />
+
+<script>
+  interface RankingEntry {
+    slug: string;
+    title: string;
+    thumb: string;
+    href: string;
+  }
+  type RankingPeriod = "daily" | "monthly" | "yearly";
+  type RankingRow = { slug: string; count: number };
+
+  const API_BASE = import.meta.env.PUBLIC_API_BASE as string | undefined;
+  const PERIODS: RankingPeriod[] = ["daily", "monthly", "yearly"];
+
+  function escapeHtml(value: string) {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function initRankingWidget(widget: HTMLElement) {
+    const widgetId = widget.dataset.widgetId;
+    const list = widget.querySelector<HTMLElement>(".ranking-list");
+    const tabs = Array.from(widget.querySelectorAll<HTMLButtonElement>(".ranking-tab"));
+    const limit = Number(widget.dataset.limit ?? 10);
+    const indexScript = document.querySelector<HTMLScriptElement>(
+      `.ranking-widget-index[data-widget-id="${widgetId}"]`,
+    );
+    const rankingIndex: RankingEntry[] = indexScript
+      ? JSON.parse(indexScript.textContent ?? "[]")
+      : [];
+    const rankingIndexBySlug = new Map(rankingIndex.map((entry) => [entry.slug, entry]));
+
+    // ウィジェット（見出しを含む場合はその親のsidebar-sectionまで）を、データが取れるまで隠す
+    const hideTarget = widget.closest(".sidebar-section") ?? widget;
+    hideTarget.setAttribute("hidden", "true");
+
+    if (!list || !API_BASE) return;
+
+    // APIは投稿記事・同人誌を区別せず横断でランキングを返すため、表示件数(limit)だけを
+    // 取得件数にすると、このウィジェットが対象とする種別（rankingIndexに含まれる方）が
+    // 上位に少ない場合に表示件数が足りなくなる。取得件数は多めに確保し、種別で絞り込んだ
+    // 上で改めてlimit件に切り詰める
+    const fetchLimit = Math.max(limit * 10, 50);
+
+    const cache = new Map<RankingPeriod, RankingRow[]>();
+
+    function buildCard(entry: RankingEntry, rank: number, count: number) {
+      const a = document.createElement("a");
+      a.className = "ranking-item";
+      a.href = entry.href;
+      a.dataset.rank = String(rank);
+      a.innerHTML = `
+        <span class="ranking-rank">${rank}</span>
+        <img class="ranking-thumb" src="${entry.thumb}" alt="" loading="lazy" />
+        <div class="ranking-fade" aria-hidden="true"></div>
+        <div class="ranking-text">
+          <span class="ranking-title">${escapeHtml(entry.title)}</span>
+          <span class="ranking-likes"><i class="ti ti-heart" aria-hidden="true"></i>${count}</span>
+        </div>
+      `;
+      return a;
+    }
+
+    function render(period: RankingPeriod) {
+      if (!list) return;
+      list.innerHTML = "";
+      const rows = cache.get(period) ?? [];
+      const resolved = rows
+        .map((row) => ({ row, entry: rankingIndexBySlug.get(row.slug) }))
+        .filter((item): item is { row: RankingRow; entry: RankingEntry } => Boolean(item.entry))
+        .slice(0, limit);
+
+      if (resolved.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "ranking-empty";
+        empty.textContent = list.dataset.emptyText ?? "";
+        list.append(empty);
+        return;
+      }
+
+      resolved.forEach(({ row, entry }, index) => {
+        list.append(buildCard(entry, index + 1, row.count));
+      });
+    }
+
+    async function load() {
+      try {
+        const responses = await Promise.all(
+          PERIODS.map((period) =>
+            fetch(`${API_BASE}/likes/ranking?period=${period}&limit=${fetchLimit}`)
+              .then((res) => res.json())
+              .then((data) => (data.ranking ?? []) as RankingRow[]),
+          ),
+        );
+
+        let hasAnyData = false;
+        PERIODS.forEach((period, i) => {
+          cache.set(period, responses[i]);
+          if (responses[i].some((row) => rankingIndexBySlug.has(row.slug))) {
+            hasAnyData = true;
+          }
+        });
+
+        if (!hasAnyData) return;
+
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            tabs.forEach((other) => other.setAttribute("aria-selected", "false"));
+            tab.setAttribute("aria-selected", "true");
+            render(tab.dataset.period as RankingPeriod);
+          });
+        });
+
+        render("daily");
+        hideTarget.removeAttribute("hidden");
+      } catch {
+        // ランキング取得失敗時は非表示のままにする
+      }
+    }
+
+    load();
+  }
+
+  document.querySelectorAll<HTMLElement>(".ranking-widget").forEach(initRankingWidget);
+</script>
+
+<style is:global>
+  .ranking-widget {
+    display: grid;
+    gap: 0.75rem;
+    grid-column: 1 / -1;
+  }
+
+  .ranking-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--bg-elevated-2);
+    border: 0.5px solid var(--border-subtle);
+  }
+
+  .ranking-tab {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.3rem;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .ranking-tab i {
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+
+  .ranking-tab span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ranking-tab:hover {
+    color: var(--text-primary);
+  }
+
+  .ranking-tab[aria-selected="true"] {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
+  }
+
+  .ranking-list {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .ranking-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 92px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+  .ranking-item:hover {
+    color: var(--text-primary);
+  }
+
+  .ranking-thumb {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: auto;
+    max-width: 70%;
+    height: 100%;
+    object-fit: contain;
+    object-position: right center;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 50%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 50%);
+    z-index: 0;
+  }
+
+  .ranking-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--bg-elevated-2) 0%, var(--bg-elevated-2) 32%, transparent 92%);
+    z-index: 1;
+  }
+
+  .ranking-rank {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 auto;
+    width: 2.2rem;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+  .ranking-item[data-rank="1"] .ranking-rank {
+    color: #f2c14e;
+  }
+  .ranking-item[data-rank="2"] .ranking-rank {
+    color: #cbd3dc;
+  }
+  .ranking-item[data-rank="3"] .ranking-rank {
+    color: #e0925a;
+  }
+
+  .ranking-text {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: 0.25rem;
+    padding: 0 1rem 0 0.15rem;
+    min-width: 0;
+  }
+
+  .ranking-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 10.5rem;
+  }
+
+  .ranking-likes {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+  .ranking-likes i {
+    color: var(--heart);
+    font-size: 12px;
+  }
+
+  .ranking-empty {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .ranking-see-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    justify-self: end;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .ranking-see-more:hover {
+    color: var(--text-primary);
+  }
+
+  @media (width <= 768px) {
+    .ranking-title {
+      max-width: 8.5rem;
+    }
+  }
+</style>

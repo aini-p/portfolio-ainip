@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // このトップレベルは "--env" を付けずに実行した場合のデフォルト(ローカルの `wrangler dev` 用)。
+  // どちらの本物のWorkerにも一致しない名前にして、`--env` を忘れて誤デプロイしても
+  // at5fun / at5fun-staging を上書きしないようにしている。
+  "name": "at5fun-dev",
+  "compatibility_date": "2026-08-04",
+  "observability": {
+    "enabled": true
+  },
+  "main": "dist/_worker.js/index.js",
+  "compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "dist"
+  },
+  "env": {
+    "staging": {
+      "name": "at5fun-staging"
+    },
+    "production": {
+      "name": "at5fun"
+    }
+  }
+}

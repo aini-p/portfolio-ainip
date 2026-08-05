@@ -1,0 +1,103 @@
+---
+import { getImage } from "astro:assets";
+import { getCollection } from "astro:content";
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
+import SeriesList from "~/components/SeriesList.astro";
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { getHeaderImage } from "~/utils/artwork";
+import { toPathSafeSlug } from "~/utils/slug";
+
+const lang = "ja";
+const t = ui[lang];
+
+const artworks = await getCollection("artworks", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
+const sortedByDate = [...artworks].sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+
+// シリーズごとの件数と最新作をまとめる（ホームのプレビュー欄と同じロジック）
+const seriesMap = new Map<
+  string,
+  { count: number; latest: (typeof sortedByDate)[number] }
+>();
+for (const artwork of sortedByDate) {
+  const series = artwork.data.series;
+  if (!series) continue;
+  const existing = seriesMap.get(series);
+  if (existing) {
+    existing.count += 1;
+  } else {
+    seriesMap.set(series, { count: 1, latest: artwork });
+  }
+}
+
+const seriesList = await Promise.all(
+  [...seriesMap.entries()]
+    .map(([name, data]) => ({ name, count: data.count, latest: data.latest }))
+    .sort((a, b) => b.count - a.count)
+    .map(async (series) => {
+      const optimized = await getImage({
+        src: getHeaderImage(series.latest),
+        width: 400,
+        format: "webp",
+      });
+      return {
+        name: series.name,
+        count: series.count,
+        thumb: optimized.src,
+        href: `/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`,
+      };
+    }),
+);
+---
+<BaseLayout title={t["worksList.pageTitle"]} description={t["worksList.pageDescription"]}>
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <div class="works-list-shell">
+          <header class="works-list-header">
+            <h1>{t["worksList.heading"]}</h1>
+            <p>{t["worksList.lead"]}</p>
+          </header>
+
+          <SeriesList id="full-series" items={seriesList} countSuffix={t["home.seriesCountSuffix"]} />
+        </div>
+      </div>
+    </HomeStyleSidebars>
+   </div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .works-list-shell {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .works-list-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.7rem, 3.4vw, 2.35rem);
+    color: var(--text-primary);
+  }
+
+  .works-list-header p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 65ch;
+  }
+
+  .series-list[data-widget-id="full-series"] {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+
+  @media (width <= 768px) {
+    .works-list-shell {
+      gap: 1.25rem;
+    }
+  }
+</style>

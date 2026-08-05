@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="560" viewBox="0 0 1280 560">
+  <defs>
+    <linearGradient id="tier-trial-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#241e2e"/>
+      <stop offset="100%" stop-color="#2a2036"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="560" fill="url(#tier-trial-bg)"/>
+  <rect x="1" y="1" width="1278" height="558" fill="none" stroke="#362e44" stroke-width="2"/>
+  <text x="640" y="290" font-family="'Segoe UI', sans-serif" font-size="120" text-anchor="middle">🔰</text>
+  <text x="640" y="380" fill="#a79fc0" font-family="'Segoe UI', sans-serif" font-size="30" font-weight="600" text-anchor="middle" letter-spacing="4">TRIAL</text>
+</svg>

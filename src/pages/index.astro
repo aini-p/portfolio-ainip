@@ -1,224 +1,856 @@
 ---
-import { Image } from "astro:assets";
+import { getImage, Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import AffiliateColumn from "~/components/AffiliateColumn.astro";
+import ArtworkCard from "~/components/ArtworkCard.astro";
+import Rail from "~/components/Rail.astro";
+import RankingList from "~/components/RankingList.astro";
+import SeriesList from "~/components/SeriesList.astro";
+import SidebarSection from "~/components/SidebarSection.astro";
+import { categories } from "~/constants/categories";
+import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import {
+  formatImageCountLabel,
+  getHeaderImage,
+  getTotalImageCount,
+} from "~/utils/artwork";
+import { toPathSafeSlug } from "~/utils/slug";
 
-const lang = "ja"; // 日本語ページとして固定
+const lang = "ja";
+const t = ui[lang];
+
+const tools = [
+  {
+    title: t["tools.card.tapTitle"],
+    href: "/tools/tap-change-image",
+    thumb: "/images/tap_change_image_chan_twcard.jpg",
+  },
+  {
+    title: t["tools.card.fourTitle"],
+    href: "/tools/four-split-image",
+    thumb: "/images/four_split_guard_1.svg",
+  },
+  {
+    title: t["tools.card.packTitle"],
+    href: "/tools/random-pack-image",
+    thumb: "/images/random_pack_image_chan.svg",
+  },
+  {
+    title: t["tools.card.pdfTitle"],
+    href: "/tools/image-to-pdf",
+    thumb: null,
+  },
+];
+
 const artworks = await getCollection("artworks", ({ id }) =>
   id.startsWith(`${lang}/`),
 );
-const shuffleSeed = 20260521;
+const doujinshiList = await getCollection("doujinshi", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
 
-function hashString(value: string) {
-  let hash = 2166136261;
-  for (let index = 0; index < value.length; index++) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
+function toSlug(fullSlug: string) {
+  return fullSlug.replace(`${lang}/`, "");
 }
 
-const shuffledArtworks = [...artworks].sort((a, b) => {
-  const aHash = hashString(`${a.slug}:${shuffleSeed}`);
-  const bHash = hashString(`${b.slug}:${shuffleSeed}`);
-  if (aHash === bHash) {
-    return a.slug.localeCompare(b.slug);
-  }
-  return aHash - bHash;
-});
-
-const rowCount = 7;
-const rowSize = Math.ceil(shuffledArtworks.length / rowCount);
-const galleryRows = Array.from({ length: rowCount }, (_, index) =>
-  shuffledArtworks.slice(index * rowSize, (index + 1) * rowSize),
-).filter((row) => row.length > 0);
-
-function rotateRow<T>(row: T[], offset: number) {
-  if (row.length < 2) {
-    return row;
-  }
-  const shift = ((offset % row.length) + row.length) % row.length;
-  if (shift === 0) {
-    return row;
-  }
-  return [...row.slice(shift), ...row.slice(0, shift)];
+function toHref(fullSlug: string) {
+  return `/gallery/${toSlug(fullSlug)}`;
 }
+
+function toDoujinshiHref(fullSlug: string) {
+  return `/doujinshi/${toSlug(fullSlug)}`;
+}
+
+const sortedByDate = [...artworks].sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+);
+
+const NEW_BADGE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const now = Date.now();
+function isRecentlyPublished(item: { data: { publishDate: Date } }) {
+  return now - item.data.publishDate.valueOf() <= NEW_BADGE_WINDOW_MS;
+}
+
+// 最新の1件はページ最上部に大きくフィーチャーするため、通常のレールからは除外する
+const featuredArtwork = sortedByDate[0];
+const latestArtworks = sortedByDate.slice(1, 13);
+
+const categoryRails = categories
+  .map((category) => ({
+    ...category,
+    items: sortedByDate.filter(category.match).slice(0, 12),
+  }))
+  .filter((rail) => rail.items.length > 0);
+
+const recommendArtworks = sortedByDate.slice(0, 3);
+
+// 自作の同人誌(isOwnWork!==false)と、他者作品のレビュー記事(isOwnWork===false)を分離
+const ownDoujinshi = [...doujinshiList]
+  .filter((d) => d.data.isOwnWork !== false)
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const latestOwnDoujinshi = ownDoujinshi.slice(0, 12);
+const recommendOwnDoujinshi = ownDoujinshi.slice(0, 3);
+
+// 作品別セクション: シリーズごとの件数と最新作をまとめる
+const seriesMap = new Map<
+  string,
+  { count: number; latest: (typeof sortedByDate)[number] }
+>();
+for (const artwork of sortedByDate) {
+  const series = artwork.data.series;
+  if (!series) continue;
+  const existing = seriesMap.get(series);
+  if (existing) {
+    existing.count += 1;
+  } else {
+    seriesMap.set(series, { count: 1, latest: artwork });
+  }
+}
+const SERIES_LIST_LIMIT = 10;
+const hasMoreSeries = seriesMap.size > SERIES_LIST_LIMIT;
+const seriesList = await Promise.all(
+  [...seriesMap.entries()]
+    .map(([name, data]) => ({ name, count: data.count, latest: data.latest }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, SERIES_LIST_LIMIT)
+    .map(async (series) => {
+      const optimized = await getImage({
+        src: getHeaderImage(series.latest),
+        width: 400,
+        format: "webp",
+      });
+      return {
+        name: series.name,
+        count: series.count,
+        thumb: optimized.src,
+        href: `/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`,
+      };
+    }),
+);
+
+// クライアント側の検索・いいねランキング表示用に、全作品の軽量インデックスを埋め込む
+const searchIndex = await Promise.all(
+  artworks.map(async (artwork) => {
+    const optimized = await getImage({
+      src: getHeaderImage(artwork),
+      width: 480,
+      format: "webp",
+    });
+    return {
+      slug: toSlug(artwork.slug),
+      title: artwork.data.title,
+      thumb: optimized.src,
+      imageCount: getTotalImageCount(artwork),
+      isNew: isRecentlyPublished(artwork),
+      characters: [
+        artwork.data.main_character,
+        ...(artwork.data.sub_characters ?? []),
+      ].filter(Boolean),
+      series: artwork.data.series,
+      keywords: artwork.data.keywords ?? [],
+    };
+  }),
+);
+
+// いいねランキング解決用。LikeButtonのslug形式（作品=素のslug、同人誌="doujinshi-"接頭辞）に合わせて
+// アートワークと同人誌の両方を1つのインデックスにまとめる
+const rankingIndex = [
+  ...searchIndex.map((entry) => ({
+    slug: entry.slug,
+    title: entry.title,
+    thumb: entry.thumb,
+    href: toHref(entry.slug),
+  })),
+  ...(await Promise.all(
+    ownDoujinshi.map(async (item) => {
+      const optimized = await getImage({
+        src: item.data.packageImage,
+        width: 480,
+        format: "webp",
+      });
+      return {
+        slug: `doujinshi-${toSlug(item.slug)}`,
+        title: item.data.title,
+        thumb: optimized.src,
+        href: toDoujinshiHref(item.slug),
+        isNew: isRecentlyPublished(item),
+      };
+    }),
+  )),
+];
+
+// 左サイドバー用: 同人誌のいいねランキングは同人誌エントリのみに絞り込む
+const doujinshiRankingIndex = rankingIndex.filter((entry) =>
+  entry.slug.startsWith("doujinshi-"),
+);
 ---
-<BaseLayout>
-  <section class="flow-gallery">
-    {galleryRows.map((row, rowIndex) => (
-      <div
-        class:list={[
-          "flow-row",
-          rowIndex % 2 === 0 ? "is-tilt-left" : "is-tilt-right",
-        ]}
-        style={`--delay: ${rowIndex * 120}ms;`}
-      >
-        <div
-          class:list={["flow-track", rowIndex % 2 === 1 && "is-reverse"]}
-          style={`--duration: ${320 + rowIndex * 44}s;`}
-        >
-          {Array.from({ length: 4 }).map((_, groupIndex) => {
-            const groupedRow = rotateRow(row, groupIndex * 2 + rowIndex);
-            return (
-              <div class="flow-group" aria-hidden={groupIndex > 0 ? "true" : undefined}>
-                {groupedRow.map((artwork, itemIndex) => (
-                <a
-                  style={`--width: ${artwork.data.src.width}; --height: ${artwork.data.src.height};`}
-                  href={`/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
-                  class="gallery-item"
-                  tabindex={groupIndex > 0 ? -1 : undefined}
-                >
-                  <Image
-                    format="webp"
-                    src={artwork.data.src}
-                    alt={groupIndex > 0 ? "" : artwork.data.title}
-                    height={560}
-                    loading={
-                      groupIndex === 0 && rowIndex < 3 && itemIndex < 8
-                        ? "eager"
-                        : "lazy"
-                    }
-                  />
-                </a>
-                ))}
-              </div>
-            );
-          })}
-        </div>
+<BaseLayout
+  title={t["home.pageTitle"]}
+  description={t["home.pageDescription"]}
+  keywords={t["home.pageKeywords"]}
+>
+  <div class="home">
+   <div class="home-grid">
+    <AffiliateColumn lang={lang} adBanner>
+      {doujinshiRankingIndex.length > 0 && (
+        <SidebarSection title={t["home.doujinshiRanking"]}>
+          <RankingList
+            id="home-doujinshi-ranking"
+            rankingIndex={doujinshiRankingIndex}
+            labels={{
+              daily: t["home.rankingDaily"],
+              monthly: t["home.rankingMonthly"],
+              yearly: t["home.rankingYearly"],
+            }}
+            emptyText={t["home.rankingEmpty"]}
+            limit={5}
+          />
+        </SidebarSection>
+      )}
+    </AffiliateColumn>
+
+    <div class="main-column">
+      <div class="search-bar">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="search" id="artwork-search" placeholder={t["home.searchPlaceholder"]} />
       </div>
-    ))}
-  </section>
+
+      <p class="search-empty" id="search-empty" hidden>{t["home.noResults"]}</p>
+      <div class="search-results-grid" id="search-results" hidden></div>
+
+      <div id="rails-view" class="rails-view">
+        {featuredArtwork && (
+          <div class="featured-post">
+            <a class="featured-thumb" href={toHref(featuredArtwork.slug)}>
+              <Image src={getHeaderImage(featuredArtwork)} alt={featuredArtwork.data.title} format="webp" width={480} loading="eager" />
+              {isRecentlyPublished(featuredArtwork) && <span class="new-badge">NEW</span>}
+            </a>
+            <div class="featured-body">
+              <h2 class="featured-title">{featuredArtwork.data.title}{formatImageCountLabel(getTotalImageCount(featuredArtwork), lang)}</h2>
+              <p class="featured-excerpt">{featuredArtwork.body?.trim() || featuredArtwork.data.description}</p>
+              <a class="featured-cta" href={toHref(featuredArtwork.slug)}>{t["home.readArticle"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+            </div>
+          </div>
+        )}
+
+        <Rail title={t["home.latest"]} seeMoreHref="/gallery" seeMoreLabel={t["home.seeMore"]}>
+          {latestArtworks.map((artwork, index) => (
+            <ArtworkCard
+              href={toHref(artwork.slug)}
+              title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+              image={getHeaderImage(artwork)}
+              slug={toSlug(artwork.slug)}
+              thumbWidth={260}
+              isNew={isRecentlyPublished(artwork)}
+              eager={index < 4}
+            />
+          ))}
+        </Rail>
+
+        <Rail id="recommend-rail-artworks" title={t["home.recommendHeading"]} seeMoreHref="/recommend" seeMoreLabel={t["home.seeMore"]}>
+          {recommendArtworks.map((artwork) => (
+            <ArtworkCard
+              href={toHref(artwork.slug)}
+              title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+              image={getHeaderImage(artwork)}
+              slug={toSlug(artwork.slug)}
+              thumbWidth={260}
+              isNew={isRecentlyPublished(artwork)}
+            />
+          ))}
+        </Rail>
+
+        <a class="promo-banner promo-banner-membership" href="/membership">
+          <img class="promo-banner-image" src="/images/patreon-banner.png" alt="" width="3000" height="1000" loading="eager" />
+          <div class="promo-banner-fade" aria-hidden="true"></div>
+          <div class="promo-copy">
+            <h2>{t["home.membershipHeading"]}</h2>
+            <p>{t["home.membershipBody"]}</p>
+            <span class="promo-cta">{t["home.membershipCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+          </div>
+        </a>
+
+        {latestOwnDoujinshi.length > 0 && (
+          <Rail title={t["home.doujinshiLatestHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.seeMore"]}>
+            {latestOwnDoujinshi.map((item) => (
+              <ArtworkCard
+                href={toDoujinshiHref(item.slug)}
+                title={item.data.title}
+                image={item.data.packageImage}
+                aspect="4/3"
+                fit="contain"
+                thumbWidth={260}
+                isNew={isRecentlyPublished(item)}
+                slug={toSlug(item.slug)}
+              />
+            ))}
+          </Rail>
+        )}
+
+        {recommendOwnDoujinshi.length > 0 && (
+          <Rail id="recommend-rail-doujinshi" title={t["home.recommendHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.seeMore"]}>
+            {recommendOwnDoujinshi.map((item) => (
+              <ArtworkCard
+                href={toDoujinshiHref(item.slug)}
+                title={item.data.title}
+                image={item.data.packageImage}
+                aspect="4/3"
+                fit="contain"
+                thumbWidth={260}
+                isNew={isRecentlyPublished(item)}
+                slug={toSlug(item.slug)}
+              />
+            ))}
+          </Rail>
+        )}
+
+        {categoryRails.map((rail) => (
+          <Rail title={rail.label[lang]}>
+            {rail.items.map((artwork) => (
+              <ArtworkCard
+                href={toHref(artwork.slug)}
+                title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
+                image={getHeaderImage(artwork)}
+                slug={toSlug(artwork.slug)}
+                thumbWidth={260}
+                isNew={isRecentlyPublished(artwork)}
+              />
+            ))}
+          </Rail>
+        ))}
+
+        <Rail title={t["home.toolsHeading"]} seeMoreHref="/tools" seeMoreLabel={t["home.toolsCta"]}>
+          {tools.map((tool) => (
+            <a class="tool-thumb-card" href={tool.href}>
+              <div class="tool-thumb-frame">
+                {tool.thumb ? (
+                  <img src={tool.thumb} alt={tool.title} loading="lazy" />
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+                    <rect width="64" height="64" rx="14" fill="#dbeafe"/>
+                    <rect x="14" y="10" width="26" height="34" rx="3" fill="#93c5fd" stroke="#1a6eb5" stroke-width="1.5"/>
+                    <rect x="24" y="20" width="26" height="34" rx="3" fill="#bfdbfe" stroke="#1a6eb5" stroke-width="1.5"/>
+                    <path d="M30 34h14M30 40h10" stroke="#1a6eb5" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                )}
+              </div>
+              <p class="card-title">{tool.title}</p>
+            </a>
+          ))}
+        </Rail>
+
+      </div>
+    </div>
+
+    <aside class="sidebar-column sidebar-column-right">
+      <SidebarSection title={t["home.ranking"]}>
+        <RankingList
+          id="home-ranking"
+          rankingIndex={rankingIndex}
+          labels={{
+            daily: t["home.rankingDaily"],
+            monthly: t["home.rankingMonthly"],
+            yearly: t["home.rankingYearly"],
+          }}
+          emptyText={t["home.rankingEmpty"]}
+          limit={5}
+          seeMoreHref="/ranking"
+          seeMoreLabel={t["home.seeMore"]}
+        />
+      </SidebarSection>
+
+      {seriesList.length > 0 && (
+        <SidebarSection title={t["home.worksListHeading"]}>
+          <SeriesList
+            id="home-series"
+            items={seriesList}
+            countSuffix={t["home.seriesCountSuffix"]}
+            seeMoreHref={hasMoreSeries ? "/gallery/series" : undefined}
+            seeMoreLabel={hasMoreSeries ? t["home.seeMore"] : undefined}
+          />
+        </SidebarSection>
+      )}
+    </aside>
+   </div>
+  </div>
+
+  <script is:inline type="application/json" id="artworks-index" set:html={JSON.stringify(searchIndex)} />
+  <script is:inline type="application/json" id="ranking-index" set:html={JSON.stringify(rankingIndex)} />
 </BaseLayout>
-<style is:inline>
-  .flow-gallery {
-    --padding: max(2.5vw, 12px);
-    --space: max(2.5vw, 12px);
-    --row-height: clamp(250px, 35vw, 430px);
-    position: relative;
-    isolation: isolate;
-    padding: var(--padding);
+
+<script>
+  interface IndexEntry {
+    slug: string;
+    title: string;
+    thumb: string;
+    imageCount: number;
+    isNew: boolean;
+    characters: string[];
+    series: string;
+    keywords: string[];
+  }
+
+  interface RankingEntry {
+    slug: string;
+    title: string;
+    thumb: string;
+    href: string;
+    isNew?: boolean;
+  }
+
+  const indexScript = document.getElementById("artworks-index");
+  const searchIndex: IndexEntry[] = indexScript ? JSON.parse(indexScript.textContent ?? "[]") : [];
+
+  const rankingIndexScript = document.getElementById("ranking-index");
+  const rankingIndex: RankingEntry[] = rankingIndexScript
+    ? JSON.parse(rankingIndexScript.textContent ?? "[]")
+    : [];
+
+  function buildCard(entry: IndexEntry) {
+    const a = document.createElement("a");
+    a.className = "artwork-card";
+    a.href = `/gallery/${entry.slug}`;
+    a.style.cssText = "--aspect: 16 / 9; --fit: cover; --thumb-width: 260px;";
+    a.innerHTML = `
+      <div class="thumb">
+        <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
+        ${entry.isNew ? '<span class="new-badge">NEW</span>' : ""}
+      </div>
+      <p class="card-title">${entry.title} 全${entry.imageCount}枚</p>
+    `;
+    return a;
+  }
+
+  function buildDoujinshiRecommendCard(entry: RankingEntry) {
+    const a = document.createElement("a");
+    a.className = "artwork-card";
+    a.href = entry.href;
+    a.style.cssText = "--aspect: 4 / 3; --fit: contain; --thumb-width: 260px;";
+    a.innerHTML = `
+      <div class="thumb">
+        <img src="${entry.thumb}" alt="${entry.title}" loading="lazy" />
+        ${entry.isNew ? '<span class="new-badge">NEW</span>' : ""}
+      </div>
+      <p class="card-title">${entry.title}</p>
+    `;
+    return a;
+  }
+
+  // 「こちらもおすすめ」を毎回ランダムな3件で表示し、「もっと見る」クリックで再抽選する
+  function shuffle<T>(list: T[]): T[] {
+    const arr = list.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function setupRandomRail<T>(railId: string, pool: T[], count: number, build: (entry: T) => HTMLElement) {
+    const rail = document.getElementById(railId);
+    const track = rail?.querySelector<HTMLElement>(".rail-track");
+    const seeMore = rail?.querySelector<HTMLAnchorElement>(".see-more");
+    if (!rail || !track || pool.length === 0) return;
+
+    function render() {
+      track!.innerHTML = "";
+      shuffle(pool)
+        .slice(0, Math.min(count, pool.length))
+        .forEach((entry) => track!.append(build(entry)));
+    }
+
+    render();
+    seeMore?.addEventListener("click", (e) => {
+      e.preventDefault();
+      render();
+    });
+  }
+
+  // 検索・タグ絞り込み
+  const searchInput = document.getElementById("artwork-search") as HTMLInputElement | null;
+  const railsView = document.getElementById("rails-view");
+  const resultsGrid = document.getElementById("search-results");
+  const emptyMessage = document.getElementById("search-empty");
+
+  searchInput?.addEventListener("input", () => {
+    const query = searchInput.value.trim().toLowerCase();
+
+    if (!query) {
+      railsView?.removeAttribute("hidden");
+      resultsGrid?.setAttribute("hidden", "true");
+      emptyMessage?.setAttribute("hidden", "true");
+      return;
+    }
+
+    const matches = searchIndex.filter((entry) => {
+      const haystack = [entry.title, entry.series, ...entry.characters, ...entry.keywords]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(query);
+    });
+
+    railsView?.setAttribute("hidden", "true");
+    if (resultsGrid) {
+      resultsGrid.innerHTML = "";
+      matches.forEach((entry) => resultsGrid.append(buildCard(entry)));
+      resultsGrid.removeAttribute("hidden");
+    }
+    if (emptyMessage) {
+      emptyMessage.toggleAttribute("hidden", matches.length > 0);
+    }
+  });
+
+  // いいねランキング本体の表示ロジックはRankingList.astro側のクライアントスクリプトが担う。
+  // ここではおすすめ同人誌レールの抽選対象を作るためだけにrankingIndexを再利用する。
+  const doujinshiPool: RankingEntry[] = rankingIndex.filter((entry) => entry.slug.startsWith("doujinshi-"));
+  setupRandomRail("recommend-rail-artworks", searchIndex, 3, buildCard);
+  setupRandomRail("recommend-rail-doujinshi", doujinshiPool, 3, buildDoujinshiRecommendCard);
+</script>
+
+<style is:global>
+  [hidden] {
+    display: none !important;
+  }
+
+  .home {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.25rem 1.25rem 3rem;
+  }
+
+  .home-grid {
     display: grid;
-    gap: var(--space);
-    overflow: hidden;
-    border-radius: 24px;
-    background: rgb(255 255 255);
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: start;
   }
 
-  .flow-row {
-    overflow: hidden;
-    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-    animation: row-enter 960ms cubic-bezier(0.24, 0.84, 0.3, 1) var(--delay) both;
+  .main-column {
+    display: grid;
+    gap: 2.25rem;
+    min-width: 0;
   }
 
-  .flow-row.is-tilt-left {
-    transform: perspective(1000px) rotateX(0.22deg) rotateY(-0.7deg);
+  .sidebar-column {
+    display: grid;
+    gap: 1.75rem;
+    min-width: 0;
+    position: sticky;
+    top: 96px;
   }
 
-  .flow-row.is-tilt-right {
-    transform: perspective(1000px) rotateX(0.22deg) rotateY(0.7deg);
+  /* 左のアフィリエイト欄は、メインコンテンツ幅を圧迫しない十分な余白がある画面幅でのみ表示する */
+  .sidebar-column-left {
+    display: none;
   }
 
-  .flow-track {
-    width: max-content;
+  @media (min-width: 1480px) {
+    .home {
+      max-width: 1540px;
+    }
+    .home-grid {
+      grid-template-columns: 300px 1fr 300px;
+    }
+    .sidebar-column-left {
+      display: grid;
+    }
+  }
+
+  .search-bar {
     display: flex;
-    animation: flow-left var(--duration) linear infinite;
-    will-change: transform;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg-elevated);
   }
 
-  .flow-group {
-    display: flex;
-    gap: var(--space);
-    padding-right: var(--space);
+  .search-bar i {
+    color: var(--text-muted);
+    font-size: 18px;
   }
 
-  .flow-track.is-reverse {
-    animation-direction: reverse;
+  .search-bar input {
+    flex: 1;
+    border: none;
+    background: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    outline: none;
   }
 
-  .gallery-item {
-    flex: 0 0 auto;
-    height: var(--row-height);
-    aspect-ratio: var(--width) / var(--height);
-    overflow: hidden;
-    border-radius: 0;
-    background: rgb(236 231 223);
-    transform: translateZ(0);
-    transition: transform 420ms cubic-bezier(0.2, 0.76, 0.32, 1),
-      filter 420ms ease;
+  .search-bar input::placeholder {
+    color: var(--text-muted);
   }
 
-  .gallery-item img {
+  .search-empty {
+    color: var(--text-muted);
+    text-align: center;
+    margin: 0;
+  }
+
+  .search-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .rails-view {
+    display: grid;
+    gap: 2.25rem;
+  }
+
+  .tool-thumb-card {
     display: block;
-    object-fit: cover;
-    height: 100%;
+    flex: 0 0 auto;
+    width: 260px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .tool-thumb-frame {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .tool-thumb-frame img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .tool-thumb-frame svg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .recommend-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
+  }
+  .recommend-card img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .featured-post {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+  }
+
+  .featured-thumb {
+    position: relative;
+    flex: 0 0 auto;
+    width: 320px;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
+  }
+  .featured-thumb img {
     width: 100%;
-    filter: saturate(0.88) contrast(1.04) brightness(0.99);
-    transition: transform 900ms ease, filter 420ms ease;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 
-  .gallery-item:hover,
-  .gallery-item:focus-visible {
-    transform: translateY(-3px) scale(1.012);
-    filter: brightness(1.03);
+  .featured-body {
+    display: grid;
+    gap: 0.6rem;
+    min-width: 0;
   }
 
-  .gallery-item:hover img,
-  .gallery-item:focus-visible img {
-    transform: scale(1.03);
-    filter: saturate(0.96) contrast(1.08) brightness(1.01);
+  .featured-title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
   }
 
-  .gallery-item:focus-visible {
-    outline: 3px solid var(--outline);
-    outline-offset: 2px;
+  .featured-excerpt {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .featured-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: fit-content;
+    margin-top: 0.2rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .featured-cta:hover {
+    background: var(--accent-strong);
+  }
+
+  .promo-banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 176px;
+    padding: 1.5rem 1.75rem;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .promo-banner:hover,
+  .promo-banner:focus-visible {
+    border-color: var(--accent-strong);
+  }
+
+  .promo-banner-image {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: auto;
+    max-width: 68%;
+    height: 100%;
+    object-fit: contain;
+    object-position: right center;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 42%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 42%);
+    z-index: 0;
+  }
+
+  .promo-banner-fade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--accent-soft) 0%, var(--accent-soft) 36%, transparent 90%);
     z-index: 1;
   }
 
-  @keyframes flow-left {
-    from {
-      transform: translateX(0);
-    }
-
-    to {
-      transform: translateX(-25%);
-    }
+  .promo-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 60%;
   }
 
-  @keyframes row-enter {
-    from {
-      opacity: 0;
-      transform: translateY(18px) scale(0.98);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+  .promo-copy h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .flow-track {
-      animation: none;
-    }
+  .promo-copy p {
+    margin: 0 0 0.6rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
 
-    .flow-row {
-      animation: none;
-    }
+  .promo-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .promo-banner-membership {
+    background: var(--accent-soft);
+    border: 0.5px solid var(--accent);
+  }
+
+  @media (max-width: 960px) {
+    .home-grid { grid-template-columns: 1fr; }
+    .sidebar-column { position: static; }
   }
 
   @media (width <= 768px) {
-    .flow-gallery {
-      --row-height: clamp(190px, 56vw, 300px);
-      --padding: max(1.5vw, 8px);
-      --space: max(1.5vw, 8px);
-      border-radius: 18px;
+    .home {
+      padding: 1rem 1rem 2rem;
+      gap: 1.75rem;
     }
 
-    .flow-row {
-      -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
-      mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+    .promo-banner {
+      flex-direction: column;
+      align-items: stretch;
+      min-height: 0;
+      padding: 0;
+    }
+
+    .promo-banner-image {
+      position: static;
+      width: 100%;
+      max-width: 100%;
+      height: 160px;
+      object-fit: cover;
+      object-position: center;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .promo-banner-fade {
+      display: none;
+    }
+
+    .promo-copy {
+      max-width: 100%;
+      padding: 1.1rem 1.25rem 1.25rem;
+    }
+
+    .promo-copy h2 {
+      font-size: 1.25rem;
+    }
+
+    .promo-copy p {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .promo-cta {
+      font-size: 0.82rem;
+    }
+
+    .featured-post {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .featured-thumb {
+      width: 100%;
     }
   }
 </style>

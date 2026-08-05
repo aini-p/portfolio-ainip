@@ -1,0 +1,175 @@
+---
+export interface Props {
+  title: string;
+  icon?: string;
+  seeMoreHref?: string;
+  seeMoreLabel?: string;
+  id?: string;
+}
+
+const { title, icon, seeMoreHref, seeMoreLabel, id } = Astro.props;
+---
+<section class="rail" id={id}>
+  <div class="rail-head">
+    <h2>
+      {icon && <i class={icon} aria-hidden="true"></i>}
+      {title}
+    </h2>
+    {seeMoreHref && seeMoreLabel && (
+      <a class="see-more" href={seeMoreHref}>
+        {seeMoreLabel}
+        <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      </a>
+    )}
+  </div>
+  <div class="rail-track">
+    <slot />
+  </div>
+</section>
+
+<script>
+  // サムネ上をドラッグしてもレールが横スクロールするようにする（掴んでもスクロールバー自体でないと
+  // 動かせない、という操作性の悪さを解消するため）。ドラッグ距離が閾値を超えた場合のみクリックを
+  // キャンセルし、通常のクリック（カードへの遷移）を邪魔しないようにする。
+  function initDragScroll(track: HTMLElement) {
+    let isDown = false;
+    let moved = false;
+    let startX = 0;
+    let scrollStart = 0;
+
+    function endDrag() {
+      if (!isDown) return;
+      isDown = false;
+      track.classList.remove("dragging");
+    }
+
+    // カード(<a>)やサムネ(<img>)はブラウザ標準でドラッグ可能な要素のため、そのままだと
+    // 「リンクをドラッグしてブックマーク/新規タブを作る」というネイティブ操作が割り込み、
+    // 自前のスクロール処理と衝突してカーソルにテキストが張り付いたような挙動になる。
+    // dragstartを止めて、独自のmousedown/mousemoveだけでスクロールを制御する。
+    track.addEventListener("dragstart", (e) => {
+      e.preventDefault();
+    });
+
+    track.addEventListener("mousedown", (e) => {
+      isDown = true;
+      moved = false;
+      startX = e.pageX;
+      scrollStart = track.scrollLeft;
+      track.classList.add("dragging");
+      e.preventDefault();
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDown) return;
+      const dx = e.pageX - startX;
+      if (Math.abs(dx) > 5) moved = true;
+      track.scrollLeft = scrollStart - dx;
+    });
+
+    window.addEventListener("mouseup", endDrag);
+    window.addEventListener("blur", endDrag);
+
+    track.addEventListener(
+      "click",
+      (e) => {
+        if (moved) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      },
+      true,
+    );
+  }
+
+  document.querySelectorAll<HTMLElement>(".rail-track").forEach(initDragScroll);
+</script>
+
+<style>
+  .rail {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .rail-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .rail-head h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .rail-head h2 i {
+    color: var(--heart);
+    font-size: 1rem;
+  }
+
+  .see-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .see-more:hover {
+    color: var(--text-primary);
+  }
+
+  .rail-track {
+    display: flex;
+    gap: 0.85rem;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    cursor: grab;
+  }
+
+  .rail-track.dragging {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  .rail-track > :global(*) {
+    scroll-snap-align: start;
+    scroll-snap-stop: normal;
+  }
+
+  .rail-track :global(a),
+  .rail-track :global(img) {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
+  .rail-track::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .rail-track::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 999px;
+  }
+
+  @media (width <= 768px) {
+    .rail-head h2 {
+      font-size: 0.95rem;
+    }
+  }
+</style>

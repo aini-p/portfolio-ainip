@@ -1,0 +1,157 @@
+---
+import { discordUrl } from "~/constants/social";
+import { ui } from "~/i18n/ui";
+
+export interface Props {
+  lang: "ja" | "en";
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+---
+<div class="discord-float" id="discord-float">
+  <button type="button" class="discord-float-close" id="discord-float-close" aria-label="close">
+    <i class="ti ti-x" aria-hidden="true"></i>
+  </button>
+  <a class="discord-float-link" href={discordUrl} target="_blank" rel="noopener noreferrer">
+    <i class="ti ti-brand-discord discord-float-icon" aria-hidden="true"></i>
+    <div class="discord-float-copy">
+      <p class="discord-float-lead">{t["discord.floatLead"]}</p>
+      <p class="discord-float-sub">{t["discord.floatSub"]}</p>
+      <span class="discord-float-cta">{t["discord.floatCta"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+    </div>
+  </a>
+</div>
+
+<script is:inline>
+  const STORAGE_KEY = "discord-float-dismissed";
+  const el = document.getElementById("discord-float");
+  const closeBtn = document.getElementById("discord-float-close");
+
+  if (el && sessionStorage.getItem(STORAGE_KEY)) {
+    el.style.display = "none";
+  }
+
+  closeBtn?.addEventListener("click", () => {
+    sessionStorage.setItem(STORAGE_KEY, "1");
+    if (el) el.style.display = "none";
+  });
+</script>
+
+<style is:global>
+  .discord-float {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 40;
+    max-width: 300px;
+  }
+
+  .discord-float-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: var(--radius-lg);
+    background: #4b5ac4;
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 6px 24px rgb(0 0 0 / 40%);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .discord-float-link:hover,
+  .discord-float-link:focus-visible {
+    background: #5b6ad8;
+    transform: translateY(-2px);
+  }
+
+  .discord-float-icon {
+    font-size: 30px;
+    flex-shrink: 0;
+  }
+
+  .discord-float-copy {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .discord-float-lead {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .discord-float-sub {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgb(255 255 255 / 85%);
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .discord-float-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    width: fit-content;
+    gap: 0.25rem;
+    margin-top: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #4b5ac4;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .discord-float-cta i {
+    font-size: 0.85em;
+  }
+
+  .discord-float-close {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-strong);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+    z-index: 1;
+  }
+  .discord-float-close:hover {
+    color: var(--text-primary);
+    border-color: var(--accent-strong);
+  }
+
+  @media (width <= 768px) {
+    .discord-float {
+      right: 0.75rem;
+      bottom: 0.75rem;
+      max-width: 260px;
+    }
+    .discord-float-link {
+      padding: 0.8rem 0.95rem;
+    }
+    .discord-float-lead {
+      font-size: 0.92rem;
+    }
+    .discord-float-sub {
+      font-size: 0.78rem;
+    }
+    .discord-float-cta {
+      font-size: 0.78rem;
+    }
+  }
+</style>

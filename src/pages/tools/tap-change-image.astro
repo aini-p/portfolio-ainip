@@ -1,5 +1,6 @@
 ---
 import DualImageComposer from "~/components/DualImageComposer.astro";
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
@@ -25,35 +26,43 @@ const appJsonLd = {
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
 
-  <DualImageComposer
-    bannerSrc="/images/tap_change_image_chan.jpg"
-    bannerAlt={t["tool.pageTitle"]}
-    shareUrl={new URL("/tools/tap-change-image", Astro.site).toString()}
-    copy={{
-      title: t["tool.pageTitle"],
-      lead: t["tool.lead"],
-      whiteInput: t["tool.whiteInput"],
-      blackInput: t["tool.blackInput"],
-      dropHint: t["tool.dropHint"],
-      chooseButton: t["tool.chooseButton"],
-      fileHint: t["tool.fileHint"],
-      resizeX: t["tool.resizeX"],
-      generate: t["tool.generate"],
-      download: t["tool.download"],
-      previewWhite: t["tool.previewWhite"],
-      previewBlack: t["tool.previewBlack"],
-      statusIdle: t["tool.statusIdle"],
-      statusNeedBoth: t["tool.statusNeedBoth"],
-      statusWorking: t["tool.statusWorking"],
-      statusReady: t["tool.statusReady"],
-      statusError: t["tool.statusError"],
-      contactLabel: t["tool.contactLabel"],
-      contactLinkText: t["tool.contactLinkText"],
-      noteApproximation: t["tool.noteApproximation"],
-      noteResize: t["tool.noteResize"],
-      contactHref: "/profile",
-      shareButton: t["tool.shareButton"],
-      shareText: t["tool.shareText"],
-    }}
-  />
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <DualImageComposer
+          bannerSrc="/images/tap_change_image_chan.jpg"
+          bannerAlt={t["tool.pageTitle"]}
+          shareUrl={new URL("/tools/tap-change-image", Astro.site).toString()}
+          copy={{
+            title: t["tool.pageTitle"],
+            lead: t["tool.lead"],
+            whiteInput: t["tool.whiteInput"],
+            blackInput: t["tool.blackInput"],
+            dropHint: t["tool.dropHint"],
+            chooseButton: t["tool.chooseButton"],
+            fileHint: t["tool.fileHint"],
+            resizeX: t["tool.resizeX"],
+            generate: t["tool.generate"],
+            download: t["tool.download"],
+            previewWhite: t["tool.previewWhite"],
+            previewBlack: t["tool.previewBlack"],
+            statusIdle: t["tool.statusIdle"],
+            statusNeedBoth: t["tool.statusNeedBoth"],
+            statusWorking: t["tool.statusWorking"],
+            statusReady: t["tool.statusReady"],
+            statusError: t["tool.statusError"],
+            contactLabel: t["tool.contactLabel"],
+            contactLinkText: t["tool.contactLinkText"],
+            noteApproximation: t["tool.noteApproximation"],
+            noteResize: t["tool.noteResize"],
+            contactHref: "/profile",
+            shareButton: t["tool.shareButton"],
+            shareText: t["tool.shareText"],
+          }}
+        />
+      </div>
+    </HomeStyleSidebars>
+   </div>
+  </div>
 </BaseLayout>

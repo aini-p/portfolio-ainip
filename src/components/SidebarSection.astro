@@ -1,0 +1,88 @@
+---
+export interface Props {
+  // 見出しなしで使いたい場合（例: 広告バナー単体）はtitleを省略できる
+  title?: string;
+  href?: string;
+  // 表示件数を絞ったリストの残りへの導線。href（見出し全体のリンク）とは別に、
+  // 見出し右側に小さな「もっと見る」リンクとして表示する
+  seeMoreHref?: string;
+  seeMoreLabel?: string;
+}
+
+const { title, href, seeMoreHref, seeMoreLabel } = Astro.props;
+---
+<section class="sidebar-section">
+  {title && (
+    <div class="sidebar-section-head">
+      <h3>
+        {href ? <a href={href}>{title}</a> : title}
+      </h3>
+      {seeMoreHref && seeMoreLabel && (
+        <a class="sidebar-section-see-more" href={seeMoreHref}>
+          {seeMoreLabel}
+          <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </a>
+      )}
+    </div>
+  )}
+  <div class="sidebar-grid">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .sidebar-section {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .sidebar-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .sidebar-section h3 {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .sidebar-section h3 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .sidebar-section h3 a:hover {
+    color: var(--accent-strong);
+  }
+
+  .sidebar-section-see-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .sidebar-section-see-more:hover {
+    color: var(--text-primary);
+  }
+
+  .sidebar-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+
+  /* nowrapタイトルなど中身の内容によって列幅が不均等にならないよう、
+     grid itemの自動最小サイズ(min-width: auto)を無効化してトラック幅を揃える */
+  .sidebar-grid > :global(*) {
+    min-width: 0;
+  }
+</style>

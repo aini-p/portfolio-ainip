@@ -1,0 +1,108 @@
+---
+export interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+---
+<button type="button" class="like-button" data-slug={slug} aria-pressed="false">
+  <i class="ti ti-heart" aria-hidden="true"></i>
+  <span class="like-count">–</span>
+</button>
+
+<script>
+  const API_BASE = import.meta.env.PUBLIC_API_BASE as string | undefined;
+
+  function likedKey(slug: string) {
+    return `at5fun:liked:${slug}`;
+  }
+
+  async function loadCount(button: HTMLButtonElement) {
+    const slug = button.dataset.slug;
+    const countEl = button.querySelector<HTMLSpanElement>(".like-count");
+    if (!slug || !countEl) return;
+
+    if (localStorage.getItem(likedKey(slug))) {
+      button.classList.add("is-liked");
+      button.setAttribute("aria-pressed", "true");
+    }
+
+    if (!API_BASE) {
+      countEl.textContent = "0";
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/likes/${encodeURIComponent(slug)}`);
+      const data = await res.json();
+      countEl.textContent = String(data.count ?? 0);
+    } catch {
+      countEl.textContent = "0";
+    }
+  }
+
+  async function handleClick(button: HTMLButtonElement) {
+    const slug = button.dataset.slug;
+    const countEl = button.querySelector<HTMLSpanElement>(".like-count");
+    if (!slug || !countEl || !API_BASE) return;
+    if (localStorage.getItem(likedKey(slug))) return;
+
+    button.classList.add("is-liked");
+    button.setAttribute("aria-pressed", "true");
+    const current = Number(countEl.textContent) || 0;
+    countEl.textContent = String(current + 1);
+    localStorage.setItem(likedKey(slug), "1");
+
+    const gtag = (window as typeof window & { gtag?: (...args: unknown[]) => void }).gtag;
+    if (typeof gtag === "function") {
+      gtag("event", "like_click", { slug });
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/likes/${encodeURIComponent(slug)}`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      countEl.textContent = String(data.count ?? current + 1);
+    } catch {
+      // 楽観的更新のまま維持する
+    }
+  }
+
+  document.querySelectorAll<HTMLButtonElement>(".like-button").forEach((button) => {
+    loadCount(button);
+    button.addEventListener("click", () => handleClick(button));
+  });
+</script>
+
+<style>
+  .like-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .like-button i {
+    font-size: 15px;
+    color: var(--heart);
+  }
+
+  .like-button:hover,
+  .like-button:focus-visible {
+    border-color: var(--heart);
+  }
+
+  .like-button.is-liked {
+    background: var(--accent-soft);
+    border-color: var(--heart);
+  }
+</style>

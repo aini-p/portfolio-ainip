@@ -1,19 +1,39 @@
 ---
-import { Image } from "astro:assets";
+import { getImage, Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import AffiliateColumn from "~/components/AffiliateColumn.astro";
+import ArticleImageStack from "~/components/ArticleImageStack.astro";
+import ArtworkCard from "~/components/ArtworkCard.astro";
+import AuthorComment from "~/components/AuthorComment.astro";
+import LikeButton from "~/components/LikeButton.astro";
+import RankingList from "~/components/RankingList.astro";
+import SeriesList from "~/components/SeriesList.astro";
+import ShareButtons from "~/components/ShareButtons.astro";
+import SidebarSection from "~/components/SidebarSection.astro";
+import { patreonMembershipUrl, profileNames } from "~/constants/social";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import {
+  formatImageCountLabel,
+  formatMembershipCtaLead,
+  getArtworkCharacters,
+  getHeaderImage,
+  getPortfolioImages,
+  getSampleImages,
+  getShareImage,
+  getTotalImageCount,
+} from "~/utils/artwork";
+import { toPathSafeSlug } from "~/utils/slug";
 
 const lang = "en";
 // 英語ページとして固定
 
 export async function getStaticPaths() {
-  // 英語の作品データのみを取得
   const artworks = await getCollection("artworks", ({ id }) =>
     id.startsWith("en/"),
   );
   return artworks.map((artwork) => ({
-    params: { slug: artwork.slug.replace(/^(en)\//, "") }, // slugから言語プレフィックスを除去
+    params: { slug: artwork.slug.replace(/^(en)\//, "") },
     props: { artwork },
   }));
 }
@@ -21,192 +41,552 @@ export async function getStaticPaths() {
 const { artwork } = Astro.props;
 const { Content } = await artwork.render();
 const t = ui[lang];
-const hasPatreonUrl =
-  artwork.data.patreonUrl &&
-  artwork.data.patreonUrl !== "None" &&
-  artwork.data.patreonUrl !== "";
 
-// メインキャラクターとサブキャラクターのリストを定義
-let mainCharacter: string | undefined;
-let subCharacters: string[] = [];
+const allCharacters = getArtworkCharacters(artwork);
+const portfolioImages = getPortfolioImages(artwork);
+const sampleImages = getSampleImages(artwork);
+const totalImageCount = getTotalImageCount(artwork);
+const hasBody = Boolean(artwork.body?.trim().length);
 
-// 新しいフォーマット（main_character, sub_characters）を優先
-if (artwork.data.main_character) {
-  mainCharacter = artwork.data.main_character;
-  // sub_charactersが存在すれば追加
-  if (artwork.data.sub_characters) {
-    subCharacters = artwork.data.sub_characters;
+const pageUrl = new URL(
+  `/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`,
+  Astro.site,
+).toString();
+
+const shareImage = await getImage({
+  src: getShareImage(artwork),
+  format: "webp",
+  width: 1200,
+});
+
+const artworkJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  name: artwork.data.title,
+  description: artwork.data.description,
+  image: new URL(shareImage.src, Astro.site).toString(),
+  url: pageUrl,
+  inLanguage: lang,
+  datePublished: artwork.data.publishDate.toISOString(),
+  keywords: artwork.data.keywords.join(", "),
+  author: { "@type": "Person", name: profileNames[lang] },
+  creator: { "@type": "Person", name: profileNames[lang] },
+  ...(artwork.data.series
+    ? { isPartOf: { "@type": "CreativeWorkSeries", name: artwork.data.series } }
+    : {}),
+};
+
+const allArtworks = await getCollection("artworks", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
+const allDoujinshi = await getCollection("doujinshi", ({ id }) =>
+  id.startsWith(`${lang}/`),
+);
+
+const RELATED_ARTWORKS_LIMIT = 10;
+const relatedBySeriesAll = artwork.data.series
+  ? allArtworks
+      .filter(
+        (a) => a.slug !== artwork.slug && a.data.series === artwork.data.series,
+      )
+      .sort(
+        (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
+      )
+  : [];
+const hasMoreRelatedArtworks =
+  relatedBySeriesAll.length > RELATED_ARTWORKS_LIMIT;
+const relatedBySeries = relatedBySeriesAll.slice(0, RELATED_ARTWORKS_LIMIT);
+
+const RELATED_DOUJINSHI_LIMIT = 4;
+const sameSeriesDoujinshiAll = artwork.data.series
+  ? allDoujinshi.filter((d) => d.data.series === artwork.data.series)
+  : [];
+const hasMoreRelatedDoujinshi =
+  sameSeriesDoujinshiAll.length > RELATED_DOUJINSHI_LIMIT;
+const sameSeriesDoujinshi = sameSeriesDoujinshiAll.slice(
+  0,
+  RELATED_DOUJINSHI_LIMIT,
+);
+
+// Left sidebar like rankings: artworks ranking covers everything, doujinshi ranking is own works only
+const artworkRankingIndex = await Promise.all(
+  allArtworks.map(async (a) => {
+    const optimized = await getImage({
+      src: getHeaderImage(a),
+      width: 480,
+      format: "webp",
+    });
+    return {
+      slug: a.slug.replace(`${lang}/`, ""),
+      title: a.data.title,
+      thumb: optimized.src,
+      href: `/en/gallery/${a.slug.replace(`${lang}/`, "")}`,
+    };
+  }),
+);
+const doujinshiRankingIndex = await Promise.all(
+  allDoujinshi
+    .filter((d) => d.data.isOwnWork !== false)
+    .map(async (d) => {
+      const optimized = await getImage({
+        src: d.data.packageImage,
+        width: 480,
+        format: "webp",
+      });
+      return {
+        slug: `doujinshi-${d.slug.replace(`${lang}/`, "")}`,
+        title: d.data.title,
+        thumb: optimized.src,
+        href: `/en/doujinshi/${d.slug.replace(`${lang}/`, "")}`,
+      };
+    }),
+);
+
+// "Articles by work" list at the bottom of the right sidebar
+const seriesMap = new Map<
+  string,
+  { count: number; latest: (typeof allArtworks)[number] }
+>();
+for (const a of [...allArtworks].sort(
+  (x, y) => y.data.publishDate.valueOf() - x.data.publishDate.valueOf(),
+)) {
+  const series = a.data.series;
+  if (!series) continue;
+  const existing = seriesMap.get(series);
+  if (existing) {
+    existing.count += 1;
+  } else {
+    seriesMap.set(series, { count: 1, latest: a });
   }
 }
-// 古いフォーマット（characters）へのフォールバック
-else if (artwork.data.characters && artwork.data.characters.length > 0) {
-  // 配列の先頭をメイン、残りをサブとする
-  [mainCharacter, ...subCharacters] = artwork.data.characters;
-}
+const SERIES_LIST_LIMIT = 10;
+const hasMoreSeries = seriesMap.size > SERIES_LIST_LIMIT;
+const seriesList = await Promise.all(
+  [...seriesMap.entries()]
+    .map(([name, data]) => ({ name, count: data.count, latest: data.latest }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, SERIES_LIST_LIMIT)
+    .map(async (series) => {
+      const optimized = await getImage({
+        src: getHeaderImage(series.latest),
+        width: 400,
+        format: "webp",
+      });
+      return {
+        name: series.name,
+        count: series.count,
+        thumb: optimized.src,
+        href: `/en/gallery/series/${encodeURIComponent(toPathSafeSlug(series.name))}`,
+      };
+    }),
+);
 
-// 表示用の全キャラクターリストを作成（undefinedやnullを除外）
-const allCharacters = [mainCharacter, ...subCharacters].filter(
-  Boolean,
-) as string[];
-
-// 関連イラストも英語データから取得
 const relatedArtworks = artwork.data.relatedImages
   ? await getCollection("artworks", ({ id, slug }) => {
-      // 1. 言語をチェック
       const artworkLang = id.split("/")[0];
-      if (artworkLang !== lang) {
-        return false;
-      }
-
-      // 2. 基本スラッグ（ファイル名部分）を取得
-      const artworkSlug = slug.replace(`${lang}/`, "");
-
-      // 3. 'ja' と同じロジック (slug を includes で比較)
-      return artwork.data.relatedImages?.includes(artworkSlug);
+      const artworkSlug = slug.replace(/^(en)\//, "");
+      return (
+        artworkLang === lang &&
+        artwork.data.relatedImages?.includes(artworkSlug)
+      );
     })
   : [];
 ---
-<BaseLayout title={artwork.data.title} description={artwork.data.description} keywords={artwork.data.keywords.join(', ')}>
-  <div class="container">
-    <article class="artwork-detail">
-      <div class="main-image">
-        <Image 
-          src={artwork.data.src} 
+<BaseLayout
+  title={artwork.data.title}
+  description={artwork.data.description}
+  keywords={artwork.data.keywords.join(', ')}
+  image={{ src: shareImage.src, alt: artwork.data.title }}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(artworkJsonLd)} />
+  <div class="detail-shell">
+   <div class="detail-grid">
+    <AffiliateColumn lang={lang} adBanner>
+      <SidebarSection title={t["home.ranking"]}>
+        <RankingList
+          id="article-ranking-artworks"
+          rankingIndex={artworkRankingIndex}
+          labels={{
+            daily: t["home.rankingDaily"],
+            monthly: t["home.rankingMonthly"],
+            yearly: t["home.rankingYearly"],
+          }}
+          emptyText={t["home.rankingEmpty"]}
+          limit={5}
+          seeMoreHref="/en/ranking"
+          seeMoreLabel={t["home.seeMore"]}
+        />
+      </SidebarSection>
+
+      {doujinshiRankingIndex.length > 0 && (
+        <SidebarSection title={t["home.doujinshiRanking"]}>
+          <RankingList
+            id="article-ranking-doujinshi"
+            rankingIndex={doujinshiRankingIndex}
+            labels={{
+              daily: t["home.rankingDaily"],
+              monthly: t["home.rankingMonthly"],
+              yearly: t["home.rankingYearly"],
+            }}
+            emptyText={t["home.rankingEmpty"]}
+            limit={5}
+          />
+        </SidebarSection>
+      )}
+    </AffiliateColumn>
+
+    <article class="main-column">
+      <h1>{artwork.data.title}{formatImageCountLabel(totalImageCount, lang)}</h1>
+
+      <div class="hero-frame">
+        <Image
+          src={getHeaderImage(artwork)}
           alt={artwork.data.title}
           quality="max"
-          style="width: 100%; height: auto;"
+          format="webp"
+          width={1200}
         />
       </div>
-      <div class="artwork-info">
-        <h1>{artwork.data.title}</h1>
-        
-        {/* ▼▼▼ キャラクター・シリーズ リンク ▼▼▼ */}
-        <div class="artwork-meta">
-          {/* キャラクターリンク */}
-          {allCharacters.length > 0 && (
-            <div class="meta-characters">
-              {allCharacters.map((char, index) => (
-                <>
-                  <a href={`/en/gallery/character/${encodeURIComponent(char)}`}>
-                    {char}
-                  </a>
-                  {index < allCharacters.length - 1 && ', '}
-                </>
-              ))}
-            </div>
-          )}
 
-          {/* 作品シリーズリンク (文字列) */}
-          {artwork.data.series && (
-            <div class="meta-series">
-              {/* キャラクターが既にある場合は区切り線を追加 */}
-              {allCharacters.length > 0 && ' / '}
-              <a href={`/en/gallery/series/${encodeURIComponent(artwork.data.series)}`}>
-                {artwork.data.series}
-              </a>
-            </div>
-          )}
-        </div>
-        {/* ▲▲▲ ここまで ▲▲▲ */}
-
-        {/* Patreonバナー */}
-        {hasPatreonUrl && artwork.data.patreonEmbedImageUrl && (
-          <a href={artwork.data.patreonUrl} target="_blank" rel="noopener noreferrer" class="patreon-link">
-            <Image 
-              src={artwork.data.patreonEmbedImageUrl} 
-              alt="Support on Patreon"
-              width={800}
-              height={200}
-              format="webp"
-              style="width: 100%; height: auto; border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s;"
-            />
+      <div class="artwork-meta">
+        {artwork.data.series && (
+          <a class="series-tag" href={`/en/gallery/series/${encodeURIComponent(toPathSafeSlug(artwork.data.series))}`}>
+            {artwork.data.series}
           </a>
         )}
+        {allCharacters.map((char) => (
+          <a class="character-tag" href={`/en/gallery/character/${encodeURIComponent(toPathSafeSlug(char))}`}>
+            {char}
+          </a>
+        ))}
+      </div>
 
-        <div class="artwork-body"><Content /></div>
-        
-        {/* 関連イラスト */}
-        {relatedArtworks.length > 0 && (
-          <div class="related-works">
-            <h2>{t['artwork.related']}</h2>
-            <div class="thumbnail-grid">
-              {relatedArtworks.map((related) => (
-                // 関連イラストへのリンクも /en/gallery/...
-                <a href={`/en/gallery/${related.slug.replace(`${lang}/`, '')}`}>
-                  <Image src={related.data.src} alt={related.data.title} width={150} height={150} />
-                </a>
-              ))}
-            </div>
+      <div class="action-row">
+        <LikeButton slug={artwork.slug.replace(`${lang}/`, "")} />
+        <ShareButtons lang={lang} url={pageUrl} text={artwork.data.title} />
+      </div>
+
+      {hasBody && (
+        <AuthorComment
+          heading={t["doujinshi.authorCommentHeading"]}
+          profileLabel={t["nav.profile"]}
+          profileHref="/en/profile"
+        >
+          <Content />
+        </AuthorComment>
+      )}
+
+      <div class="membership-intro">
+        <div class="membership-intro-copy">
+          <p class="membership-intro-lead"><i class="ti ti-lock-open" aria-hidden="true"></i> {t["artwork.introSample"]}</p>
+          <p class="membership-intro-detail">
+            Members can view all <strong>{totalImageCount} images</strong>, unfiltered!
+          </p>
+        </div>
+        <a href="/en/membership" class="membership-intro-link">
+          {t["artwork.membershipMoreLink"]} <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <ArticleImageStack images={portfolioImages} groupId="portfolio" eagerCount={2} />
+
+      {sampleImages.length > 0 && (
+        <ArticleImageStack images={sampleImages} groupId="sample" eagerCount={0} />
+      )}
+
+      <div class="membership-outro">
+        <p class="membership-cta-lead">{formatMembershipCtaLead(totalImageCount, lang)}</p>
+        <a
+          href={patreonMembershipUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="membership-cta"
+          data-ga-event="membership_cta_click"
+          data-ga-source="article"
+          data-ga-item={artwork.slug.replace(`${lang}/`, "")}
+        >
+          <span class="membership-cta-text">
+            <strong>{t["artwork.membershipCta"]}</strong>
+            <i class="ti ti-external-link" aria-hidden="true"></i>
+          </span>
+        </a>
+        <a href="/en/membership" class="membership-more-link">{t["artwork.membershipMoreLink"]}</a>
+      </div>
+
+      {relatedArtworks.length > 0 && (
+        <div class="related-works">
+          <h2>{t['artwork.related']}</h2>
+          <div class="thumbnail-grid">
+            {relatedArtworks.map((related) => (
+              <ArtworkCard
+                href={`/en/gallery/${related.slug.replace(`${lang}/`, '')}`}
+                title={`${related.data.title}${formatImageCountLabel(getTotalImageCount(related), lang)}`}
+                image={getHeaderImage(related)}
+                slug={related.slug.replace(`${lang}/`, '')}
+              />
+            ))}
           </div>
-        )}
+        </div>
+      )}
+
+      <div class="action-row action-row-bottom">
+        <LikeButton slug={artwork.slug.replace(`${lang}/`, "")} />
+        <ShareButtons lang={lang} url={pageUrl} text={artwork.data.title} />
       </div>
     </article>
+
+    <aside class="sidebar-column sidebar-column-right">
+      {artwork.data.series && sameSeriesDoujinshi.length > 0 && (
+        <SidebarSection
+          title={`${artwork.data.series}${t["sidebar.doujinshiBySeries"]}`}
+          seeMoreHref={hasMoreRelatedDoujinshi ? "/en/doujinshi" : undefined}
+          seeMoreLabel={hasMoreRelatedDoujinshi ? t["home.seeMore"] : undefined}
+        >
+          {sameSeriesDoujinshi.map((item) => (
+            <a class="recommend-card" href={`/en/doujinshi/${item.slug.replace(`${lang}/`, '')}`}>
+              <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={240} />
+            </a>
+          ))}
+        </SidebarSection>
+      )}
+
+      {artwork.data.series && relatedBySeries.length > 0 && (
+        <SidebarSection
+          title={`${artwork.data.series}${t["sidebar.moreBySeries"]}`}
+          seeMoreHref={hasMoreRelatedArtworks ? `/en/gallery/series/${encodeURIComponent(toPathSafeSlug(artwork.data.series))}` : undefined}
+          seeMoreLabel={hasMoreRelatedArtworks ? t["home.seeMore"] : undefined}
+        >
+          {relatedBySeries.map((related) => (
+            <ArtworkCard
+              href={`/en/gallery/${related.slug.replace(`${lang}/`, '')}`}
+              title={`${related.data.title}${formatImageCountLabel(getTotalImageCount(related), lang)}`}
+              image={getHeaderImage(related)}
+              slug={related.slug.replace(`${lang}/`, '')}
+            />
+          ))}
+        </SidebarSection>
+      )}
+
+      {seriesList.length > 0 && (
+        <SidebarSection title={t["home.worksListHeading"]}>
+          <SeriesList
+            id="article-series"
+            items={seriesList}
+            countSuffix={t["home.seriesCountSuffix"]}
+            seeMoreHref={hasMoreSeries ? "/en/gallery/series" : undefined}
+            seeMoreLabel={hasMoreSeries ? t["home.seeMore"] : undefined}
+          />
+        </SidebarSection>
+      )}
+    </aside>
+   </div>
   </div>
 </BaseLayout>
 <style is:inline>
-  /* 日本語の[slug].astroと同じスタイルをコピー */
-  .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-  .artwork-detail { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start; }
-  .main-image { width: 100%; }
-  h1 { font-size: 2.0rem; margin-bottom: 1.5rem; }
-  .artwork-body { margin-top: 1.5rem; }
+  .detail-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    gap: 2rem;
+  }
 
-  /* ▼▼▼ 追加したメタ（キャラ名/作品名）のスタイル ▼▼▼ */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .main-column {
+    display: grid;
+    gap: 1.6rem;
+    min-width: 0;
+  }
+
+  .sidebar-column {
+    display: grid;
+    gap: 1.75rem;
+    min-width: 0;
+    position: sticky;
+    top: 96px;
+  }
+
+  /* Only show the left affiliate column when there's enough spare width that it
+     won't eat into the main content column */
+  .sidebar-column-left {
+    display: none;
+  }
+
+  @media (min-width: 1480px) {
+    .detail-shell {
+      max-width: 1540px;
+    }
+    .detail-grid {
+      grid-template-columns: 300px 1fr 300px;
+    }
+    .sidebar-column-left {
+      display: grid;
+    }
+  }
+
+  .hero-frame {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--bg-elevated);
+  }
+  .hero-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  h1 { font-size: 2.0rem; margin: 0; color: var(--text-primary); }
+
   .artwork-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
-    margin-bottom: 1.5rem;
-    font-size: 1.25rem;
-    color: light-dark(var(--text-light, #777), var(--text-dark, #aaa));
   }
-  .meta-characters, .meta-series {
-    display: inline;
-  }
-  .artwork-meta a {
-    color: light-dark(var(--text-light, #555), var(--text-dark, #ddd));
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
-    transition: color 0.2s;
-  }
-  .artwork-meta a:hover {
-    color: light-dark(#000, #fff);
-  }
-  /* ▲▲▲ ここまで ▲▲▲ */
 
-  .patreon-link img { width: 100%; border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s; }
-  .patreon-link:hover img { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-  .related-works { margin-top: 2rem; }
-  .related-works h2 { font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 2px solid #ccc; padding-bottom: 0.5rem; }
-  .thumbnail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; }
-  .thumbnail-grid a {
-    display: block;
-    aspect-ratio: 1 / 1;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgb(39 30 18 / 8%);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  .character-tag {
+    font-size: 0.82rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--border-strong);
+    color: var(--text-secondary);
+    text-decoration: none;
   }
-  .thumbnail-grid a:hover,
-  .thumbnail-grid a:focus-visible {
-    transform: scale(1.02);
-    box-shadow: 0 7px 16px rgb(39 30 18 / 12%);
+  .character-tag:hover { border-color: var(--accent-strong); color: var(--text-primary); }
+
+  .series-tag {
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    text-decoration: none;
   }
-  .thumbnail-grid img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+  .series-tag:hover { background: var(--accent); color: #fff; }
+
+  .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .action-row-bottom {
+    padding-top: 1.6rem;
+    border-top: 0.5px solid var(--border-subtle);
+  }
+
+  .membership-intro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1rem 1.2rem;
+    border-radius: var(--radius-md);
+    background: var(--accent-soft);
+    border: 0.5px solid var(--accent);
+    color: var(--text-primary);
+  }
+  .membership-intro-copy { display: grid; gap: 0.3rem; }
+  .membership-intro-lead { margin: 0; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+  .membership-intro-lead i { color: var(--heart); font-size: 16px; }
+  .membership-intro-detail { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+  .membership-intro-detail strong { color: var(--accent-strong); font-size: 1.15em; }
+  .membership-intro-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 0.5px solid var(--accent);
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .membership-intro-link:hover { background: var(--accent); color: #fff; }
+
+  .membership-outro {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+  }
+  .membership-cta-lead {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .membership-cta {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    text-decoration: none;
+    transition: transform 0.2s ease;
+  }
+  .membership-cta:hover,
+  .membership-cta:focus-visible {
+    transform: scale(1.01);
+  }
+  .membership-cta-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff;
+    font-size: 1.15rem;
+  }
+  .membership-cta-text i { font-size: 18px; }
+
+  .membership-more-link {
+    justify-self: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .membership-more-link:hover { color: var(--text-primary); }
+
+  .related-works { margin-top: 0.5rem; }
+  .related-works h2 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 500; border-bottom: 0.5px solid var(--border-subtle); padding-bottom: 0.5rem; }
+  .thumbnail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+
+  .recommend-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--bg-elevated-2);
+  }
+  .recommend-card img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+
+  @media (max-width: 960px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .sidebar-column { position: static; }
+  }
+
   @media (max-width: 768px) {
-    .container {
-      padding: 1rem;
-    }
-    .artwork-detail {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-    h1 {
-      font-size: 2rem;
-    }
-    .related-works h2 {
-      font-size: 1.3rem;
-    }
+    .detail-shell { padding: 1rem; gap: 1.25rem; }
+    h1 { font-size: 1.6rem; }
+    .related-works h2 { font-size: 1.15rem; }
+    .membership-cta-text { font-size: 1rem; }
   }
-  @media (prefers-color-scheme: dark) { .related-works h2 { border-color: #555; } }
 </style>

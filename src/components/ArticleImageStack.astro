@@ -1,0 +1,73 @@
+---
+import { getImage, Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+export interface Props {
+  images: ImageMetadata[];
+  groupId: string;
+  eagerCount?: number;
+}
+
+const { images, groupId, eagerCount = 1 } = Astro.props;
+
+const resolved = await Promise.all(
+  images.map(async (image) => {
+    const full = await getImage({ src: image, format: "webp", width: 1600 });
+    return { image, fullSrc: full.src };
+  }),
+);
+---
+<div class="image-stack" data-fancybox-group={groupId}>
+  {resolved.map(({ image, fullSrc }, index) => (
+    <a href={fullSrc} data-fancybox={groupId} class="stack-item">
+      <Image
+        src={image}
+        alt=""
+        format="webp"
+        width={1200}
+        loading={index < eagerCount ? "eager" : "lazy"}
+      />
+    </a>
+  ))}
+</div>
+
+<script>
+  import { Fancybox } from "@fancyapps/ui/dist/fancybox/fancybox.js";
+  import "@fancyapps/ui/dist/fancybox/fancybox.css";
+
+  document.querySelectorAll<HTMLElement>("[data-fancybox-group]").forEach((el) => {
+    const group = el.dataset.fancyboxGroup;
+    if (!group) return;
+    Fancybox.bind(`[data-fancybox="${group}"]`, {});
+  });
+</script>
+
+<style>
+  .image-stack {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .stack-item {
+    display: block;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated);
+    cursor: zoom-in;
+    text-align: center;
+  }
+
+  .stack-item img {
+    display: inline-block;
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+  }
+
+  @media (width <= 768px) {
+    .stack-item img {
+      max-height: 60vh;
+    }
+  }
+</style>

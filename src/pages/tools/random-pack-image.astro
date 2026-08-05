@@ -1,0 +1,77 @@
+---
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
+import RandomPackImageComposer from "~/components/RandomPackImageComposer.astro";
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const lang = "ja";
+const t = ui[lang];
+const appJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: t["tool5.pageTitle"],
+  applicationCategory: "MultimediaApplication",
+  operatingSystem: "Web",
+  inLanguage: "ja",
+  url: new URL("/tools/random-pack-image", Astro.site).toString(),
+  description: t["tool5.pageDescription"],
+};
+---
+
+<BaseLayout
+  title={t["tool5.pageTitle"]}
+  description={t["tool5.pageDescription"]}
+  keywords="複数画像, ランダム配置, 画像合成, パディング, 解像度指定"
+  image={{ src: "/images/random_pack_image_chan.svg", alt: t["tool5.pageTitle"] }}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
+
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <RandomPackImageComposer
+          bannerSrc="/images/random_pack_image_chan.jpg"
+          bannerAlt={t["tool5.pageTitle"]}
+          shareUrl={new URL("/tools/random-pack-image", Astro.site).toString()}
+          copy={{
+            title: t["tool5.pageTitle"],
+            lead: t["tool5.lead"],
+            imagesInput: t["tool5.imagesInput"],
+            dropHint: t["tool5.dropHint"],
+            chooseButton: t["tool5.chooseButton"],
+            fileHint: t["tool5.fileHint"],
+            imageCount: t["tool5.imageCount"],
+            removeImage: t["tool5.removeImage"],
+            shuffleButton: t["tool5.shuffleButton"],
+            resolutionLabel: t["tool5.resolutionLabel"],
+            resolutionHelp: t["tool5.resolutionHelp"],
+            paddingLabel: t["tool5.paddingLabel"],
+            paddingHelp: t["tool5.paddingHelp"],
+            rotationLabel: t["tool5.rotationLabel"],
+            rotationHelp: t["tool5.rotationHelp"],
+            scaleLabel: t["tool5.scaleLabel"],
+            scaleHelp: t["tool5.scaleHelp"],
+            generateScale: t["tool5.generateScale"],
+            generate: t["tool5.generate"],
+            download: t["tool5.download"],
+            preview: t["tool5.preview"],
+            statusIdle: t["tool5.statusIdle"],
+            statusNeedImages: t["tool5.statusNeedImages"],
+            statusWorking: t["tool5.statusWorking"],
+            statusReady: t["tool5.statusReady"],
+            statusError: t["tool5.statusError"],
+            noteOptimization: t["tool5.noteOptimization"],
+            notePadding: t["tool5.notePadding"],
+            contactLabel: t["tool5.contactLabel"],
+            contactLinkText: t["tool5.contactLinkText"],
+            contactHref: new URL("/profile", Astro.site).toString(),
+            shareButton: t["tool5.shareButton"],
+            shareText: t["tool5.shareText"],
+          }}
+        />
+      </div>
+    </HomeStyleSidebars>
+   </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,73 @@
+---
+// トップページと同じ左右サイドバーセットを他の一覧・ハブ系ページでも使うための共通レイアウト。
+// 使用側は 3カラムグリッド（.sidebar-page-grid など、BaseLayout側で定義）の中でこのコンポーネントを
+// 1回だけ使い、中央カラムの内容を <slot /> として渡す。
+// <HomeStyleSidebars lang={lang}>
+//   <div class="main-column">...ページ本体...</div>
+// </HomeStyleSidebars>
+import AffiliateColumn from "~/components/AffiliateColumn.astro";
+import RankingList from "~/components/RankingList.astro";
+import SeriesList from "~/components/SeriesList.astro";
+import SidebarSection from "~/components/SidebarSection.astro";
+import { ui } from "~/i18n/ui";
+import { buildHomeSidebarData } from "~/utils/homeSidebarData";
+
+export interface Props {
+  lang: "ja" | "en";
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+const { rankingIndex, doujinshiRankingIndex, seriesList, hasMoreSeries } =
+  await buildHomeSidebarData(lang);
+
+const rankingHref = lang === "en" ? "/en/ranking" : "/ranking";
+const seriesHref = lang === "en" ? "/en/gallery/series" : "/gallery/series";
+
+const rankingLabels = {
+  daily: t["home.rankingDaily"],
+  monthly: t["home.rankingMonthly"],
+  yearly: t["home.rankingYearly"],
+};
+---
+<AffiliateColumn lang={lang} adBanner>
+  {doujinshiRankingIndex.length > 0 && (
+    <SidebarSection title={t["home.doujinshiRanking"]}>
+      <RankingList
+        id="page-doujinshi-ranking"
+        rankingIndex={doujinshiRankingIndex}
+        labels={rankingLabels}
+        emptyText={t["home.rankingEmpty"]}
+        limit={5}
+      />
+    </SidebarSection>
+  )}
+</AffiliateColumn>
+
+<slot />
+
+<aside class="sidebar-column sidebar-column-right">
+  <SidebarSection title={t["home.ranking"]}>
+    <RankingList
+      id="page-ranking"
+      rankingIndex={rankingIndex}
+      labels={rankingLabels}
+      emptyText={t["home.rankingEmpty"]}
+      limit={5}
+      seeMoreHref={rankingHref}
+      seeMoreLabel={t["home.seeMore"]}
+    />
+  </SidebarSection>
+
+  {seriesList.length > 0 && (
+    <SidebarSection title={t["home.worksListHeading"]}>
+      <SeriesList
+        id="page-series"
+        items={seriesList}
+        countSuffix={t["home.seriesCountSuffix"]}
+        seeMoreHref={hasMoreSeries ? seriesHref : undefined}
+        seeMoreLabel={hasMoreSeries ? t["home.seeMore"] : undefined}
+      />
+    </SidebarSection>
+  )}
+</aside>

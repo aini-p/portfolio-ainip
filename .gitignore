@@ -22,3 +22,9 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Cloudflare Worker (worker/)
+worker/node_modules/
+worker/.wrangler/
+worker/.generated-cleanup.sql
+worker/worker-configuration.d.ts

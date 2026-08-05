@@ -1,0 +1,145 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+export interface Props {
+  href: string;
+  title: string;
+  image: ImageMetadata;
+  aspect?: "16/9" | "4/3";
+  // "contain"は表紙画像が縦長など4:3と異なる比率でもトリミングせずに表示したい場合に使う
+  fit?: "cover" | "contain";
+  // サムネの実寸幅。カードの表示幅はこの値に追従する（トップページのレールなどで縮小する用途）
+  thumbWidth?: number;
+  likeCount?: number;
+  isNew?: boolean;
+  eager?: boolean;
+  subtitle?: string;
+  slug?: string;
+}
+
+const {
+  href,
+  title,
+  image,
+  aspect = "16/9",
+  fit = "cover",
+  thumbWidth = 480,
+  likeCount,
+  isNew = false,
+  eager = false,
+  subtitle,
+  slug,
+} = Astro.props;
+---
+<a href={href} class="artwork-card" data-slug={slug} style={`--aspect: ${aspect.replace("/", " / ")}; --fit: ${fit}; --thumb-width: ${thumbWidth}px;`}>
+  <div class="thumb">
+    <Image
+      src={image}
+      alt={title}
+      format="webp"
+      width={thumbWidth}
+      loading={eager ? "eager" : "lazy"}
+    />
+    {isNew && <span class="new-badge">NEW</span>}
+    {typeof likeCount === "number" && (
+      <span class="like-badge">
+        <i class="ti ti-heart" aria-hidden="true"></i>
+        {likeCount}
+      </span>
+    )}
+  </div>
+  <p class="card-title">{title}</p>
+  {subtitle && <p class="card-subtitle">{subtitle}</p>}
+</a>
+
+<style is:global>
+  .artwork-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    flex: 0 0 auto;
+  }
+
+  /* レール（横スクロール）内では、画像の読み込み前でもレイアウトが安定するよう
+     カード幅を明示的に固定する。サムネはこの箱に収まるようobject-fitでスケールされる */
+  .rail-track .artwork-card {
+    width: var(--thumb-width);
+  }
+
+  .thumb {
+    position: relative;
+    aspect-ratio: var(--aspect);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-elevated);
+    transition: transform 0.25s ease;
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: var(--fit, cover);
+    display: block;
+  }
+
+  .artwork-card:hover .thumb,
+  .artwork-card:focus-visible .thumb {
+    transform: translateY(-2px);
+  }
+
+  .artwork-card:focus-visible .thumb {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 2px;
+  }
+
+  .like-badge {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: rgb(0 0 0 / 55%);
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 7px;
+    border-radius: 999px;
+  }
+
+  .like-badge i {
+    font-size: 11px;
+    color: var(--heart);
+  }
+
+  .new-badge {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    background: var(--accent-strong);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  .card-title {
+    margin: 0.5rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-subtitle {
+    margin: 0.15rem 0 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>

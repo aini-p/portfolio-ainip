@@ -7,7 +7,7 @@
 ## Project Context
 
 - This repository is a bilingual Astro portfolio site for AiniP. Prefer [GEMINI.md](../GEMINI.md) for the current project overview.
-- Treat [README.md](../README.md) as upstream template material, not the source of truth for current app behavior.
+- [README.md](../README.md) documents the overall architecture (site + Cloudflare Worker/D1), deploy steps, and local testing - treat it as current and accurate.
 
 ## Build And Validation
 
