@@ -1,6 +1,7 @@
 ---
 import { getImage } from "astro:assets";
 import { getCollection } from "astro:content";
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
 import SeriesList from "~/components/SeriesList.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
@@ -53,21 +54,26 @@ const seriesList = await Promise.all(
 );
 ---
 <BaseLayout title={t["worksList.pageTitle"]} description={t["worksList.pageDescription"]}>
-  <div class="works-list-shell">
-    <header class="works-list-header">
-      <h1>{t["worksList.heading"]}</h1>
-      <p>{t["worksList.lead"]}</p>
-    </header>
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <div class="works-list-shell">
+          <header class="works-list-header">
+            <h1>{t["worksList.heading"]}</h1>
+            <p>{t["worksList.lead"]}</p>
+          </header>
 
-    <SeriesList id="full-series" items={seriesList} countSuffix={t["home.seriesCountSuffix"]} />
+          <SeriesList id="full-series" items={seriesList} countSuffix={t["home.seriesCountSuffix"]} />
+        </div>
+      </div>
+    </HomeStyleSidebars>
+   </div>
   </div>
 </BaseLayout>
 
 <style is:global>
   .works-list-shell {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 1.25rem 1.25rem 3rem;
     display: grid;
     gap: 1.5rem;
   }
@@ -91,7 +97,6 @@ const seriesList = await Promise.all(
 
   @media (width <= 768px) {
     .works-list-shell {
-      padding: 1rem 1rem 2rem;
       gap: 1.25rem;
     }
   }

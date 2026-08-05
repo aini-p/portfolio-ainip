@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
@@ -15,34 +16,39 @@ const sorted = [...items].sort(
 );
 ---
 <BaseLayout title={t["doujinshi.pageTitle"]} description={t["doujinshi.pageDescription"]}>
-  <div class="doujinshi-shell">
-    <header class="doujinshi-header">
-      <h1>{t["doujinshi.heading"]}</h1>
-      <p>{t["doujinshi.lead"]}</p>
-    </header>
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <div class="doujinshi-shell">
+          <header class="doujinshi-header">
+            <h1>{t["doujinshi.heading"]}</h1>
+            <p>{t["doujinshi.lead"]}</p>
+          </header>
 
-    <div class="doujinshi-grid">
-      {sorted.map((item) => (
-        <a class="doujinshi-card" href={`/en/doujinshi/${item.slug.replace(`${lang}/`, "")}`}>
-          <div class="package-frame">
-            <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={400} />
+          <div class="doujinshi-grid">
+            {sorted.map((item) => (
+              <a class="doujinshi-card" href={`/en/doujinshi/${item.slug.replace(`${lang}/`, "")}`}>
+                <div class="package-frame">
+                  <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={400} />
+                </div>
+                <div class="card-body">
+                  <h2>{item.data.title}</h2>
+                  <p>{item.data.description}</p>
+                  <span class="card-cta">{t["doujinshi.viewButton"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
+                </div>
+              </a>
+            ))}
           </div>
-          <div class="card-body">
-            <h2>{item.data.title}</h2>
-            <p>{item.data.description}</p>
-            <span class="card-cta">{t["doujinshi.viewButton"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
-          </div>
-        </a>
-      ))}
-    </div>
+        </div>
+      </div>
+    </HomeStyleSidebars>
+   </div>
   </div>
 </BaseLayout>
 
 <style is:inline>
   .doujinshi-shell {
-    max-width: 1040px;
-    margin: 0 auto;
-    padding: 1.25rem;
     display: grid;
     gap: 1.5rem;
   }
@@ -134,7 +140,7 @@ const sorted = [...items].sort(
   }
 
   @media (width <= 768px) {
-    .doujinshi-shell { padding: 1rem; gap: 1.25rem; }
+    .doujinshi-shell { gap: 1.25rem; }
     .doujinshi-grid { grid-template-columns: 1fr; }
   }
 </style>
