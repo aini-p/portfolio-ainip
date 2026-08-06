@@ -1,6 +1,8 @@
 ---
+import AdSenseBanner from "~/components/AdSenseBanner.astro";
 import DmmAdBanner from "~/components/DmmAdBanner.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
+import { activeAdNetwork } from "~/constants/ads";
 import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 
 export interface Props {
@@ -13,7 +15,11 @@ const { lang, adBanner = false } = Astro.props;
 <aside class="sidebar-column sidebar-column-left">
   <SidebarSection>
     {adBanner ? (
-      <DmmAdBanner class="dmm-widget-banner" />
+      activeAdNetwork === "adsense" ? (
+        <AdSenseBanner class="ad-banner-slot" />
+      ) : (
+        <DmmAdBanner class="ad-banner-slot" />
+      )
     ) : (
       <div class="affiliate-widget-list">
         {fanzaAffiliateItems.map((item) => (
@@ -32,7 +38,7 @@ const { lang, adBanner = false } = Astro.props;
 </aside>
 
 <style is:global>
-  .dmm-widget-banner {
+  .ad-banner-slot {
     grid-column: 1 / -1;
   }
 </style>
