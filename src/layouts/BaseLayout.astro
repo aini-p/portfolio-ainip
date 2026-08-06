@@ -2,6 +2,7 @@
 import smartypants from "smartypants";
 import DiscordFloat from "~/components/DiscordFloat.astro";
 import Header from "~/components/header.astro";
+import { activeAdNetwork, adsense } from "~/constants/ads";
 import { profileNames, siteCopyrightLabel } from "~/constants/social";
 
 export interface Props {
@@ -106,6 +107,15 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#17141c" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css" />
+
+    {activeAdNetwork === "adsense" && (
+      <script
+        is:inline
+        async
+        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense.client}`}
+        crossorigin="anonymous"
+      ></script>
+    )}
 
     {/* ▼▼▼ hreflangのURLを修正 ▼▼▼ */}
     <link rel="alternate" hreflang="ja" href={new URL(jaPath, Astro.site)} />

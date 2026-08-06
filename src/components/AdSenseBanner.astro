@@ -1,0 +1,31 @@
+---
+// Google AdSenseのディスプレイ広告ユニット。ローダースクリプト本体はBaseLayoutのheadで1回だけ読み込む。
+import { adsense } from "~/constants/ads";
+
+export interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+<div class:list={["adsense-banner", className]}>
+  <ins
+    class="adsbygoogle"
+    style="display:block"
+    data-ad-client={adsense.client}
+    data-ad-slot={adsense.slot}
+    data-ad-format="auto"
+    data-full-width-responsive="true"
+  ></ins>
+  <script is:inline>
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>
+
+<style is:global>
+  .adsense-banner {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+</style>
