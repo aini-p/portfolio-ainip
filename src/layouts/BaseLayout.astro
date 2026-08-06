@@ -16,6 +16,11 @@ export interface Props {
 
 const { title, description, keywords, image } = Astro.props;
 const { lang } = Astro.locals; // ミドルウェアから取得
+
+// meta description/og:description/twitter:descriptionは属性値に生の改行が入ると
+// 一部のSNSカードクローラー(X等)がタグをパースできず、以降のog:imageなども読めなくなることがあるため、
+// 1行に潰してから出力する(ページ本文の改行表示には影響しない)
+const metaDescription = description?.replace(/\s*\n+\s*/g, " ").trim();
 const defaultSocialImage = {
   src: "/images/profile-share-card.png",
   alt:
@@ -110,11 +115,11 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     
     <title set:html={smartypants(pageTitle, 1)} />
     {/* ... (残りのheadタグは変更なし) ... */}
-    {description && <meta name="description" content={smartypants(description, 1)} />}
+    {metaDescription && <meta name="description" content={smartypants(metaDescription, 1)} />}
     {keywords && <meta name="keywords" content={keywords} />}
     <meta property="og:title" content={smartypants(pageTitle, 1)} />
     <meta property="og:type" content="website" />
-    {description && <meta property="og:description" content={smartypants(description, 1)} />}
+    {metaDescription && <meta property="og:description" content={smartypants(metaDescription, 1)} />}
     <meta property="og:url" content={new URL(lang === 'ja' ? jaPath : enPath, Astro.site)} />
     <meta property="og:locale" content={lang === 'ja' ? 'ja_JP' : 'en_US'} />
     <meta property="og:site_name" content={siteName} />
@@ -124,7 +129,7 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <meta name="twitter:image" content={new URL(socialImage.src, Astro.site).toString()} />
     <meta name="twitter:image:alt" content={socialImage.alt} />
     <meta name="twitter:title" content={smartypants(pageTitle, 1)} />
-    {description && <meta name="twitter:description" content={smartypants(description, 1)} />}
+    {metaDescription && <meta name="twitter:description" content={smartypants(metaDescription, 1)} />}
 
     {/* 本番環境 (npm run build) のみで実行する */}
     {import.meta.env.PROD && (
