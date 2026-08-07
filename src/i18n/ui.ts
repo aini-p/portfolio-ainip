@@ -96,6 +96,7 @@ export const ui = {
     "doujinshi.pageDescription":
       "頒布中・頒布予定の同人誌の紹介ページです。サンプルや購入先はこちらから。",
     "doujinshi.heading": "同人誌",
+    "doujinshi.moreBySeries": "の他の同人誌",
     "doujinshi.lead":
       "描き下ろしを収録した同人誌を制作しています。気になる一冊があれば、下のリンクからサンプルと購入先をご確認ください。",
     "doujinshi.viewButton": "詳しく見る",
@@ -423,6 +424,7 @@ export const ui = {
     "doujinshi.pageDescription":
       "A showcase of doujinshi currently available or coming soon, with samples and where to buy.",
     "doujinshi.heading": "Doujinshi",
+    "doujinshi.moreBySeries": " — more doujinshi",
     "doujinshi.lead":
       "We publish doujinshi with exclusive artwork. Pick one below to see samples and where to buy it.",
     "doujinshi.viewButton": "View details",
