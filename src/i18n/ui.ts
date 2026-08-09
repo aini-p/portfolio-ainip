@@ -128,7 +128,7 @@ export const ui = {
     "membership.pageTitle": "メンバーシップ",
     "membership.pageDescription":
       "新作も、過去の全アーカイブも。もっと限定イラストを楽しめるファンクラブの特典とプランをご紹介します。",
-    "membership.heroCatch": "数千枚の限定イラストが見放題。",
+    "membership.heroCatch": "数千枚の限定イラストが見放題",
     "membership.heroSub":
       "プランに応じて、新作から過去の全アーカイブ、オーダーイラストまで。",
     "membership.heroCta": "プラン一覧を見る",
