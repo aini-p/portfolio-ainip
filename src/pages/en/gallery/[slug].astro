@@ -47,6 +47,8 @@ const portfolioImages = getPortfolioImages(artwork);
 const sampleImages = getSampleImages(artwork);
 const totalImageCount = getTotalImageCount(artwork);
 const hasBody = Boolean(artwork.body?.trim().length);
+// Skip the membership sample pitch for groups without sample images (e.g. announcements)
+const hasSampleImages = sampleImages.length > 0;
 
 const pageUrl = new URL(
   `/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`,
@@ -276,26 +278,30 @@ const relatedArtworks = artwork.data.relatedImages
         </AuthorComment>
       )}
 
-      <div class="membership-intro">
-        <div class="membership-intro-copy">
-          <p class="membership-intro-lead"><i class="ti ti-lock-open" aria-hidden="true"></i> {t["artwork.introSample"]}</p>
-          <p class="membership-intro-detail">
-            Members can view all <strong>{totalImageCount} images</strong>, unfiltered!
-          </p>
+      {hasSampleImages && (
+        <div class="membership-intro">
+          <div class="membership-intro-copy">
+            <p class="membership-intro-lead"><i class="ti ti-lock-open" aria-hidden="true"></i> {t["artwork.introSample"]}</p>
+            <p class="membership-intro-detail">
+              Members can view all <strong>{totalImageCount} images</strong>, unfiltered!
+            </p>
+          </div>
+          <a href="/en/membership" class="membership-intro-link">
+            {t["artwork.membershipMoreLink"]} <i class="ti ti-arrow-right" aria-hidden="true"></i>
+          </a>
         </div>
-        <a href="/en/membership" class="membership-intro-link">
-          {t["artwork.membershipMoreLink"]} <i class="ti ti-arrow-right" aria-hidden="true"></i>
-        </a>
-      </div>
+      )}
 
       <ArticleImageStack images={portfolioImages} groupId="portfolio" eagerCount={2} />
 
-      {sampleImages.length > 0 && (
+      {hasSampleImages && (
         <ArticleImageStack images={sampleImages} groupId="sample" eagerCount={0} />
       )}
 
       <div class="membership-outro">
-        <p class="membership-cta-lead">{formatMembershipCtaLead(totalImageCount, lang)}</p>
+        {hasSampleImages && (
+          <p class="membership-cta-lead">{formatMembershipCtaLead(totalImageCount, lang)}</p>
+        )}
         <a
           href={patreonMembershipUrl}
           target="_blank"

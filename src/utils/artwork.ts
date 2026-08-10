@@ -45,10 +45,11 @@ export function getShareImage(artwork: Artwork) {
 }
 
 // メンバーシップ向けの実際の投稿枚数（Patreon側のFree+Paidグループ実数）。
-// 未設定の旧形式記事では、ポートフォリオ掲載枚数（ポートフォリオ＋サンプル）にフォールバックする
+// 未設定、または0（Free/Paidグループにタグ付けされた画像がないお知らせ記事など）の場合は、
+// ポートフォリオ掲載枚数（ポートフォリオ＋サンプル）にフォールバックする
 export function getTotalImageCount(artwork: Artwork) {
   return (
-    artwork.data.membershipImageCount ??
+    artwork.data.membershipImageCount ||
     getPortfolioImages(artwork).length + getSampleImages(artwork).length
   );
 }
