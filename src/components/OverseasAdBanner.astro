@@ -1,0 +1,29 @@
+---
+// 海外(英語ページ)向けの高単価アダルト広告ネットワーク枠。
+// 現在は ExoClick (https://exoclick.com/) を想定した実装。
+// アカウント作成・ゾーン発行が完了したら ~/constants/ads.ts の exoclick.zoneId を
+// 実際のゾーンIDに置き換えるだけで有効化される（設置箇所はこのコンポーネント側に共通化済み）。
+// ローダースクリプト(ad-provider.js)本体はBaseLayoutのheadで1回だけ読み込む。
+import { exoclick } from "~/constants/ads";
+
+export interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+<div class:list={["overseas-ad-banner", className]}>
+  <ins class="eas6a97888e2" data-zoneid={exoclick.zoneId}></ins>
+  <script is:inline>
+    (window.AdProvider = window.AdProvider || []).push({ serve: {} });
+  </script>
+</div>
+
+<style is:global>
+  .overseas-ad-banner {
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+</style>

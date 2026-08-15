@@ -141,6 +141,11 @@ const t = ui[lang];
       bottom: 0.75rem;
       max-width: 260px;
     }
+
+    /* モバイル下部固定広告バー(MobileStickyAd)の表示中は、その裏に隠れないよう持ち上げる */
+    html.has-mobile-sticky-ad .discord-float {
+      bottom: calc(0.75rem + 72px);
+    }
     .discord-float-link {
       padding: 0.8rem 0.95rem;
     }

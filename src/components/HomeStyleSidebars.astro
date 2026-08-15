@@ -27,12 +27,6 @@ const {
 
 const rankingHref = lang === "en" ? "/en/ranking" : "/ranking";
 const seriesHref = lang === "en" ? "/en/gallery/series" : "/gallery/series";
-
-const rankingLabels = {
-  daily: t["home.rankingDaily"],
-  monthly: t["home.rankingMonthly"],
-  yearly: t["home.rankingYearly"],
-};
 ---
 <AffiliateColumn lang={lang} adBanner>
   {doujinshiRankingIndex.length > 0 && (
@@ -40,7 +34,6 @@ const rankingLabels = {
       <RankingList
         id="page-doujinshi-ranking"
         rankingIndex={doujinshiRankingIndex}
-        labels={rankingLabels}
         emptyText={t["home.rankingEmpty"]}
         limit={5}
       />
@@ -55,7 +48,6 @@ const rankingLabels = {
     <RankingList
       id="page-ranking"
       rankingIndex={artworkRankingIndex}
-      labels={rankingLabels}
       emptyText={t["home.rankingEmpty"]}
       limit={5}
       seeMoreHref={rankingHref}

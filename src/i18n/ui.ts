@@ -50,9 +50,6 @@ export const ui = {
     "home.affiliateHeading": "PR",
     "home.ranking": "いいねランキング",
     "home.doujinshiRanking": "同人誌のいいねランキング",
-    "home.rankingDaily": "デイリー",
-    "home.rankingMonthly": "マンスリー",
-    "home.rankingYearly": "年間",
     "home.rankingEmpty": "ランキングデータがありません",
     "home.latest": "最新の投稿",
     "home.readArticle": "イラストを見る",
@@ -78,10 +75,10 @@ export const ui = {
       "二次創作, ファンアート, 同人イラスト, 同人誌, AIイラスト, メンバーシップ",
     "ranking.pageTitle": "いいねランキング",
     "ranking.pageDescription":
-      "デイリー・マンスリー・年間の切り替えで見られる、いいね数の多い人気作品ランキングです。",
+      "いいね数が多い人気作品を、リアルタイムのランキング形式でご紹介します。",
     "ranking.heading": "いいねランキング",
     "ranking.lead":
-      "いいねが多い人気作品を期間別にランキング形式でご紹介します。",
+      "いいねが多い人気作品を、リアルタイムのランキング形式でご紹介します。",
     "worksList.pageTitle": "作品別記事一覧",
     "worksList.pageDescription":
       "シリーズ・作品別にまとめたイラスト記事の一覧です。",
@@ -379,9 +376,6 @@ export const ui = {
     "home.affiliateHeading": "PR",
     "home.ranking": "Like ranking",
     "home.doujinshiRanking": "Doujinshi like ranking",
-    "home.rankingDaily": "Daily",
-    "home.rankingMonthly": "Monthly",
-    "home.rankingYearly": "Yearly",
     "home.rankingEmpty": "No ranking data yet",
     "home.latest": "Latest posts",
     "home.readArticle": "View illustration",
@@ -406,10 +400,10 @@ export const ui = {
     "home.pageKeywords":
       "fan art, doujin illustration, doujinshi, AI art, membership",
     "ranking.pageTitle": "Like Ranking",
-    "ranking.pageDescription":
-      "The most-liked artworks, ranked daily, monthly, and yearly.",
+    "ranking.pageDescription": "The most-liked artworks, ranked in real time.",
     "ranking.heading": "Like Ranking",
-    "ranking.lead": "The most-liked artworks, ranked by period.",
+    "ranking.lead":
+      "The most-liked artworks, ranked in real time by like count.",
     "worksList.pageTitle": "Articles by Work",
     "worksList.pageDescription":
       "Browse illustration articles grouped by series or original work.",

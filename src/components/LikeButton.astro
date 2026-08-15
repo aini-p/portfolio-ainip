@@ -17,11 +17,18 @@ const { slug } = Astro.props;
     return `at5fun:liked:${slug}`;
   }
 
+  function markLiked(button: HTMLButtonElement, slug: string) {
+    button.classList.add("is-liked");
+    button.setAttribute("aria-pressed", "true");
+    localStorage.setItem(likedKey(slug), "1");
+  }
+
   async function loadCount(button: HTMLButtonElement) {
     const slug = button.dataset.slug;
     const countEl = button.querySelector<HTMLSpanElement>(".like-count");
     if (!slug || !countEl) return;
 
+    // 通信が終わるまでのつなぎとして、まずはlocalStorageの記録を仮表示する
     if (localStorage.getItem(likedKey(slug))) {
       button.classList.add("is-liked");
       button.setAttribute("aria-pressed", "true");
@@ -36,6 +43,17 @@ const { slug } = Astro.props;
       const res = await fetch(`${API_BASE}/likes/${encodeURIComponent(slug)}`);
       const data = await res.json();
       countEl.textContent = String(data.count ?? 0);
+
+      // サーバー側の記録(IPベース)を正として表示を同期する。シークレットモードや
+      // キャッシュ削除でlocalStorageが消えていても「いいね済み」に戻し、
+      // 逆にlocalStorageだけが残っている場合は解除して再度いいねできるようにする
+      if (data.liked) {
+        markLiked(button, slug);
+      } else {
+        button.classList.remove("is-liked");
+        button.setAttribute("aria-pressed", "false");
+        localStorage.removeItem(likedKey(slug));
+      }
     } catch {
       countEl.textContent = "0";
     }
@@ -47,11 +65,9 @@ const { slug } = Astro.props;
     if (!slug || !countEl || !API_BASE) return;
     if (localStorage.getItem(likedKey(slug))) return;
 
-    button.classList.add("is-liked");
-    button.setAttribute("aria-pressed", "true");
     const current = Number(countEl.textContent) || 0;
     countEl.textContent = String(current + 1);
-    localStorage.setItem(likedKey(slug), "1");
+    markLiked(button, slug);
 
     const gtag = (window as typeof window & { gtag?: (...args: unknown[]) => void }).gtag;
     if (typeof gtag === "function") {

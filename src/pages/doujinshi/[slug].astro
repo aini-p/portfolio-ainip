@@ -193,11 +193,6 @@ const seriesList = await Promise.all(
         <RankingList
           id="doujinshi-ranking-artworks"
           rankingIndex={artworkRankingIndex}
-          labels={{
-            daily: t["home.rankingDaily"],
-            monthly: t["home.rankingMonthly"],
-            yearly: t["home.rankingYearly"],
-          }}
           emptyText={t["home.rankingEmpty"]}
           limit={5}
           seeMoreHref="/ranking"
@@ -210,11 +205,6 @@ const seriesList = await Promise.all(
           <RankingList
             id="doujinshi-ranking-doujinshi"
             rankingIndex={doujinshiRankingIndex}
-            labels={{
-              daily: t["home.rankingDaily"],
-              monthly: t["home.rankingMonthly"],
-              yearly: t["home.rankingYearly"],
-            }}
             emptyText={t["home.rankingEmpty"]}
             limit={5}
           />

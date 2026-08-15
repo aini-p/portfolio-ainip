@@ -9,7 +9,6 @@ export interface RankingEntry {
 export interface Props {
   // 同一ページに複数配置される可能性はないが、JSON埋め込みとwidget側の紐付けに使う
   id: string;
-  labels: { daily: string; monthly: string; yearly: string };
   emptyText: string;
   rankingIndex: RankingEntry[];
   // ワーカーAPIへのlimitパラメータ。サイドバーでは上位10件、専用ページでは上限50件まで
@@ -20,7 +19,6 @@ export interface Props {
 
 const {
   id,
-  labels,
   emptyText,
   rankingIndex,
   limit = 10,
@@ -29,20 +27,6 @@ const {
 } = Astro.props;
 ---
 <div class="ranking-widget" data-widget-id={id} data-limit={limit}>
-  <div class="ranking-tabs" role="tablist">
-    <button type="button" class="ranking-tab" data-period="daily" aria-selected="true">
-      <i class="ti ti-bolt" aria-hidden="true"></i>
-      <span>{labels.daily}</span>
-    </button>
-    <button type="button" class="ranking-tab" data-period="monthly" aria-selected="false">
-      <i class="ti ti-calendar" aria-hidden="true"></i>
-      <span>{labels.monthly}</span>
-    </button>
-    <button type="button" class="ranking-tab" data-period="yearly" aria-selected="false">
-      <i class="ti ti-calendar-stats" aria-hidden="true"></i>
-      <span>{labels.yearly}</span>
-    </button>
-  </div>
   <div class="ranking-list" data-empty-text={emptyText}></div>
   {seeMoreHref && seeMoreLabel && (
     <a class="ranking-see-more" href={seeMoreHref}>
@@ -60,11 +44,12 @@ const {
     thumb: string;
     href: string;
   }
-  type RankingPeriod = "daily" | "monthly" | "yearly";
   type RankingRow = { slug: string; count: number };
 
   const API_BASE = import.meta.env.PUBLIC_API_BASE as string | undefined;
-  const PERIODS: RankingPeriod[] = ["daily", "monthly", "yearly"];
+  // Workerが無料枠上限やデプロイ直後の一時停止などで応答しない場合のフォールバック先。
+  // ビルド時にscripts/fetch-ranking-snapshot.mjsが生成する静的コピー(同一オリジン配信)
+  const SNAPSHOT_URL = "/ranking-snapshot.json";
 
   function escapeHtml(value: string) {
     return value
@@ -77,7 +62,6 @@ const {
   function initRankingWidget(widget: HTMLElement) {
     const widgetId = widget.dataset.widgetId;
     const list = widget.querySelector<HTMLElement>(".ranking-list");
-    const tabs = Array.from(widget.querySelectorAll<HTMLButtonElement>(".ranking-tab"));
     const limit = Number(widget.dataset.limit ?? 10);
     const indexScript = document.querySelector<HTMLScriptElement>(
       `.ranking-widget-index[data-widget-id="${widgetId}"]`,
@@ -99,8 +83,6 @@ const {
     // 上で改めてlimit件に切り詰める
     const fetchLimit = Math.max(limit * 10, 50);
 
-    const cache = new Map<RankingPeriod, RankingRow[]>();
-
     function buildCard(entry: RankingEntry, rank: number, count: number) {
       const a = document.createElement("a");
       a.className = "ranking-item";
@@ -118,10 +100,9 @@ const {
       return a;
     }
 
-    function render(period: RankingPeriod) {
+    function render(rows: RankingRow[]) {
       if (!list) return;
       list.innerHTML = "";
-      const rows = cache.get(period) ?? [];
       const resolved = rows
         .map((row) => ({ row, entry: rankingIndexBySlug.get(row.slug) }))
         .filter((item): item is { row: RankingRow; entry: RankingEntry } => Boolean(item.entry))
@@ -140,39 +121,31 @@ const {
       });
     }
 
+    async function fetchRanking(url: string): Promise<RankingRow[]> {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`ranking fetch failed: ${res.status}`);
+      const data = await res.json();
+      return (data.ranking ?? []) as RankingRow[];
+    }
+
     async function load() {
+      let rows: RankingRow[];
       try {
-        const responses = await Promise.all(
-          PERIODS.map((period) =>
-            fetch(`${API_BASE}/likes/ranking?period=${period}&limit=${fetchLimit}`)
-              .then((res) => res.json())
-              .then((data) => (data.ranking ?? []) as RankingRow[]),
-          ),
-        );
-
-        let hasAnyData = false;
-        PERIODS.forEach((period, i) => {
-          cache.set(period, responses[i]);
-          if (responses[i].some((row) => rankingIndexBySlug.has(row.slug))) {
-            hasAnyData = true;
-          }
-        });
-
-        if (!hasAnyData) return;
-
-        tabs.forEach((tab) => {
-          tab.addEventListener("click", () => {
-            tabs.forEach((other) => other.setAttribute("aria-selected", "false"));
-            tab.setAttribute("aria-selected", "true");
-            render(tab.dataset.period as RankingPeriod);
-          });
-        });
-
-        render("daily");
-        hideTarget.removeAttribute("hidden");
+        rows = await fetchRanking(`${API_BASE}/likes/ranking?limit=${fetchLimit}`);
       } catch {
-        // ランキング取得失敗時は非表示のままにする
+        // Workerが無料枠上限などで応答しない場合、ビルド時に生成した静的スナップショットに
+        // フォールバックする（同一オリジン配信なのでWorkerの生死に関係なく取得できる）
+        try {
+          rows = await fetchRanking(SNAPSHOT_URL);
+        } catch {
+          return; // どちらも取得できない場合は非表示のままにする
+        }
       }
+
+      if (!rows.some((row) => rankingIndexBySlug.has(row.slug))) return;
+
+      render(rows);
+      hideTarget.removeAttribute("hidden");
     }
 
     load();
@@ -186,54 +159,6 @@ const {
     display: grid;
     gap: 0.75rem;
     grid-column: 1 / -1;
-  }
-
-  .ranking-tabs {
-    display: flex;
-    gap: 2px;
-    padding: 3px;
-    border-radius: 999px;
-    background: var(--bg-elevated-2);
-    border: 0.5px solid var(--border-subtle);
-  }
-
-  .ranking-tab {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.3rem;
-    border: none;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .ranking-tab i {
-    flex-shrink: 0;
-    font-size: 14px;
-  }
-
-  .ranking-tab span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .ranking-tab:hover {
-    color: var(--text-primary);
-  }
-
-  .ranking-tab[aria-selected="true"] {
-    background: var(--accent);
-    color: #fff;
-    box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
   }
 
   .ranking-list {

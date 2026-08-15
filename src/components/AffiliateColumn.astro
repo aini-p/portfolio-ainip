@@ -1,8 +1,9 @@
 ---
 import AdSenseBanner from "~/components/AdSenseBanner.astro";
 import DmmAdBanner from "~/components/DmmAdBanner.astro";
+import OverseasAdBanner from "~/components/OverseasAdBanner.astro";
 import SidebarSection from "~/components/SidebarSection.astro";
-import { activeAdNetwork } from "~/constants/ads";
+import { resolveAdNetwork } from "~/constants/ads";
 import { fanzaAffiliateItems } from "~/constants/fanzaAffiliate";
 
 export interface Props {
@@ -11,16 +12,16 @@ export interface Props {
 }
 
 const { lang, adBanner = false } = Astro.props;
+// 日本語ページ(ja)=国内 → FANZA/DMM、英語ページ(en)=海外 → ExoClick。
+// 詳細な採用ロジックは ~/constants/ads.ts の resolveAdNetwork を参照。
+const network = resolveAdNetwork(lang);
+// 英語ページ向けの自社アフィリエイトカード在庫はまだ無いため、
+// バナー枠が無いレイアウト(adBanner=false)でも海外は広告バナーで収益化する。
+const showFanzaAffiliateCards = !adBanner && lang === "ja";
 ---
 <aside class="sidebar-column sidebar-column-left">
   <SidebarSection>
-    {adBanner ? (
-      activeAdNetwork === "adsense" ? (
-        <AdSenseBanner class="ad-banner-slot" />
-      ) : (
-        <DmmAdBanner class="ad-banner-slot" />
-      )
-    ) : (
+    {showFanzaAffiliateCards ? (
       <div class="affiliate-widget-list">
         {fanzaAffiliateItems.map((item) => (
           <a class="affiliate-widget" href={item.affiliateUrl} target="_blank" rel="noopener noreferrer sponsored">
@@ -32,7 +33,13 @@ const { lang, adBanner = false } = Astro.props;
           </a>
         ))}
       </div>
-    )}
+    ) : network === "adsense" ? (
+      <AdSenseBanner class="ad-banner-slot" />
+    ) : network === "exoclick" ? (
+      <OverseasAdBanner class="ad-banner-slot" />
+    ) : network === "fanza" ? (
+      <DmmAdBanner class="ad-banner-slot" />
+    ) : null}
   </SidebarSection>
   <slot />
 </aside>

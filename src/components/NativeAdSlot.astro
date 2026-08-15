@@ -1,0 +1,52 @@
+---
+// 記事/一覧ページの本文内に置く、コンテンツカードと馴染むネイティブ広告枠。
+// 配置ポリシー: 会員登録CTA・購入ボタン（Patreon/FANZA/DLsite等）の直前直後には置かない。
+// 必ずそれらより後ろ（スクロールの深い位置）にのみ配置し、コンバージョン導線を邪魔しない。
+import DmmAdBanner from "~/components/DmmAdBanner.astro";
+import OverseasAdBanner from "~/components/OverseasAdBanner.astro";
+import { resolveAdNetwork } from "~/constants/ads";
+
+export interface Props {
+  lang: "ja" | "en";
+}
+
+const { lang } = Astro.props;
+const network = resolveAdNetwork(lang);
+const label = lang === "ja" ? "広告" : "Ad";
+---
+<div class="native-ad-slot">
+  <span class="native-ad-slot-badge">{label}</span>
+  {network === "exoclick" ? (
+    <OverseasAdBanner />
+  ) : network === "fanza" ? (
+    <DmmAdBanner />
+  ) : null}
+</div>
+
+<style is:global>
+  .native-ad-slot {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90px;
+    padding: 1.25rem 0.75rem 0.75rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-subtle);
+  }
+
+  .native-ad-slot-badge {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    background: var(--bg-elevated-2);
+    border: 0.5px solid var(--border-strong);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    z-index: 1;
+  }
+</style>

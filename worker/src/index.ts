@@ -56,36 +56,14 @@ export default {
         Number(url.searchParams.get("limit") ?? 10) || 10,
         50,
       );
-      const period = url.searchParams.get("period") ?? "all";
 
-      if (period === "all") {
-        const { results } = await env.DB.prepare(
-          "SELECT slug, count FROM likes ORDER BY count DESC LIMIT ?1",
-        )
-          .bind(limit)
-          .all();
-        return json({ ranking: results ?? [], period }, origin);
-      }
-
-      const periodWindowMs: Record<string, number> = {
-        daily: 24 * 60 * 60 * 1000,
-        monthly: 30 * 24 * 60 * 60 * 1000,
-        yearly: 365 * 24 * 60 * 60 * 1000,
-      };
-      const windowMs = periodWindowMs[period];
-      if (!windowMs) {
-        return json({ error: "invalid_period" }, origin, { status: 400 });
-      }
-
-      // like_votesは投票(いいね)1件ごとにcreated_atを持つため、直近N日分だけを
-      // 集計すれば期間別ランキングになる（likesテーブルは累計のみでcreated_atを持たない）
-      const since = new Date(Date.now() - windowMs).toISOString();
+      // 期間別(daily/monthly/yearly)の切り替えは廃止し、累計いいね数によるリアルタイムランキングのみを返す
       const { results } = await env.DB.prepare(
-        "SELECT slug, COUNT(*) as count FROM like_votes WHERE created_at >= ?1 GROUP BY slug ORDER BY count DESC LIMIT ?2",
+        "SELECT slug, count FROM likes ORDER BY count DESC LIMIT ?1",
       )
-        .bind(since, limit)
+        .bind(limit)
         .all();
-      return json({ ranking: results ?? [], period }, origin);
+      return json({ ranking: results ?? [] }, origin);
     }
 
     const likesMatch = url.pathname.match(/^\/likes\/([^/]+)$/);
@@ -93,12 +71,22 @@ export default {
       const slug = decodeURIComponent(likesMatch[1]);
 
       if (request.method === "GET") {
-        const row = await env.DB.prepare(
-          "SELECT count FROM likes WHERE slug = ?1",
-        )
-          .bind(slug)
-          .first<{ count: number }>();
-        return json({ slug, count: row?.count ?? 0 }, origin);
+        const [countRow, voteRow] = await Promise.all([
+          env.DB.prepare("SELECT count FROM likes WHERE slug = ?1")
+            .bind(slug)
+            .first<{ count: number }>(),
+          env.DB.prepare(
+            "SELECT 1 FROM like_votes WHERE slug = ?1 AND ip_hash = ?2",
+          )
+            .bind(slug, ipHash)
+            .first(),
+        ]);
+        // このIPが既にいいね済みかどうかをクライアントに返す。localStorageが消えていても
+        // (別ブラウザ・シークレットモード・キャッシュ削除など)、再訪時に正しく「いいね済み」表示に戻せる
+        return json(
+          { slug, count: countRow?.count ?? 0, liked: Boolean(voteRow) },
+          origin,
+        );
       }
 
       if (request.method === "POST") {
