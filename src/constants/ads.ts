@@ -9,9 +9,11 @@
 // SFWなページ限定で使いたい場合のみ、呼び出し側で個別に "adsense" を指定すること。
 export type AdNetwork = "fanza" | "exoclick" | "adsense" | "none";
 
+// TODO: ExoClickのゾーンID発行が済み次第、en を "exoclick" に戻す。
+// それまでの暫定措置として、英語ページにも同じFANZA/DMMウィジェットを掲出する。
 export const adNetworkByLang: Record<"ja" | "en", AdNetwork> = {
   ja: "fanza",
-  en: "exoclick",
+  en: "fanza",
 };
 
 // lang(表示言語=閲覧地域の簡易プロキシ)から、そのページで使う広告ネットワークを決定する。
