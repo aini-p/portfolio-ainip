@@ -47,8 +47,11 @@ const portfolioImages = getPortfolioImages(artwork);
 const sampleImages = getSampleImages(artwork);
 const totalImageCount = getTotalImageCount(artwork);
 const hasBody = Boolean(artwork.body?.trim().length);
-// Skip the membership sample pitch for groups without sample images (e.g. announcements)
-const hasSampleImages = sampleImages.length > 0;
+// Only pitch membership (banner + bottom CTA lead) when there's more to unlock beyond what's
+// already shown (portfolio + sample). Announcement-style posts, where the displayed count equals
+// the total, have nothing exclusive to upsell.
+const hasMembershipUpsell =
+  totalImageCount > portfolioImages.length + sampleImages.length;
 
 const pageUrl = new URL(
   `/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`,
@@ -278,7 +281,7 @@ const relatedArtworks = artwork.data.relatedImages
         </AuthorComment>
       )}
 
-      {hasSampleImages && (
+      {hasMembershipUpsell && (
         <div class="membership-intro">
           <div class="membership-intro-copy">
             <p class="membership-intro-lead"><i class="ti ti-lock-open" aria-hidden="true"></i> {t["artwork.introSample"]}</p>
@@ -294,12 +297,12 @@ const relatedArtworks = artwork.data.relatedImages
 
       <ArticleImageStack images={portfolioImages} groupId="portfolio" eagerCount={2} />
 
-      {hasSampleImages && (
+      {sampleImages.length > 0 && (
         <ArticleImageStack images={sampleImages} groupId="sample" eagerCount={0} />
       )}
 
       <div class="membership-outro">
-        {hasSampleImages && (
+        {hasMembershipUpsell && (
           <p class="membership-cta-lead">{formatMembershipCtaLead(totalImageCount, lang)}</p>
         )}
         <a

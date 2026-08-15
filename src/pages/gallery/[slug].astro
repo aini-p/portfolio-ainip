@@ -47,8 +47,11 @@ const portfolioImages = getPortfolioImages(artwork);
 const sampleImages = getSampleImages(artwork);
 const totalImageCount = getTotalImageCount(artwork);
 const hasBody = Boolean(artwork.body?.trim().length);
-// サンプル画像を含まないグループ(お知らせ等)では、会員向けサンプル訴求は表示しない
-const hasSampleImages = sampleImages.length > 0;
+// 会員向けサンプル訴求(バナー・下部CTA文言)は、ポートフォリオ+サンプルの掲載枚数を超えて
+// メンバーシップ側に閲覧できる画像が存在する場合のみ表示する。お知らせ記事など
+// 掲載枚数=総枚数(会員限定コンテンツが無い)の場合は表示しない
+const hasMembershipUpsell =
+  totalImageCount > portfolioImages.length + sampleImages.length;
 
 const pageUrl = new URL(
   `/gallery/${artwork.slug.replace(`${lang}/`, "")}`,
@@ -274,7 +277,7 @@ const relatedArtworks = artwork.data.relatedImages
         </AuthorComment>
       )}
 
-      {hasSampleImages && (
+      {hasMembershipUpsell && (
         <div class="membership-intro">
           <div class="membership-intro-copy">
             <p class="membership-intro-lead"><i class="ti ti-lock-open" aria-hidden="true"></i> {t["artwork.introSample"]}</p>
@@ -290,12 +293,12 @@ const relatedArtworks = artwork.data.relatedImages
 
       <ArticleImageStack images={portfolioImages} groupId="portfolio" eagerCount={2} />
 
-      {hasSampleImages && (
+      {sampleImages.length > 0 && (
         <ArticleImageStack images={sampleImages} groupId="sample" eagerCount={0} />
       )}
 
       <div class="membership-outro">
-        {hasSampleImages && (
+        {hasMembershipUpsell && (
           <p class="membership-cta-lead">{formatMembershipCtaLead(totalImageCount, lang)}</p>
         )}
         <a
