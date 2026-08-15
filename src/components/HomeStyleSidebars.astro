@@ -35,6 +35,8 @@ const seriesHref = lang === "en" ? "/en/gallery/series" : "/gallery/series";
         id="page-doujinshi-ranking"
         rankingIndex={doujinshiRankingIndex}
         emptyText={t["home.rankingEmpty"]}
+        liveLabel={t["home.rankingLive"]}
+        cachedLabel={t["home.rankingCached"]}
         limit={5}
       />
     </SidebarSection>
@@ -49,6 +51,8 @@ const seriesHref = lang === "en" ? "/en/gallery/series" : "/gallery/series";
       id="page-ranking"
       rankingIndex={artworkRankingIndex}
       emptyText={t["home.rankingEmpty"]}
+      liveLabel={t["home.rankingLive"]}
+      cachedLabel={t["home.rankingCached"]}
       limit={5}
       seeMoreHref={rankingHref}
       seeMoreLabel={t["home.seeMore"]}

@@ -204,6 +204,8 @@ const artworkRankingIndex = rankingIndex.filter(
             id="home-doujinshi-ranking"
             rankingIndex={doujinshiRankingIndex}
             emptyText={t["home.rankingEmpty"]}
+            liveLabel={t["home.rankingLive"]}
+            cachedLabel={t["home.rankingCached"]}
             limit={5}
           />
         </SidebarSection>
@@ -351,6 +353,8 @@ const artworkRankingIndex = rankingIndex.filter(
           id="home-ranking"
           rankingIndex={artworkRankingIndex}
           emptyText={t["home.rankingEmpty"]}
+          liveLabel={t["home.rankingLive"]}
+          cachedLabel={t["home.rankingCached"]}
           limit={5}
           seeMoreHref="/ranking"
           seeMoreLabel={t["home.seeMore"]}

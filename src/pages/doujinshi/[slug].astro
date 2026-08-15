@@ -194,6 +194,8 @@ const seriesList = await Promise.all(
           id="doujinshi-ranking-artworks"
           rankingIndex={artworkRankingIndex}
           emptyText={t["home.rankingEmpty"]}
+          liveLabel={t["home.rankingLive"]}
+          cachedLabel={t["home.rankingCached"]}
           limit={5}
           seeMoreHref="/ranking"
           seeMoreLabel={t["home.seeMore"]}
@@ -206,6 +208,8 @@ const seriesList = await Promise.all(
             id="doujinshi-ranking-doujinshi"
             rankingIndex={doujinshiRankingIndex}
             emptyText={t["home.rankingEmpty"]}
+            liveLabel={t["home.rankingLive"]}
+            cachedLabel={t["home.rankingCached"]}
             limit={5}
           />
         </SidebarSection>
