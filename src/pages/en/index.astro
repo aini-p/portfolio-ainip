@@ -3,6 +3,7 @@ import { getImage, Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
+import NativeAdSlot from "~/components/NativeAdSlot.astro";
 import Rail from "~/components/Rail.astro";
 import RankingList from "~/components/RankingList.astro";
 import SeriesList from "~/components/SeriesList.astro";
@@ -202,11 +203,6 @@ const artworkRankingIndex = rankingIndex.filter(
           <RankingList
             id="home-doujinshi-ranking"
             rankingIndex={doujinshiRankingIndex}
-            labels={{
-              daily: t["home.rankingDaily"],
-              monthly: t["home.rankingMonthly"],
-              yearly: t["home.rankingYearly"],
-            }}
             emptyText={t["home.rankingEmpty"]}
             limit={5}
           />
@@ -324,6 +320,8 @@ const artworkRankingIndex = rankingIndex.filter(
           </Rail>
         ))}
 
+        <NativeAdSlot lang={lang} />
+
         <Rail title={t["home.toolsHeading"]} seeMoreHref="/en/tools" seeMoreLabel={t["home.toolsCta"]}>
           {tools.map((tool) => (
             <a class="tool-thumb-card" href={tool.href}>
@@ -352,11 +350,6 @@ const artworkRankingIndex = rankingIndex.filter(
         <RankingList
           id="home-ranking"
           rankingIndex={artworkRankingIndex}
-          labels={{
-            daily: t["home.rankingDaily"],
-            monthly: t["home.rankingMonthly"],
-            yearly: t["home.rankingYearly"],
-          }}
           emptyText={t["home.rankingEmpty"]}
           limit={5}
           seeMoreHref="/en/ranking"

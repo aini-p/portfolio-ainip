@@ -1,0 +1,117 @@
+---
+// モバイル用の下部固定広告バー。
+// 左サイドバーの広告枠(AffiliateColumn)は画面幅1480px以上でしか表示されないため、
+// モバイル閲覧が中心のユーザーには広告が一切見えていなかった。その穴を埋めるための枠。
+// - 会員登録への導線を妨げないよう、閉じるボタン付き＆1セッション1回まで（閉じたら記憶）
+// - membership.astro など、コンバージョンを最優先したいページでは BaseLayout 側で非表示にする
+import DmmAdBanner from "~/components/DmmAdBanner.astro";
+import OverseasAdBanner from "~/components/OverseasAdBanner.astro";
+import { resolveAdNetwork } from "~/constants/ads";
+
+export interface Props {
+  lang: "ja" | "en";
+}
+
+const { lang } = Astro.props;
+const network = resolveAdNetwork(lang);
+---
+<div class="mobile-sticky-ad" id="mobile-sticky-ad">
+  <span class="mobile-sticky-ad-badge">PR</span>
+  <button type="button" class="mobile-sticky-ad-close" id="mobile-sticky-ad-close" aria-label="close">
+    <i class="ti ti-x" aria-hidden="true"></i>
+  </button>
+  <div class="mobile-sticky-ad-inner">
+    {network === "exoclick" ? (
+      <OverseasAdBanner />
+    ) : network === "fanza" ? (
+      <DmmAdBanner />
+    ) : null}
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    const STORAGE_KEY = "mobile-sticky-ad-dismissed";
+    const el = document.getElementById("mobile-sticky-ad");
+    const closeBtn = document.getElementById("mobile-sticky-ad-close");
+    if (!el) return;
+
+    if (sessionStorage.getItem(STORAGE_KEY)) {
+      el.style.display = "none";
+      document.documentElement.classList.remove("has-mobile-sticky-ad");
+    } else {
+      document.documentElement.classList.add("has-mobile-sticky-ad");
+    }
+
+    closeBtn?.addEventListener("click", () => {
+      sessionStorage.setItem(STORAGE_KEY, "1");
+      el.style.display = "none";
+      document.documentElement.classList.remove("has-mobile-sticky-ad");
+    });
+  })();
+</script>
+
+<style is:global>
+  .mobile-sticky-ad {
+    display: none;
+  }
+
+  @media (width <= 768px) {
+    .mobile-sticky-ad {
+      display: flex;
+      align-items: center;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 30;
+      min-height: 64px;
+      padding: 0.4rem 2.4rem 0.4rem 0.6rem;
+      background: var(--bg-elevated);
+      border-top: 0.5px solid var(--border-subtle);
+    }
+
+    .mobile-sticky-ad-inner {
+      flex: 1;
+      max-height: 90px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+    }
+
+    .mobile-sticky-ad-badge {
+      position: absolute;
+      left: 6px;
+      top: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .mobile-sticky-ad-close {
+      position: absolute;
+      top: 50%;
+      right: 0.5rem;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border-radius: 50%;
+      background: var(--bg-elevated-2);
+      border: 0.5px solid var(--border-strong);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .mobile-sticky-ad-close:hover {
+      color: var(--text-primary);
+      border-color: var(--accent-strong);
+    }
+  }
+</style>

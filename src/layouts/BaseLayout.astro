@@ -2,7 +2,8 @@
 import smartypants from "smartypants";
 import DiscordFloat from "~/components/DiscordFloat.astro";
 import Header from "~/components/header.astro";
-import { activeAdNetwork, adsense } from "~/constants/ads";
+import MobileStickyAd from "~/components/MobileStickyAd.astro";
+import { adsense, resolveAdNetwork } from "~/constants/ads";
 import { profileNames, siteCopyrightLabel } from "~/constants/social";
 
 export interface Props {
@@ -13,10 +14,13 @@ export interface Props {
     src: string;
     alt: string;
   };
+  // 会員登録LPなど、コンバージョンを最優先したいページで広告を一切出さないためのフラグ
+  noAds?: boolean;
 }
 
-const { title, description, keywords, image } = Astro.props;
+const { title, description, keywords, image, noAds = false } = Astro.props;
 const { lang } = Astro.locals; // ミドルウェアから取得
+const adNetwork = resolveAdNetwork(lang);
 
 // meta description/og:description/twitter:descriptionは属性値に生の改行が入ると
 // 一部のSNSカードクローラー(X等)がタグをパースできず、以降のog:imageなども読めなくなることがあるため、
@@ -108,13 +112,17 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     <meta name="theme-color" content="#17141c" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css" />
 
-    {activeAdNetwork === "adsense" && (
+    {!noAds && adNetwork === "adsense" && (
       <script
         is:inline
         async
         src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense.client}`}
         crossorigin="anonymous"
       ></script>
+    )}
+
+    {!noAds && adNetwork === "exoclick" && (
+      <script is:inline async src="https://a.magsrv.com/ad-provider.js"></script>
     )}
 
     {/* ▼▼▼ hreflangのURLを修正 ▼▼▼ */}
@@ -188,6 +196,7 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
       <small>&copy; {new Date().getFullYear()} {siteCopyrightLabel} All rights reserved.</small>
     </footer>
     <DiscordFloat lang={lang} />
+    {!noAds && <MobileStickyAd lang={lang} />}
   </body>
 </html>
 
@@ -261,6 +270,14 @@ const pageTitle = title ? `${title} · ${siteName}` : siteName;
     /* Flexboxで中央揃え */
     display: flex;
     justify-content: center;
+  }
+
+  /* モバイル下部固定広告バー(MobileStickyAd)の表示中は、フッターがその裏に隠れないよう
+     余白を足す。バーが閉じられると html.has-mobile-sticky-ad が外れて元の余白に戻る */
+  @media (width <= 768px) {
+    html.has-mobile-sticky-ad footer {
+      padding-bottom: calc(2rem + 72px);
+    }
   }
 
   /* トップページと同じ左右サイドバー（HomeStyleSidebars.astro）を使う一覧・ハブ系ページ向けの
