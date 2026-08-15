@@ -213,6 +213,8 @@ const relatedArtworks = artwork.data.relatedImages
           id="article-ranking-artworks"
           rankingIndex={artworkRankingIndex}
           emptyText={t["home.rankingEmpty"]}
+          liveLabel={t["home.rankingLive"]}
+          cachedLabel={t["home.rankingCached"]}
           limit={5}
           seeMoreHref="/ranking"
           seeMoreLabel={t["home.seeMore"]}
@@ -225,6 +227,8 @@ const relatedArtworks = artwork.data.relatedImages
             id="article-ranking-doujinshi"
             rankingIndex={doujinshiRankingIndex}
             emptyText={t["home.rankingEmpty"]}
+            liveLabel={t["home.rankingLive"]}
+            cachedLabel={t["home.rankingCached"]}
             limit={5}
           />
         </SidebarSection>

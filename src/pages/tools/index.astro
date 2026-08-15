@@ -1,5 +1,6 @@
 ---
 import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
+import NativeAdSlot from "~/components/NativeAdSlot.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
@@ -54,6 +55,8 @@ const itemListJsonLd = {
    <div class="sidebar-page-grid">
     <HomeStyleSidebars lang={lang}>
       <div class="main-column">
+        <NativeAdSlot lang={lang} />
+
         <section class="tools-shell">
           <header class="tools-header">
             <h1>{t["tools.heading"]}</h1>

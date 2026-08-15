@@ -10,6 +10,10 @@ export interface Props {
   // 同一ページに複数配置される可能性はないが、JSON埋め込みとwidget側の紐付けに使う
   id: string;
   emptyText: string;
+  // ランキングがWorker直取得(リアルタイム)か、ビルド時静的スナップショットへの
+  // フォールバックかを示す小さなバッジのラベル
+  liveLabel: string;
+  cachedLabel: string;
   rankingIndex: RankingEntry[];
   // ワーカーAPIへのlimitパラメータ。サイドバーでは上位10件、専用ページでは上限50件まで
   limit?: number;
@@ -20,13 +24,22 @@ export interface Props {
 const {
   id,
   emptyText,
+  liveLabel,
+  cachedLabel,
   rankingIndex,
   limit = 10,
   seeMoreHref,
   seeMoreLabel,
 } = Astro.props;
 ---
-<div class="ranking-widget" data-widget-id={id} data-limit={limit}>
+<div
+  class="ranking-widget"
+  data-widget-id={id}
+  data-limit={limit}
+  data-live-label={liveLabel}
+  data-cached-label={cachedLabel}
+>
+  <p class="ranking-status" hidden></p>
   <div class="ranking-list" data-empty-text={emptyText}></div>
   {seeMoreHref && seeMoreLabel && (
     <a class="ranking-see-more" href={seeMoreHref}>
@@ -62,6 +75,9 @@ const {
   function initRankingWidget(widget: HTMLElement) {
     const widgetId = widget.dataset.widgetId;
     const list = widget.querySelector<HTMLElement>(".ranking-list");
+    const statusEl = widget.querySelector<HTMLElement>(".ranking-status");
+    const liveLabel = widget.dataset.liveLabel ?? "";
+    const cachedLabel = widget.dataset.cachedLabel ?? "";
     const limit = Number(widget.dataset.limit ?? 10);
     const indexScript = document.querySelector<HTMLScriptElement>(
       `.ranking-widget-index[data-widget-id="${widgetId}"]`,
@@ -121,22 +137,44 @@ const {
       });
     }
 
-    async function fetchRanking(url: string): Promise<RankingRow[]> {
+    async function fetchJson(url: string): Promise<{ ranking?: RankingRow[]; generatedAt?: string }> {
       const res = await fetch(url);
       if (!res.ok) throw new Error(`ranking fetch failed: ${res.status}`);
-      const data = await res.json();
-      return (data.ranking ?? []) as RankingRow[];
+      return res.json();
+    }
+
+    // Worker直取得(リアルタイム)か静的スナップショットへのフォールバックかを、
+    // 見出し脇の小さなアイコン+ラベルで判別できるようにする
+    function showStatus(source: "live" | "cached", generatedAt?: string) {
+      if (!statusEl) return;
+      statusEl.hidden = false;
+      statusEl.dataset.state = source;
+      if (source === "live") {
+        statusEl.innerHTML = `<i class="ti ti-bolt" aria-hidden="true"></i><span>${escapeHtml(liveLabel)}</span>`;
+        statusEl.removeAttribute("title");
+      } else {
+        statusEl.innerHTML = `<i class="ti ti-history" aria-hidden="true"></i><span>${escapeHtml(cachedLabel)}</span>`;
+        statusEl.title = generatedAt
+          ? `${cachedLabel}: ${new Date(generatedAt).toLocaleString()}`
+          : cachedLabel;
+      }
     }
 
     async function load() {
       let rows: RankingRow[];
+      let source: "live" | "cached" = "live";
+      let generatedAt: string | undefined;
       try {
-        rows = await fetchRanking(`${API_BASE}/likes/ranking?limit=${fetchLimit}`);
+        const data = await fetchJson(`${API_BASE}/likes/ranking?limit=${fetchLimit}`);
+        rows = data.ranking ?? [];
       } catch {
         // Workerが無料枠上限などで応答しない場合、ビルド時に生成した静的スナップショットに
         // フォールバックする（同一オリジン配信なのでWorkerの生死に関係なく取得できる）
         try {
-          rows = await fetchRanking(SNAPSHOT_URL);
+          const data = await fetchJson(SNAPSHOT_URL);
+          rows = data.ranking ?? [];
+          source = "cached";
+          generatedAt = data.generatedAt;
         } catch {
           return; // どちらも取得できない場合は非表示のままにする
         }
@@ -145,6 +183,7 @@ const {
       if (!rows.some((row) => rankingIndexBySlug.has(row.slug))) return;
 
       render(rows);
+      showStatus(source, generatedAt);
       hideTarget.removeAttribute("hidden");
     }
 
@@ -159,6 +198,25 @@ const {
     display: grid;
     gap: 0.75rem;
     grid-column: 1 / -1;
+  }
+
+  .ranking-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    justify-self: start;
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .ranking-status i {
+    font-size: 12px;
+  }
+
+  .ranking-status[data-state="live"] {
+    color: var(--accent-strong);
   }
 
   .ranking-list {
