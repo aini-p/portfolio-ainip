@@ -12,10 +12,19 @@ const { class: className } = Astro.props;
 <script is:inline src="https://widget-view.dmm.co.jp/js/placement.js" class="dmm-widget-scripts" data-id="b33eebe5fdfc5abc20b18d701b4014c6"></script>
 
 <style is:global>
+  /* placement.jsはコンテナ幅を見て描画枚数などを計算するため、幅0pxのまま渡すと
+     何も描画されない。display:flexのままだと中身が空の<ins>が0幅に潰れてしまうので、
+     ブロック要素として明示的に幅を確保しておく */
   .dmm-ad-banner {
-    display: flex;
-    justify-content: center;
+    display: block;
+    width: 100%;
     overflow: hidden;
     border-radius: var(--radius-md);
+  }
+
+  .dmm-ad-banner .dmm-widget-placement {
+    display: block;
+    width: 100%;
+    min-height: 90px;
   }
 </style>

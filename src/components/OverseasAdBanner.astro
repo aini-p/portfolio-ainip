@@ -20,10 +20,17 @@ const { class: className } = Astro.props;
 </div>
 
 <style is:global>
+  /* DmmAdBanner.astroと同じ理由: 空の<ins>が0幅に潰れないよう明示的に幅を確保する */
   .overseas-ad-banner {
-    display: flex;
-    justify-content: center;
+    display: block;
+    width: 100%;
     overflow: hidden;
     border-radius: var(--radius-md);
+  }
+
+  .overseas-ad-banner .eas6a97888e2 {
+    display: block;
+    width: 100%;
+    min-height: 90px;
   }
 </style>
