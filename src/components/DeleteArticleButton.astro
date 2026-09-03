@@ -1,0 +1,99 @@
+---
+// `astro dev` でのローカル確認時にのみ表示される、記事削除ボタン。
+// 本番ビルドではimport.meta.env.DEVがfalseになるため一切レンダリングされない。
+import { ui } from "~/i18n/ui";
+
+export interface Props {
+  collection: "artworks" | "doujinshi";
+  slug: string;
+  lang: "ja" | "en";
+  redirectHref: string;
+}
+
+const { collection, slug, lang, redirectHref } = Astro.props;
+const t = ui[lang];
+---
+{import.meta.env.DEV && (
+  <button
+    type="button"
+    class="delete-article-button"
+    data-collection={collection}
+    data-slug={slug}
+    data-redirect={redirectHref}
+    data-confirm={t["devtools.deleteConfirm"]}
+    data-label={t["devtools.deleteButton"]}
+    data-label-busy={t["devtools.deleting"]}
+    data-label-success={t["devtools.deleteSuccess"]}
+    data-label-error={t["devtools.deleteError"]}
+  >
+    <i class="ti ti-trash" aria-hidden="true"></i>
+    <span class="delete-article-button-text">{t["devtools.deleteButton"]}</span>
+  </button>
+
+  <script>
+    function handleClick(button: HTMLButtonElement) {
+      const { collection, slug, redirect, confirm: confirmMessage, labelBusy, labelSuccess, labelError } =
+        button.dataset as Record<string, string>;
+      const textEl = button.querySelector<HTMLSpanElement>(".delete-article-button-text");
+
+      // biome-ignore lint/suspicious/noAlert: ローカル開発専用の破壊的操作なので確認ダイアログを使う
+      if (!window.confirm(confirmMessage)) return;
+
+      button.disabled = true;
+      if (textEl) textEl.textContent = labelBusy;
+
+      fetch("/api/dev/delete-article", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ collection, slug }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const data = await res.json().catch(() => null);
+            throw new Error(data?.message ?? data?.error ?? res.statusText);
+          }
+          if (textEl) textEl.textContent = labelSuccess;
+          window.location.href = redirect;
+        })
+        .catch((err) => {
+          button.disabled = false;
+          if (textEl) textEl.textContent = labelError;
+          // biome-ignore lint/suspicious/noAlert: ローカル開発専用の失敗通知
+          window.alert(`${labelError}: ${err instanceof Error ? err.message : String(err)}`);
+        });
+    }
+
+    document
+      .querySelectorAll<HTMLButtonElement>(".delete-article-button")
+      .forEach((button) => {
+        button.addEventListener("click", () => handleClick(button));
+      });
+  </script>
+
+  <style>
+    .delete-article-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 0.5px solid #d92d20;
+      background: rgb(217 45 32 / 8%);
+      color: #d92d20;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .delete-article-button:hover:not(:disabled) {
+      background: rgb(217 45 32 / 16%);
+    }
+    .delete-article-button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .delete-article-button i {
+      font-size: 15px;
+    }
+  </style>
+)}

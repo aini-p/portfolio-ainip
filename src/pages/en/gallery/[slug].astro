@@ -5,6 +5,7 @@ import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import AuthorComment from "~/components/AuthorComment.astro";
+import DeleteArticleButton from "~/components/DeleteArticleButton.astro";
 import LikeButton from "~/components/LikeButton.astro";
 import NativeAdSlot from "~/components/NativeAdSlot.astro";
 import RankingList from "~/components/RankingList.astro";
@@ -264,6 +265,12 @@ const relatedArtworks = artwork.data.relatedImages
       <div class="action-row">
         <LikeButton slug={artwork.slug.replace(`${lang}/`, "")} />
         <ShareButtons lang={lang} url={pageUrl} text={artwork.data.title} />
+        <DeleteArticleButton
+          collection="artworks"
+          slug={artwork.slug.replace(`${lang}/`, "")}
+          lang={lang}
+          redirectHref="/en/gallery"
+        />
       </div>
 
       {hasBody && (
