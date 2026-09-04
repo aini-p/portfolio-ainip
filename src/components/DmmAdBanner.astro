@@ -1,15 +1,18 @@
 ---
 // DMMアフィリエイトウィジェット広告。ローカル環境では登録ドメイン外のため空枠のまま表示される。
+// dataId未指定時は記事下部の横長(728x90)バナー用ID。サイドバーの300x250バナーなど
+// 別枠を掲出する場合は呼び出し側でdataIdを指定する。
 export interface Props {
   class?: string;
+  dataId?: string;
 }
 
-const { class: className } = Astro.props;
+const { class: className, dataId = "b33eebe5fdfc5abc20b18d701b4014c6" } =
+  Astro.props;
 ---
 <div class:list={["dmm-ad-banner", className]}>
-  <ins class="dmm-widget-placement" data-id="b33eebe5fdfc5abc20b18d701b4014c6" style="background:transparent"></ins>
+<ins class="dmm-widget-placement" data-id={dataId} style="background:transparent"></ins><script src="https://widget-view.dmm.co.jp/js/placement.js" class="dmm-widget-scripts" data-id={dataId}></script>
 </div>
-<script is:inline src="https://widget-view.dmm.co.jp/js/placement.js" class="dmm-widget-scripts" data-id="b33eebe5fdfc5abc20b18d701b4014c6"></script>
 
 <style is:global>
   /* placement.jsはコンテナ幅を見て描画枚数などを計算するため、幅0pxのまま渡すと
@@ -20,6 +23,8 @@ const { class: className } = Astro.props;
     width: 100%;
     overflow: hidden;
     border-radius: var(--radius-md);
+    /* コンテナ幅 > 実際のバナー幅の場合に左寄せになってしまうため中央寄せにする */
+    text-align: center;
   }
 
   .dmm-ad-banner .dmm-widget-placement {

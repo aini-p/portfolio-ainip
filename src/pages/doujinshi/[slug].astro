@@ -5,6 +5,7 @@ import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
 import AuthorComment from "~/components/AuthorComment.astro";
+import DeleteArticleButton from "~/components/DeleteArticleButton.astro";
 import LikeButton from "~/components/LikeButton.astro";
 import RankingList from "~/components/RankingList.astro";
 import SeriesList from "~/components/SeriesList.astro";
@@ -239,6 +240,12 @@ const seriesList = await Promise.all(
       <div class="action-row">
         <LikeButton slug={`doujinshi-${itemSlug}`} />
         <ShareButtons lang={lang} url={pageUrl} text={item.data.title} />
+        <DeleteArticleButton
+          collection="doujinshi"
+          slug={itemSlug}
+          lang={lang}
+          redirectHref="/doujinshi"
+        />
       </div>
 
       {item.data.isOwnWork === false && item.data.rating != null && (

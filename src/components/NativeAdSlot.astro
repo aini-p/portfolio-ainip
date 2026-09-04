@@ -14,8 +14,8 @@ const { lang } = Astro.props;
 const network = resolveAdNetwork(lang);
 const label = lang === "ja" ? "広告" : "Ad";
 ---
-<div class="native-ad-slot">
-  <span class="native-ad-slot-badge">{label}</span>
+<div class:list={["native-ad-slot", { "native-ad-slot-no-badge": network !== "exoclick" }]}>
+  {network === "exoclick" && <span class="native-ad-slot-badge">{label}</span>}
   {network === "exoclick" ? (
     <OverseasAdBanner />
   ) : network === "fanza" ? (
@@ -34,6 +34,11 @@ const label = lang === "ja" ? "広告" : "Ad";
     border-radius: var(--radius-md);
     background: var(--bg-elevated);
     border: 0.5px solid var(--border-subtle);
+  }
+
+  /* バッジ非表示時（DMM/fanza枠）はバッジ用の上余白を詰めて縦方向も中央寄せにする */
+  .native-ad-slot-no-badge {
+    padding: 0.75rem;
   }
 
   .native-ad-slot-badge {
