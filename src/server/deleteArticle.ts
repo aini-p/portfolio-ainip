@@ -144,7 +144,8 @@ export async function deleteArticle(
   }
   const candidateImages = imageEntries.filter(
     (entry) =>
-      entry.isFile() && referencedImageBaseNames.has(path.parse(entry.name).name),
+      entry.isFile() &&
+      referencedImageBaseNames.has(path.parse(entry.name).name),
   );
 
   if (candidateImages.length === 0) {
