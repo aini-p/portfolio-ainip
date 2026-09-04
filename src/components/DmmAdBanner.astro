@@ -7,10 +7,8 @@ export interface Props {
   dataId?: string;
 }
 
-const {
-  class: className,
-  dataId = "b33eebe5fdfc5abc20b18d701b4014c6",
-} = Astro.props;
+const { class: className, dataId = "b33eebe5fdfc5abc20b18d701b4014c6" } =
+  Astro.props;
 ---
 <div class:list={["dmm-ad-banner", className]}>
 <ins class="dmm-widget-placement" data-id={dataId} style="background:transparent"></ins><script src="https://widget-view.dmm.co.jp/js/placement.js" class="dmm-widget-scripts" data-id={dataId}></script>
