@@ -7,9 +7,8 @@ export interface Props {
 const { class: className } = Astro.props;
 ---
 <div class:list={["dmm-ad-banner", className]}>
-  <ins class="dmm-widget-placement" data-id="b33eebe5fdfc5abc20b18d701b4014c6" style="background:transparent"></ins>
+<ins class="dmm-widget-placement" data-id="b33eebe5fdfc5abc20b18d701b4014c6" style="background:transparent"></ins><script src="https://widget-view.dmm.co.jp/js/placement.js" class="dmm-widget-scripts" data-id="b33eebe5fdfc5abc20b18d701b4014c6"></script>
 </div>
-<script is:inline src="https://widget-view.dmm.co.jp/js/placement.js" class="dmm-widget-scripts" data-id="b33eebe5fdfc5abc20b18d701b4014c6"></script>
 
 <style is:global>
   /* placement.jsはコンテナ幅を見て描画枚数などを計算するため、幅0pxのまま渡すと
