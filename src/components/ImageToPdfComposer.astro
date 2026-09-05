@@ -241,7 +241,12 @@ const xShareHref = shareUrl
 
   .image-list:empty { display: none; }
 
-  .image-item {
+  /*
+   * .image-item 以下と .thumb-item 以下は JS の document.createElement で
+   * 描画時に生成される要素なので、Astro のスコープ付き<style>（data-astro-cid-*
+   * 属性前提のセレクタ）は素のままだと一致しない。:global() で括ってスコープを外す。
+   */
+  .image-list :global(.image-item) {
     display: flex;
     align-items: center;
     gap: 0.55rem;
@@ -254,24 +259,24 @@ const xShareHref = shareUrl
     user-select: none;
   }
 
-  .image-item.is-dragging {
+  .image-list :global(.image-item.is-dragging) {
     opacity: 0.4;
     border-color: var(--accent);
   }
 
-  .image-item.drag-over {
+  .image-list :global(.image-item.drag-over) {
     border-color: var(--accent);
     background: color-mix(in srgb, var(--accent) 20%, var(--panel-bg-soft));
   }
 
-  .item-names {
+  .image-list :global(.item-names) {
     flex: 1;
     min-width: 0;
     display: grid;
     gap: 0.1rem;
   }
 
-  .item-numbered {
+  .image-list :global(.item-numbered) {
     font-weight: 700;
     color: var(--accent-strong);
     white-space: nowrap;
@@ -279,14 +284,14 @@ const xShareHref = shareUrl
     text-overflow: ellipsis;
   }
 
-  .item-original {
+  .image-list :global(.item-original) {
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .item-remove {
+  .image-list :global(.item-remove) {
     border: 0;
     background: color-mix(in srgb, #ef4444 25%, transparent);
     color: #fca5a5;
@@ -298,7 +303,7 @@ const xShareHref = shareUrl
     flex-shrink: 0;
   }
 
-  .item-remove:hover {
+  .image-list :global(.item-remove:hover) {
     background: color-mix(in srgb, #ef4444 45%, transparent);
   }
 
@@ -320,7 +325,7 @@ const xShareHref = shareUrl
 
   .thumb-grid:empty { display: none; }
 
-  .thumb-item {
+  .thumb-grid :global(.thumb-item) {
     position: relative;
     aspect-ratio: 3 / 4;
     border-radius: var(--radius-sm);
@@ -329,14 +334,14 @@ const xShareHref = shareUrl
     border: 1px solid var(--panel-border);
   }
 
-  .thumb-item img {
+  .thumb-grid :global(.thumb-item img) {
     width: 100%;
     height: 100%;
     object-fit: contain;
     display: block;
   }
 
-  .thumb-item .thumb-num {
+  .thumb-grid :global(.thumb-item .thumb-num) {
     position: absolute;
     bottom: 0;
     left: 0;

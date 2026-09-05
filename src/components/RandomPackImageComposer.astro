@@ -165,7 +165,13 @@ const xShareHref = shareUrl
     gap: 0.5rem;
   }
 
-  .image-item {
+  /*
+   * .image-item / .image-item-name / .image-item-remove は JS の
+   * document.createElement で描画時に生成される要素なので、Astro の
+   * スコープ付き<style>（data-astro-cid-* 属性前提のセレクタ）は素のままだと
+   * 一致しない。:global() で括ってスコープを外す。
+   */
+  .image-list :global(.image-item) {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -177,7 +183,7 @@ const xShareHref = shareUrl
     font-size: 0.8rem;
   }
 
-  .image-item-name {
+  .image-list :global(.image-item-name) {
     flex: 1;
     min-width: 0;
     overflow: hidden;
@@ -185,7 +191,7 @@ const xShareHref = shareUrl
     white-space: nowrap;
   }
 
-  .image-item-remove {
+  .image-list :global(.image-item-remove) {
     border: 0;
     background: color-mix(in srgb, #ef4444 30%, transparent);
     color: #fca5a5;
@@ -197,7 +203,7 @@ const xShareHref = shareUrl
     flex-shrink: 0;
   }
 
-  .image-item-remove:hover {
+  .image-list :global(.image-item-remove:hover) {
     background: color-mix(in srgb, #ef4444 50%, transparent);
   }
 

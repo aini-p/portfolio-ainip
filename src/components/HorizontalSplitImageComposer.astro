@@ -156,25 +156,37 @@ const xShareHref = shareUrl
     background: color-mix(in srgb, var(--accent) 26%, var(--panel-bg-soft));
   }
 
-  /* 分割後の縦長画像を横に並べて、Xのカルーセル表示に近い見た目でプレビューする */
+  /*
+   * 分割後の縦長画像を横に並べて、Xのカルーセル表示に近い見た目でプレビューする。
+   * パーツの実際の縦横比はまちまちなので、高さを固定して幅は比率どおりに
+   * 自動計算させる（枠からのはみ出しを防ぎ、収まらない分は横スクロールで見せる）。
+   */
   .hsplit-preview-row {
     --gap: 0.5rem;
+    --row-height: 320px;
 
     display: flex;
-    align-items: stretch;
+    align-items: center;
     gap: var(--gap);
     background: var(--bg-page);
     padding: var(--gap);
     border-radius: var(--radius-md);
     border: 1px solid var(--border-subtle);
-    min-height: 120px;
+    height: var(--row-height);
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
-  .hsplit-preview-row img {
-    flex: 1 1 0;
-    min-width: 0;
+  /*
+   * プレビュー画像は生成ボタン押下時に JS で document.createElement("img") して
+   * 追加しているため、Astro のスコープ付き<style>（data-astro-cid-* 属性を前提と
+   * するセレクタ）は素のままだと一致しない。:global() で括ってスコープを外す。
+   */
+  .hsplit-preview-row :global(img) {
+    flex: 0 0 auto;
+    width: auto;
+    height: 100%;
     max-width: 100%;
-    height: auto;
     display: block;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-subtle);
@@ -184,11 +196,7 @@ const xShareHref = shareUrl
 
   @media (width <= 640px) {
     .hsplit-preview-row {
-      flex-wrap: wrap;
-    }
-
-    .hsplit-preview-row img {
-      flex-basis: 100%;
+      --row-height: 220px;
     }
   }
 </style>
