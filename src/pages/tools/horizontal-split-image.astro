@@ -1,6 +1,6 @@
 ---
 import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
-import VerticalSplitImageComposer from "~/components/VerticalSplitImageComposer.astro";
+import HorizontalSplitImageComposer from "~/components/HorizontalSplitImageComposer.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
@@ -13,7 +13,7 @@ const appJsonLd = {
   applicationCategory: "MultimediaApplication",
   operatingSystem: "Web",
   inLanguage: "ja",
-  url: new URL("/tools/vertical-split-image", Astro.site).toString(),
+  url: new URL("/tools/horizontal-split-image", Astro.site).toString(),
   description: t["tool7.pageDescription"],
 };
 ---
@@ -21,7 +21,7 @@ const appJsonLd = {
 <BaseLayout
   title={t["tool7.pageTitle"]}
   description={t["tool7.pageDescription"]}
-  keywords="縦分割, X投稿, カルーセル, 画像分割, 隙間調整"
+  keywords="横分割, X投稿, カルーセル, 画像分割, 隙間調整, 縦長"
   image={{ src: "/images/tool-mascot-placeholder.svg", alt: t["tool7.pageTitle"] }}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
@@ -30,10 +30,10 @@ const appJsonLd = {
    <div class="sidebar-page-grid">
     <HomeStyleSidebars lang={lang}>
       <div class="main-column">
-        <VerticalSplitImageComposer
+        <HorizontalSplitImageComposer
           bannerSrc="/images/tool-mascot-placeholder.svg"
           bannerAlt={t["tool7.pageTitle"]}
-          shareUrl={new URL("/tools/vertical-split-image", Astro.site).toString()}
+          shareUrl={new URL("/tools/horizontal-split-image", Astro.site).toString()}
           copy={{
             title: t["tool7.pageTitle"],
             lead: t["tool7.lead"],

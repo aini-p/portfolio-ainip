@@ -42,7 +42,7 @@ const xShareHref = shareUrl
 
 <section
   class="tool-shell"
-  data-vertical-split-tool
+  data-horizontal-split-tool
   data-status-idle={copy.statusIdle}
   data-status-need-image={copy.statusNeedImage}
   data-status-working={copy.statusWorking}
@@ -57,7 +57,7 @@ const xShareHref = shareUrl
       </>
     )}
     <div class="hero-content">
-      <p class="eyebrow">Vertical Split Tool</p>
+      <p class="eyebrow">Horizontal Split Tool</p>
       <h1>{copy.title}</h1>
       <p class="lead">{copy.lead}</p>
       {xShareHref && (
@@ -100,7 +100,7 @@ const xShareHref = shareUrl
 
       <div class="action-row">
         <button data-role="generate-button" type="button">{copy.generate}</button>
-        <button data-role="download-button" type="button" disabled data-ga-event="tool_download" data-ga-tool="vertical-split-image">{copy.download}</button>
+        <button data-role="download-button" type="button" disabled data-ga-event="tool_download" data-ga-tool="horizontal-split-image">{copy.download}</button>
       </div>
 
       <p class="status-text" data-role="status" aria-live="polite">{copy.statusIdle}</p>
@@ -109,7 +109,7 @@ const xShareHref = shareUrl
     <div class="preview-panel">
       <div class="preview-card">
         <p>{copy.previewSplit}</p>
-        <div class="vsplit-preview-stack" data-role="split-preview-stack"></div>
+        <div class="hsplit-preview-row" data-role="split-preview-row"></div>
       </div>
     </div>
   </div>
@@ -128,7 +128,7 @@ const xShareHref = shareUrl
 </section>
 
 <style>
-  /* 縦分割ツール固有のスタイル。共通の見た目は tool-composer.css を参照 */
+  /* 横分割ツール固有のスタイル。共通の見た目は tool-composer.css を参照 */
   .split-count-options {
     display: flex;
     gap: 0.5rem;
@@ -156,11 +156,12 @@ const xShareHref = shareUrl
     background: color-mix(in srgb, var(--accent) 26%, var(--panel-bg-soft));
   }
 
-  .vsplit-preview-stack {
+  /* 分割後の縦長画像を横に並べて、Xのカルーセル表示に近い見た目でプレビューする */
+  .hsplit-preview-row {
     --gap: 0.5rem;
 
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    align-items: stretch;
     gap: var(--gap);
     background: var(--bg-page);
     padding: var(--gap);
@@ -169,18 +170,31 @@ const xShareHref = shareUrl
     min-height: 120px;
   }
 
-  .vsplit-preview-stack img {
-    width: 100%;
+  .hsplit-preview-row img {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 100%;
+    height: auto;
     display: block;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-subtle);
     background: var(--bg-elevated-2);
     object-fit: contain;
   }
+
+  @media (width <= 640px) {
+    .hsplit-preview-row {
+      flex-wrap: wrap;
+    }
+
+    .hsplit-preview-row img {
+      flex-basis: 100%;
+    }
+  }
 </style>
 
 <script is:inline>
-  function initVerticalSplitTool(root) {
+  function initHorizontalSplitTool(root) {
     if (root.dataset.initialized === "true") {
       return;
     }
@@ -196,7 +210,7 @@ const xShareHref = shareUrl
     const generateButton = root.querySelector('[data-role="generate-button"]');
     const downloadButton = root.querySelector('[data-role="download-button"]');
     const status = root.querySelector('[data-role="status"]');
-    const previewStack = root.querySelector('[data-role="split-preview-stack"]');
+    const previewRow = root.querySelector('[data-role="split-preview-row"]');
 
     const labels = {
       idle: root.dataset.statusIdle || "",
@@ -215,6 +229,7 @@ const xShareHref = shareUrl
       sourceImage: null,
       splitCanvases: [],
       splitCount: 3,
+      gapAuto: true,
     };
 
     function clamp(value, min, max) {
@@ -315,6 +330,13 @@ const xShareHref = shareUrl
       }, 1500);
     }
 
+    // 画像の幅を元に「ちょうどよさそうな」隙間量(px)を提案する。
+    // Xのカルーセル/グリッド表示は元画像の解像度に比例して縮小されるため、
+    // 幅の約1%を目安にしつつ極端に小さい/大きい値にならないよう範囲を絞る。
+    function suggestGapValue(width) {
+      return Math.round(clamp(width * 0.01, 6, 40));
+    }
+
     function getGapValue() {
       const raw = gapInput ? Number(gapInput.value) : 0;
       const safeRaw = Number.isFinite(raw) ? raw : 0;
@@ -332,34 +354,34 @@ const xShareHref = shareUrl
     function clearSplitPreviews() {
       previewUrls.split.forEach((url) => revokeUrl(url));
       previewUrls.split = [];
-      if (previewStack) {
-        previewStack.innerHTML = "";
+      if (previewRow) {
+        previewRow.innerHTML = "";
       }
     }
 
-    // 縦方向に splitCount 等分し、境界ごとに gapPx を上下半分ずつ削り取る。
-    // X（旧Twitter）のカルーセル表示で画像同士の間に生まれる隙間の分だけ
-    // あらかじめ元画像から間引いておくことで、並べたときに違和感なくつながる。
-    function extractVerticalSplitCanvases(sourceImage, splitCount, gapPx) {
+    // 横方向(幅)に splitCount 等分し、境界ごとに gapPx を左右半分ずつ削り取る。
+    // 縦長(ポートレート寄り)の短冊状パーツを作ることで、X（旧Twitter）のカルーセル/
+    // グリッド表示で自然に並び、投稿画像同士の隙間の分だけあらかじめ間引いておける。
+    function extractHorizontalSplitCanvases(sourceImage, splitCount, gapPx) {
       const width = sourceImage.naturalWidth;
       const height = sourceImage.naturalHeight;
       const canvases = [];
 
       for (let index = 0; index < splitCount; index++) {
-        const topCut = index === 0 ? 0 : Math.ceil(gapPx / 2);
-        const bottomCut = index === splitCount - 1 ? 0 : Math.floor(gapPx / 2);
-        const startY = Math.round((height * index) / splitCount);
-        const endY = Math.round((height * (index + 1)) / splitCount);
-        const sourceY = startY + topCut;
-        const sourceHeight = Math.max(1, endY - startY - topCut - bottomCut);
+        const leftCut = index === 0 ? 0 : Math.ceil(gapPx / 2);
+        const rightCut = index === splitCount - 1 ? 0 : Math.floor(gapPx / 2);
+        const startX = Math.round((width * index) / splitCount);
+        const endX = Math.round((width * (index + 1)) / splitCount);
+        const sourceX = startX + leftCut;
+        const sourceWidth = Math.max(1, endX - startX - leftCut - rightCut);
 
-        const canvas = createCanvas(width, sourceHeight);
+        const canvas = createCanvas(sourceWidth, height);
         const context = canvas.getContext("2d");
         if (!context) {
           throw new Error("canvas-context-unavailable");
         }
         context.imageSmoothingQuality = "high";
-        context.drawImage(sourceImage, 0, sourceY, width, sourceHeight, 0, 0, width, sourceHeight);
+        context.drawImage(sourceImage, sourceX, 0, sourceWidth, height, 0, 0, sourceWidth, height);
         canvases.push(canvas);
       }
 
@@ -378,8 +400,8 @@ const xShareHref = shareUrl
         const img = document.createElement("img");
         img.src = url;
         img.alt = `Split preview ${index + 1}`;
-        if (previewStack) {
-          previewStack.appendChild(img);
+        if (previewRow) {
+          previewRow.appendChild(img);
         }
       }
     }
@@ -408,7 +430,7 @@ const xShareHref = shareUrl
 
       try {
         const gapPx = getGapValue();
-        const splitCanvases = extractVerticalSplitCanvases(sourceImage, state.splitCount, gapPx);
+        const splitCanvases = extractHorizontalSplitCanvases(sourceImage, state.splitCount, gapPx);
         state.splitCanvases = splitCanvases;
         await showCanvasPreviews(splitCanvases);
         setDownloadReady(true);
@@ -429,7 +451,7 @@ const xShareHref = shareUrl
         if (!blob) {
           continue;
         }
-        downloadBlob(blob, `vertical_split_${index + 1}.png`);
+        downloadBlob(blob, `horizontal_split_${index + 1}.png`);
       }
     }
 
@@ -441,6 +463,9 @@ const xShareHref = shareUrl
       try {
         const image = await loadImageFromFile(file);
         state.sourceImage = image;
+        if (state.gapAuto && gapInput) {
+          gapInput.value = String(suggestGapValue(image.naturalWidth));
+        }
       } catch (_error) {
         state.sourceImage = null;
       }
@@ -501,6 +526,7 @@ const xShareHref = shareUrl
 
     if (gapInput) {
       gapInput.addEventListener("input", () => {
+        state.gapAuto = false;
         gapInput.value = String(getGapValue());
         invalidateGeneratedState();
       });
@@ -543,17 +569,17 @@ const xShareHref = shareUrl
     });
   }
 
-  function bindVerticalSplitTools() {
-    document.querySelectorAll("[data-vertical-split-tool]").forEach((root) => {
-      initVerticalSplitTool(root);
+  function bindHorizontalSplitTools() {
+    document.querySelectorAll("[data-horizontal-split-tool]").forEach((root) => {
+      initHorizontalSplitTool(root);
     });
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bindVerticalSplitTools, { once: true });
+    document.addEventListener("DOMContentLoaded", bindHorizontalSplitTools, { once: true });
   } else {
-    bindVerticalSplitTools();
+    bindHorizontalSplitTools();
   }
 
-  document.addEventListener("astro:page-load", bindVerticalSplitTools);
+  document.addEventListener("astro:page-load", bindHorizontalSplitTools);
 </script>

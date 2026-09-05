@@ -8,7 +8,7 @@ const lang = "en";
 const t = ui[lang];
 const tapToolPath = "/en/tools/tap-change-image";
 const fourToolPath = "/en/tools/four-split-image";
-const vsplitToolPath = "/en/tools/vertical-split-image";
+const hsplitToolPath = "/en/tools/horizontal-split-image";
 const packToolPath = "/en/tools/random-pack-image";
 const pdfToolPath = "/en/tools/image-to-pdf";
 const placeholderThumb = "/images/tool-mascot-placeholder.svg";
@@ -32,8 +32,8 @@ const itemListJsonLd = {
     {
       "@type": "ListItem",
       position: 3,
-      name: t["tools.card.vsplitTitle"],
-      url: new URL(vsplitToolPath, Astro.site).toString(),
+      name: t["tools.card.hsplitTitle"],
+      url: new URL(hsplitToolPath, Astro.site).toString(),
     },
     {
       "@type": "ListItem",
@@ -76,7 +76,7 @@ const itemListJsonLd = {
               <a class="tool-card" href={tapToolPath}>
                 <img
                   class="tool-card-thumb"
-                  src={placeholderThumb}
+                  src="/images/tap_change_image_chan_twcard.jpg"
                   alt={t["tools.card.tapTitle"]}
                 />
                 <div class="tool-card-body">
@@ -99,15 +99,15 @@ const itemListJsonLd = {
               </a>
             </li>
             <li>
-              <a class="tool-card" href={vsplitToolPath}>
+              <a class="tool-card" href={hsplitToolPath}>
                 <img
                   class="tool-card-thumb"
                   src={placeholderThumb}
-                  alt={t["tools.card.vsplitTitle"]}
+                  alt={t["tools.card.hsplitTitle"]}
                 />
                 <div class="tool-card-body">
-                  <h2>{t["tools.card.vsplitTitle"]}</h2>
-                  <p>{t["tools.card.vsplitDescription"]}</p>
+                  <h2>{t["tools.card.hsplitTitle"]}</h2>
+                  <p>{t["tools.card.hsplitDescription"]}</p>
                 </div>
               </a>
             </li>
