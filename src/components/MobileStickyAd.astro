@@ -16,7 +16,6 @@ const { lang } = Astro.props;
 const network = resolveAdNetwork(lang);
 ---
 <div class="mobile-sticky-ad" id="mobile-sticky-ad">
-  <span class="mobile-sticky-ad-badge">PR</span>
   <button type="button" class="mobile-sticky-ad-close" id="mobile-sticky-ad-close" aria-label="close">
     <i class="ti ti-x" aria-hidden="true"></i>
   </button>
@@ -73,22 +72,17 @@ const network = resolveAdNetwork(lang);
 
     .mobile-sticky-ad-inner {
       flex: 1;
+      min-width: 0;
       max-height: 90px;
       overflow: hidden;
       display: flex;
       justify-content: center;
     }
 
-    .mobile-sticky-ad-badge {
-      position: absolute;
-      left: 6px;
-      top: 6px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 4px;
+    .mobile-sticky-ad-inner iframe,
+    .mobile-sticky-ad-inner img,
+    .mobile-sticky-ad-inner table {
+      max-width: 100%;
     }
 
     .mobile-sticky-ad-close {
