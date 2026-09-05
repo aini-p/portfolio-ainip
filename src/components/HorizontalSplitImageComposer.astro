@@ -1,0 +1,593 @@
+---
+import "~/styles/tool-composer.css";
+
+export interface Props {
+  bannerSrc?: string;
+  bannerAlt?: string;
+  shareUrl?: string;
+  copy: {
+    title: string;
+    lead: string;
+    sourceInput: string;
+    dropHint: string;
+    chooseButton: string;
+    fileHint: string;
+    splitCountLabel: string;
+    splitCountHelp: string;
+    gapLabel: string;
+    gapHelp: string;
+    generate: string;
+    download: string;
+    previewSplit: string;
+    statusIdle: string;
+    statusNeedImage: string;
+    statusWorking: string;
+    statusReady: string;
+    statusError: string;
+    noteSplit: string;
+    noteGap: string;
+    contactLabel: string;
+    contactLinkText: string;
+    contactHref: string;
+    shareButton: string;
+    shareText: string;
+  };
+}
+
+const { copy, bannerSrc, bannerAlt = "", shareUrl } = Astro.props;
+const xShareHref = shareUrl
+  ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(copy.shareText)}&url=${encodeURIComponent(shareUrl)}`
+  : undefined;
+---
+
+<section
+  class="tool-shell"
+  data-horizontal-split-tool
+  data-status-idle={copy.statusIdle}
+  data-status-need-image={copy.statusNeedImage}
+  data-status-working={copy.statusWorking}
+  data-status-ready={copy.statusReady}
+  data-status-error={copy.statusError}
+>
+  <div class="hero-card">
+    {bannerSrc && (
+      <>
+        <img class="hero-banner" src={bannerSrc} alt={bannerAlt} />
+        <div class="hero-overlay" aria-hidden="true"></div>
+      </>
+    )}
+    <div class="hero-content">
+      <p class="eyebrow">Horizontal Split Tool</p>
+      <h1>{copy.title}</h1>
+      <p class="lead">{copy.lead}</p>
+      {xShareHref && (
+        <a class="share-button" href={xShareHref} target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.623 5.905-5.623Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          {copy.shareButton}
+        </a>
+      )}
+    </div>
+  </div>
+
+  <div class="workspace-grid">
+    <form class="control-panel">
+      <label class="file-field file-dropzone" data-role="drop-source">
+        <span>{copy.sourceInput}</span>
+        <p class="drop-hint">{copy.dropHint}</p>
+        <button class="browse-button" data-role="browse-source" type="button">{copy.chooseButton}</button>
+        <p class="selected-file" data-role="file-name-source"></p>
+        <img class="input-thumb" data-role="thumb-source" alt="Source image thumbnail" />
+        <input data-role="input-source" type="file" accept="image/png,image/*" />
+      </label>
+
+      <label class="range-field">
+        <span>{copy.splitCountLabel}</span>
+        <div class="split-count-options" data-role="split-count-options">
+          <button class="split-count-button" data-role="split-count-button" data-value="2" type="button">2分割</button>
+          <button class="split-count-button" data-role="split-count-button" data-value="3" type="button">3分割</button>
+          <button class="split-count-button" data-role="split-count-button" data-value="4" type="button">4分割</button>
+        </div>
+        <p class="help-text">{copy.splitCountHelp}</p>
+      </label>
+
+      <label class="range-field">
+        <span>{copy.gapLabel}</span>
+        <input data-role="gap-input" type="number" min="0" max="200" step="1" value="12" />
+        <p class="help-text">{copy.gapHelp}</p>
+      </label>
+
+      <div class="action-row">
+        <button data-role="generate-button" type="button">{copy.generate}</button>
+        <button data-role="download-button" type="button" disabled data-ga-event="tool_download" data-ga-tool="horizontal-split-image">{copy.download}</button>
+      </div>
+
+      <p class="status-text" data-role="status" aria-live="polite">{copy.statusIdle}</p>
+    </form>
+
+    <div class="preview-panel">
+      <div class="preview-card">
+        <p>{copy.previewSplit}</p>
+        <div class="hsplit-preview-row" data-role="split-preview-row"></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="notes-panel">
+    <ul class="notes-list">
+      <li>{copy.fileHint}</li>
+      <li>{copy.noteSplit}</li>
+      <li>{copy.noteGap}</li>
+      <li>
+        {copy.contactLabel}
+        <a class="notes-link" href={copy.contactHref}>{copy.contactLinkText}</a>
+      </li>
+    </ul>
+  </section>
+</section>
+
+<style>
+  /* 横分割ツール固有のスタイル。共通の見た目は tool-composer.css を参照 */
+  .split-count-options {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .split-count-button {
+    flex: 1;
+    border: 1px solid var(--panel-border);
+    background: var(--panel-bg-soft);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .split-count-button:hover,
+  .split-count-button:focus-visible {
+    border-color: var(--accent);
+  }
+
+  .split-count-button.is-active {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 26%, var(--panel-bg-soft));
+  }
+
+  /*
+   * 分割後の縦長画像を横に並べて、Xのカルーセル表示に近い見た目でプレビューする。
+   * パーツの実際の縦横比はまちまちなので、高さを固定して幅は比率どおりに
+   * 自動計算させる（枠からのはみ出しを防ぎ、収まらない分は横スクロールで見せる）。
+   */
+  .hsplit-preview-row {
+    --gap: 0.5rem;
+    --row-height: 320px;
+
+    display: flex;
+    align-items: center;
+    gap: var(--gap);
+    background: var(--bg-page);
+    padding: var(--gap);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    height: var(--row-height);
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  /*
+   * プレビュー画像は生成ボタン押下時に JS で document.createElement("img") して
+   * 追加しているため、Astro のスコープ付き<style>（data-astro-cid-* 属性を前提と
+   * するセレクタ）は素のままだと一致しない。:global() で括ってスコープを外す。
+   */
+  .hsplit-preview-row :global(img) {
+    flex: 0 0 auto;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    display: block;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-elevated-2);
+    object-fit: contain;
+  }
+
+  @media (width <= 640px) {
+    .hsplit-preview-row {
+      --row-height: 220px;
+    }
+  }
+</style>
+
+<script is:inline>
+  function initHorizontalSplitTool(root) {
+    if (root.dataset.initialized === "true") {
+      return;
+    }
+    root.dataset.initialized = "true";
+
+    const sourceInput = root.querySelector('[data-role="input-source"]');
+    const sourceDropzone = root.querySelector('[data-role="drop-source"]');
+    const sourceBrowseButton = root.querySelector('[data-role="browse-source"]');
+    const sourceFileName = root.querySelector('[data-role="file-name-source"]');
+    const sourceThumb = root.querySelector('[data-role="thumb-source"]');
+    const splitCountButtons = Array.from(root.querySelectorAll('[data-role="split-count-button"]'));
+    const gapInput = root.querySelector('[data-role="gap-input"]');
+    const generateButton = root.querySelector('[data-role="generate-button"]');
+    const downloadButton = root.querySelector('[data-role="download-button"]');
+    const status = root.querySelector('[data-role="status"]');
+    const previewRow = root.querySelector('[data-role="split-preview-row"]');
+
+    const labels = {
+      idle: root.dataset.statusIdle || "",
+      needImage: root.dataset.statusNeedImage || "",
+      working: root.dataset.statusWorking || "",
+      ready: root.dataset.statusReady || "",
+      error: root.dataset.statusError || "",
+    };
+
+    const previewUrls = {
+      source: "",
+      split: [],
+    };
+
+    const state = {
+      sourceImage: null,
+      splitCanvases: [],
+      splitCount: 3,
+      gapAuto: true,
+    };
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function setStatus(message) {
+      if (status) {
+        status.textContent = message;
+      }
+    }
+
+    function setDownloadReady(ready) {
+      if (downloadButton) {
+        downloadButton.disabled = !ready;
+      }
+    }
+
+    function revokeUrl(url) {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    function updateInputWithFile(input, file) {
+      if (!input || !file) {
+        return;
+      }
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      input.files = transfer.files;
+    }
+
+    function updateFileLabel(label, file) {
+      if (!label) {
+        return;
+      }
+      label.textContent = file ? file.name : "";
+    }
+
+    function updateSourceThumbnail(file) {
+      revokeUrl(previewUrls.source);
+      previewUrls.source = "";
+
+      if (!file || !sourceThumb) {
+        if (sourceThumb) {
+          sourceThumb.removeAttribute("src");
+          sourceThumb.classList.remove("is-visible");
+        }
+        return;
+      }
+
+      const objectUrl = URL.createObjectURL(file);
+      previewUrls.source = objectUrl;
+      sourceThumb.src = objectUrl;
+      sourceThumb.classList.add("is-visible");
+    }
+
+    function loadImageFromFile(file) {
+      return new Promise((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(image);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("image-load-failed"));
+        };
+        image.src = objectUrl;
+      });
+    }
+
+    function createCanvas(width, height) {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      return canvas;
+    }
+
+    function canvasToBlob(canvas) {
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, "image/png");
+      });
+    }
+
+    function downloadBlob(blob, filename) {
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = filename;
+      link.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(objectUrl);
+      }, 1500);
+    }
+
+    // 画像の幅を元に「ちょうどよさそうな」隙間量(px)を提案する。
+    // Xのカルーセル/グリッド表示は元画像の解像度に比例して縮小されるため、
+    // 幅の約1%を目安にしつつ極端に小さい/大きい値にならないよう範囲を絞る。
+    function suggestGapValue(width) {
+      return Math.round(clamp(width * 0.01, 6, 40));
+    }
+
+    function getGapValue() {
+      const raw = gapInput ? Number(gapInput.value) : 0;
+      const safeRaw = Number.isFinite(raw) ? raw : 0;
+      return Math.round(clamp(safeRaw, 0, 200));
+    }
+
+    function setActiveSplitCount(count) {
+      state.splitCount = count;
+      splitCountButtons.forEach((button) => {
+        const value = Number(button.dataset.value);
+        button.classList.toggle("is-active", value === count);
+      });
+    }
+
+    function clearSplitPreviews() {
+      previewUrls.split.forEach((url) => revokeUrl(url));
+      previewUrls.split = [];
+      if (previewRow) {
+        previewRow.innerHTML = "";
+      }
+    }
+
+    // 横方向(幅)に splitCount 等分し、境界ごとに gapPx を左右半分ずつ削り取る。
+    // 縦長(ポートレート寄り)の短冊状パーツを作ることで、X（旧Twitter）のカルーセル/
+    // グリッド表示で自然に並び、投稿画像同士の隙間の分だけあらかじめ間引いておける。
+    function extractHorizontalSplitCanvases(sourceImage, splitCount, gapPx) {
+      const width = sourceImage.naturalWidth;
+      const height = sourceImage.naturalHeight;
+      const canvases = [];
+
+      for (let index = 0; index < splitCount; index++) {
+        const leftCut = index === 0 ? 0 : Math.ceil(gapPx / 2);
+        const rightCut = index === splitCount - 1 ? 0 : Math.floor(gapPx / 2);
+        const startX = Math.round((width * index) / splitCount);
+        const endX = Math.round((width * (index + 1)) / splitCount);
+        const sourceX = startX + leftCut;
+        const sourceWidth = Math.max(1, endX - startX - leftCut - rightCut);
+
+        const canvas = createCanvas(sourceWidth, height);
+        const context = canvas.getContext("2d");
+        if (!context) {
+          throw new Error("canvas-context-unavailable");
+        }
+        context.imageSmoothingQuality = "high";
+        context.drawImage(sourceImage, sourceX, 0, sourceWidth, height, 0, 0, sourceWidth, height);
+        canvases.push(canvas);
+      }
+
+      return canvases;
+    }
+
+    async function showCanvasPreviews(canvases) {
+      clearSplitPreviews();
+      for (let index = 0; index < canvases.length; index++) {
+        const blob = await canvasToBlob(canvases[index]);
+        if (!blob) {
+          continue;
+        }
+        const url = URL.createObjectURL(blob);
+        previewUrls.split.push(url);
+        const img = document.createElement("img");
+        img.src = url;
+        img.alt = `Split preview ${index + 1}`;
+        if (previewRow) {
+          previewRow.appendChild(img);
+        }
+      }
+    }
+
+    async function ensureSourceImageReady() {
+      const sourceFile = sourceInput && sourceInput.files ? sourceInput.files[0] : null;
+      if (!sourceFile) {
+        return null;
+      }
+      const image = await loadImageFromFile(sourceFile);
+      state.sourceImage = image;
+      return image;
+    }
+
+    async function generate() {
+      const sourceImage = await ensureSourceImageReady();
+      if (!sourceImage) {
+        setDownloadReady(false);
+        clearSplitPreviews();
+        setStatus(labels.needImage);
+        return;
+      }
+
+      setStatus(labels.working);
+      setDownloadReady(false);
+
+      try {
+        const gapPx = getGapValue();
+        const splitCanvases = extractHorizontalSplitCanvases(sourceImage, state.splitCount, gapPx);
+        state.splitCanvases = splitCanvases;
+        await showCanvasPreviews(splitCanvases);
+        setDownloadReady(true);
+        setStatus(labels.ready);
+      } catch (_error) {
+        setDownloadReady(false);
+        clearSplitPreviews();
+        setStatus(labels.error);
+      }
+    }
+
+    async function downloadImages() {
+      if (!state.splitCanvases.length) {
+        return;
+      }
+      for (let index = 0; index < state.splitCanvases.length; index++) {
+        const blob = await canvasToBlob(state.splitCanvases[index]);
+        if (!blob) {
+          continue;
+        }
+        downloadBlob(blob, `horizontal_split_${index + 1}.png`);
+      }
+    }
+
+    async function updateSourceFromFile(file) {
+      if (!file) {
+        state.sourceImage = null;
+        return;
+      }
+      try {
+        const image = await loadImageFromFile(file);
+        state.sourceImage = image;
+        if (state.gapAuto && gapInput) {
+          gapInput.value = String(suggestGapValue(image.naturalWidth));
+        }
+      } catch (_error) {
+        state.sourceImage = null;
+      }
+    }
+
+    function invalidateGeneratedState() {
+      state.splitCanvases = [];
+      setDownloadReady(false);
+      clearSplitPreviews();
+      setStatus(labels.idle);
+    }
+
+    function handleDropzone(dropzone, input, label) {
+      if (!dropzone || !input) {
+        return;
+      }
+
+      const onDrag = (event) => {
+        event.preventDefault();
+        dropzone.classList.add("is-dragover");
+      };
+
+      const onDragLeave = () => {
+        dropzone.classList.remove("is-dragover");
+      };
+
+      dropzone.addEventListener("dragenter", onDrag);
+      dropzone.addEventListener("dragover", onDrag);
+      dropzone.addEventListener("dragleave", onDragLeave);
+      dropzone.addEventListener("drop", async (event) => {
+        event.preventDefault();
+        onDragLeave();
+
+        const fileList = event.dataTransfer && event.dataTransfer.files ? event.dataTransfer.files : null;
+        const droppedFile = fileList && fileList.length > 0 ? fileList[0] : null;
+        if (!droppedFile) {
+          return;
+        }
+
+        updateInputWithFile(input, droppedFile);
+        updateFileLabel(label, droppedFile);
+        updateSourceThumbnail(droppedFile);
+        await updateSourceFromFile(droppedFile);
+        invalidateGeneratedState();
+      });
+    }
+
+    splitCountButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const value = Number(button.dataset.value);
+        if (!Number.isFinite(value)) {
+          return;
+        }
+        setActiveSplitCount(value);
+        invalidateGeneratedState();
+      });
+    });
+
+    if (gapInput) {
+      gapInput.addEventListener("input", () => {
+        state.gapAuto = false;
+        gapInput.value = String(getGapValue());
+        invalidateGeneratedState();
+      });
+    }
+
+    if (sourceInput) {
+      sourceInput.addEventListener("change", async () => {
+        const file = sourceInput.files && sourceInput.files[0] ? sourceInput.files[0] : null;
+        updateFileLabel(sourceFileName, file);
+        updateSourceThumbnail(file);
+        await updateSourceFromFile(file);
+        invalidateGeneratedState();
+      });
+    }
+
+    if (sourceBrowseButton) {
+      sourceBrowseButton.addEventListener("click", () => {
+        if (sourceInput) {
+          sourceInput.click();
+        }
+      });
+    }
+
+    if (generateButton) {
+      generateButton.addEventListener("click", generate);
+    }
+
+    if (downloadButton) {
+      downloadButton.addEventListener("click", downloadImages);
+    }
+
+    handleDropzone(sourceDropzone, sourceInput, sourceFileName);
+    setActiveSplitCount(3);
+    clearSplitPreviews();
+    setStatus(labels.idle);
+
+    window.addEventListener("beforeunload", () => {
+      revokeUrl(previewUrls.source);
+      clearSplitPreviews();
+    });
+  }
+
+  function bindHorizontalSplitTools() {
+    document.querySelectorAll("[data-horizontal-split-tool]").forEach((root) => {
+      initHorizontalSplitTool(root);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindHorizontalSplitTools, { once: true });
+  } else {
+    bindHorizontalSplitTools();
+  }
+
+  document.addEventListener("astro:page-load", bindHorizontalSplitTools);
+</script>

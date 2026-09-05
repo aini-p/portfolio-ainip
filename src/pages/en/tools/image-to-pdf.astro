@@ -22,6 +22,7 @@ const appJsonLd = {
   title={t["tool6.pageTitle"]}
   description={t["tool6.pageDescription"]}
   keywords="image to pdf, concatenate images, pdf generator, folder drop, zip download, auto-numbering, browser tool"
+  image={{ src: "/images/tool-mascot-placeholder.svg", alt: t["tool6.pageTitle"] }}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
 
@@ -30,6 +31,8 @@ const appJsonLd = {
     <HomeStyleSidebars lang={lang}>
       <div class="main-column">
         <ImageToPdfComposer
+          bannerSrc="/images/tool-mascot-placeholder.svg"
+          bannerAlt={t["tool6.pageTitle"]}
           shareUrl={new URL("/en/tools/image-to-pdf", Astro.site).toString()}
           copy={{
             title: t["tool6.pageTitle"],

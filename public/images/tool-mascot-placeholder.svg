@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Placeholder mascot illustration">
+  <defs>
+    <radialGradient id="vsGlow" cx="50%" cy="38%" r="55%">
+      <stop offset="0%" stop-color="#caa8ea" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#caa8ea" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="vsHair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9b63d6"/>
+      <stop offset="100%" stop-color="#5a3384"/>
+    </linearGradient>
+    <linearGradient id="vsHairShine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#efe1fb"/>
+      <stop offset="100%" stop-color="#9b63d6" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="vsCollar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a2f4a"/>
+      <stop offset="100%" stop-color="#2a2036"/>
+    </linearGradient>
+    <radialGradient id="vsShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7f4ab7" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#7f4ab7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 白背景ベース（バナー用: サイトの白いヒーローカードとそのまま地続きになじむ） -->
+  <rect width="1200" height="675" fill="#ffffff"/>
+  <rect width="1200" height="675" fill="url(#vsGlow)"/>
+  <ellipse cx="600" cy="640" rx="360" ry="60" fill="url(#vsShadow)"/>
+
+  <!-- background sparkles -->
+  <g fill="#caa8ea" opacity="0.6">
+    <circle cx="150" cy="120" r="4"/>
+    <circle cx="1080" cy="150" r="5"/>
+    <circle cx="1000" cy="500" r="3.5"/>
+    <circle cx="120" cy="470" r="4.5"/>
+    <circle cx="220" cy="560" r="3"/>
+    <circle cx="960" cy="90" r="3"/>
+  </g>
+  <g fill="none" stroke="#caa8ea" stroke-width="2" opacity="0.55">
+    <path d="M90 250 l10 -10 l10 10 l-10 10 Z"/>
+    <path d="M1100 380 l8 -8 l8 8 l-8 8 Z"/>
+    <path d="M980 610 l9 -9 l9 9 l-9 9 Z"/>
+  </g>
+
+  <!-- twin-tail hair, back layer -->
+  <path d="M430 300 C300 330 250 470 300 610 C340 660 400 660 430 610 C400 500 420 400 470 340 Z" fill="url(#vsHair)"/>
+  <path d="M770 300 C900 330 950 470 900 610 C860 660 800 660 770 610 C800 500 780 400 730 340 Z" fill="url(#vsHair)"/>
+
+  <!-- shoulders / collar -->
+  <path d="M420 560 C420 470 500 430 600 430 C700 430 780 470 780 560 L780 675 L420 675 Z" fill="url(#vsCollar)"/>
+  <path d="M420 560 C420 470 500 430 600 430 C700 430 780 470 780 560 L780 600 C700 540 650 520 600 520 C550 520 500 540 420 600 Z" fill="#3f3350" opacity="0.7"/>
+  <!-- ribbon -->
+  <path d="M578 470 L600 500 L622 470 L610 460 L600 470 L590 460 Z" fill="#f0997b"/>
+  <circle cx="600" cy="472" r="6" fill="#f0997b"/>
+
+  <!-- neck -->
+  <rect x="572" y="410" width="56" height="50" rx="18" fill="#ffdcc2"/>
+
+  <!-- head -->
+  <circle cx="600" cy="330" r="150" fill="#ffe3ca"/>
+
+  <!-- ears -->
+  <circle cx="452" cy="335" r="20" fill="#ffe3ca"/>
+  <circle cx="748" cy="335" r="20" fill="#ffe3ca"/>
+
+  <!-- hair front / bangs -->
+  <path d="M450 260 C450 160 540 190 600 190 C660 190 750 160 750 260 C750 300 720 260 690 270 C650 240 640 300 600 300 C560 300 550 240 510 270 C480 260 450 300 450 260 Z" fill="url(#vsHair)"/>
+  <path d="M470 250 C500 210 540 200 560 220 C540 230 510 250 500 280 Z" fill="url(#vsHairShine)" opacity="0.7"/>
+  <path d="M600 190 C560 195 520 210 495 250 C520 215 560 200 600 198 Z" fill="#c9a8ea" opacity="0.5"/>
+
+  <!-- side hair strands framing face -->
+  <path d="M452 300 C420 360 415 430 440 470 C455 430 460 370 470 320 Z" fill="url(#vsHair)"/>
+  <path d="M748 300 C780 360 785 430 760 470 C745 430 740 370 730 320 Z" fill="url(#vsHair)"/>
+
+  <!-- eyebrows -->
+  <path d="M520 300 q30 -16 58 -4" fill="none" stroke="#5a3384" stroke-width="6" stroke-linecap="round"/>
+  <path d="M622 296 q28 -12 58 4" fill="none" stroke="#5a3384" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- eyes -->
+  <g>
+    <ellipse cx="552" cy="335" rx="30" ry="36" fill="#2a2036"/>
+    <ellipse cx="552" cy="342" rx="24" ry="28" fill="#9b63d6"/>
+    <ellipse cx="552" cy="348" rx="13" ry="16" fill="#1f1b27"/>
+    <circle cx="544" cy="330" r="7" fill="#ffffff"/>
+    <circle cx="562" cy="352" r="3.5" fill="#ffffff" opacity="0.9"/>
+  </g>
+  <g>
+    <ellipse cx="652" cy="335" rx="30" ry="36" fill="#2a2036"/>
+    <ellipse cx="652" cy="342" rx="24" ry="28" fill="#9b63d6"/>
+    <ellipse cx="652" cy="348" rx="13" ry="16" fill="#1f1b27"/>
+    <circle cx="644" cy="330" r="7" fill="#ffffff"/>
+    <circle cx="662" cy="352" r="3.5" fill="#ffffff" opacity="0.9"/>
+  </g>
+
+  <!-- blush -->
+  <ellipse cx="520" cy="380" rx="20" ry="10" fill="#f0997b" opacity="0.55"/>
+  <ellipse cx="684" cy="380" rx="20" ry="10" fill="#f0997b" opacity="0.55"/>
+
+  <!-- nose + mouth -->
+  <path d="M598 360 q4 8 0 14" fill="none" stroke="#e8b590" stroke-width="3" stroke-linecap="round"/>
+  <path d="M580 396 q22 18 44 0" fill="none" stroke="#c2694f" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- hair top accessory (star clip) -->
+  <path d="M690 210 l6 14 l14 2 l-10 10 l2 14 l-12 -8 l-12 8 l2 -14 l-10 -10 l14 -2 Z" fill="#f0997b"/>
+
+  <!-- placeholder badge -->
+  <g>
+    <rect x="900" y="600" width="270" height="46" rx="23" fill="#211c2c" opacity="0.82"/>
+    <text x="1035" y="629" font-family="'Segoe UI', 'Noto Sans JP', sans-serif" font-size="20" font-weight="700" letter-spacing="2" fill="#f2eefa" text-anchor="middle">PLACEHOLDER</text>
+  </g>
+</svg>

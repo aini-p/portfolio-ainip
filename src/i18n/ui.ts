@@ -239,6 +239,42 @@ export const ui = {
     "tool4.shareButton": "X でシェア",
     "tool4.shareText":
       "16:9の画像を4分割してX投稿向けに整えられる「4分割画像つくるちゃん」",
+
+    "tool7.pageTitle": "横分割画像つくるちゃん",
+    "tool7.pageDescription":
+      "1枚のイラストを横方向に2〜4分割して縦長のパーツにし、Xのカルーセル（複数枚投稿）表示で1枚絵に見えるように隙間分を間引いてダウンロードできるブラウザツールです。",
+    "tool7.lead":
+      "1枚絵を左から順に2〜4分割し、縦長のパーツとしてXに複数枚投稿できるように書き出します。分割の境界では、Xに複数枚投稿したときにできる画像同士の隙間の分だけあらかじめ間引くので、カルーセルやグリッドで並べたときに継ぎ目が目立ちません。",
+    "tool7.sourceInput": "元画像",
+    "tool7.dropHint": "ここへ画像をドラッグ&ドロップ",
+    "tool7.chooseButton": "画像を選択",
+    "tool7.fileHint":
+      "PNG/JPEGなど一般的な画像形式に対応しています。横長（パノラマ・見開き）の画像ほど縦長のパーツにきれいに分割できます。",
+    "tool7.splitCountLabel": "分割数",
+    "tool7.splitCountHelp":
+      "2〜4分割から選べます。Xに複数枚投稿する枚数に合わせて選択してください。",
+    "tool7.gapLabel": "隙間サイズ（px）",
+    "tool7.gapHelp":
+      "分割の境界ごとに指定px分を左右に振り分けて間引きます。Xのカルーセル/グリッド表示での画像間の隙間を打ち消すために使います。画像を選択すると横幅に応じた目安の値が自動入力されます（数値は手動でも調整できます）。",
+    "tool7.generate": "分割を生成",
+    "tool7.download": "分割画像をダウンロード",
+    "tool7.previewSplit": "分割プレビュー",
+    "tool7.statusIdle": "画像を選んで生成できます。",
+    "tool7.statusNeedImage": "元画像を選択してください。",
+    "tool7.statusWorking": "生成中...",
+    "tool7.statusReady": "分割画像を生成しました。",
+    "tool7.statusError":
+      "生成に失敗しました。画像形式やサイズを確認してください。",
+    "tool7.noteSplit":
+      "元画像を左から等間隔で指定した枚数に分割し、縦長のパーツにします（トリミングは行いません）。",
+    "tool7.noteGap":
+      "隙間サイズを大きくするほど境界付近が多く間引かれます。Xの投稿画面でプレビューしながら微調整してください。",
+    "tool7.contactLabel": "作者へのお問い合わせはこちら:",
+    "tool7.contactLinkText": "プロフィールページ",
+    "tool7.shareButton": "X でシェア",
+    "tool7.shareText":
+      "1枚絵をXのカルーセル表示向けに縦長パーツへ横分割できる「横分割画像つくるちゃん」",
+
     "tools.pageTitle": "製作支援ツール一覧",
     "tools.pageDescription":
       "イラスト制作やSNS投稿を支援するWebツールの一覧ページです。ブラウザだけで動作する無料ツールを用途別にまとめています。",
@@ -251,6 +287,9 @@ export const ui = {
     "tools.card.fourTitle": "4分割画像つくるちゃん",
     "tools.card.fourDescription":
       "16:9トリミング、パディング補正付き4分割、BAN回避用の縦長合成までまとめて作成します。",
+    "tools.card.hsplitTitle": "横分割画像つくるちゃん",
+    "tools.card.hsplitDescription":
+      "1枚絵を縦長のパーツに2〜4分割し、Xのカルーセル表示での隙間を打ち消しながらダウンロードできます。",
     "tool5.pageTitle": "ランダムパック画像つくるちゃん",
     "tool5.pageDescription":
       "複数の画像をランダムに並び替えて、指定の解像度とパディングで一枚に詰め込めるツールです。ブラウザ内でサクッと作成できます。",
@@ -576,6 +615,42 @@ export const ui = {
     "tool4.shareButton": "Share on X",
     "tool4.shareText":
       "4-Way Split Image Maker Chan — split a 16:9 image for polished X multi-image posts",
+
+    "tool7.pageTitle": "Horizontal Split Image Maker Chan",
+    "tool7.pageDescription":
+      "Split a single artwork horizontally into 2 to 4 tall pieces in your browser, trimming out the gap that X's carousel/grid view adds so it still reads as one continuous image.",
+    "tool7.lead":
+      "Split an artwork from left to right into 2 to 4 tall pieces so you can post them on X as separate images. At each seam, the amount you specify is trimmed away to cancel out the gap X adds between images in its carousel/grid view, so the pieces still line up when posted.",
+    "tool7.sourceInput": "Source image",
+    "tool7.dropHint": "Drag and drop an image here",
+    "tool7.chooseButton": "Choose image",
+    "tool7.fileHint":
+      "Supports common image formats such as PNG/JPEG. Wider (panorama-style) images split into cleaner tall pieces.",
+    "tool7.splitCountLabel": "Split count",
+    "tool7.splitCountHelp":
+      "Choose 2 to 4 pieces to match how many images you plan to post on X.",
+    "tool7.gapLabel": "Gap size (px)",
+    "tool7.gapHelp":
+      "Removes the specified amount (split between the left and right of each seam) to cancel out the gap X adds between images in its carousel/grid view. A suggested value based on the image width is filled in automatically once you choose an image (you can still adjust it manually).",
+    "tool7.generate": "Generate split",
+    "tool7.download": "Download split images",
+    "tool7.previewSplit": "Split preview",
+    "tool7.statusIdle": "Select an image to generate outputs.",
+    "tool7.statusNeedImage": "Please choose a source image.",
+    "tool7.statusWorking": "Generating...",
+    "tool7.statusReady": "Split images are ready.",
+    "tool7.statusError":
+      "Failed to generate. Check your image format and size and try again.",
+    "tool7.noteSplit":
+      "The source image is split into the chosen number of equal tall pieces from left to right (no cropping is applied).",
+    "tool7.noteGap":
+      "A larger gap size trims more pixels near each seam. Preview on X and fine-tune as needed.",
+    "tool7.contactLabel": "Contact the creator here:",
+    "tool7.contactLinkText": "Profile page",
+    "tool7.shareButton": "Share on X",
+    "tool7.shareText":
+      "Horizontal Split Image Maker Chan — split one artwork into tall pieces for X's carousel view",
+
     "tools.pageTitle": "Creator Support Tools",
     "tools.pageDescription":
       "Free browser-based tools that support illustration creation and SNS posting. No installation required — use them right in your browser.",
@@ -588,6 +663,9 @@ export const ui = {
     "tools.card.fourTitle": "4-Way Split Image Maker Chan",
     "tools.card.fourDescription":
       "Create 16:9-cropped four-way split panels with padding compensation and optional BAN-safe tall composites.",
+    "tools.card.hsplitTitle": "Horizontal Split Image Maker Chan",
+    "tools.card.hsplitDescription":
+      "Split one artwork into 2 to 4 tall pieces and download them with X's carousel gap trimmed out.",
     "tool5.pageTitle": "Random Pack Image Maker Chan",
     "tool5.pageDescription":
       "Randomly arrange and pack multiple images into a single output at your chosen resolution (up to 2K) with custom padding.",

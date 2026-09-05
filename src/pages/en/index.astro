@@ -21,6 +21,7 @@ import { toPathSafeSlug } from "~/utils/slug";
 const lang = "en";
 const t = ui[lang];
 
+const toolThumbPlaceholder = "/images/tool-mascot-placeholder.svg";
 const tools = [
   {
     title: t["tools.card.tapTitle"],
@@ -30,17 +31,22 @@ const tools = [
   {
     title: t["tools.card.fourTitle"],
     href: "/en/tools/four-split-image",
-    thumb: "/images/four_split_guard_1.svg",
+    thumb: toolThumbPlaceholder,
+  },
+  {
+    title: t["tools.card.hsplitTitle"],
+    href: "/en/tools/horizontal-split-image",
+    thumb: toolThumbPlaceholder,
   },
   {
     title: t["tools.card.packTitle"],
     href: "/en/tools/random-pack-image",
-    thumb: "/images/random_pack_image_chan.svg",
+    thumb: toolThumbPlaceholder,
   },
   {
     title: t["tools.card.pdfTitle"],
     href: "/en/tools/image-to-pdf",
-    thumb: null,
+    thumb: toolThumbPlaceholder,
   },
 ];
 

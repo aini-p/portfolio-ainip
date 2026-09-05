@@ -1,0 +1,69 @@
+---
+import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
+import HorizontalSplitImageComposer from "~/components/HorizontalSplitImageComposer.astro";
+import { ui } from "~/i18n/ui";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const lang = "en";
+const t = ui[lang];
+const appJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: t["tool7.pageTitle"],
+  applicationCategory: "MultimediaApplication",
+  operatingSystem: "Web",
+  inLanguage: "en",
+  url: new URL("/en/tools/horizontal-split-image", Astro.site).toString(),
+  description: t["tool7.pageDescription"],
+};
+---
+
+<BaseLayout
+  title={t["tool7.pageTitle"]}
+  description={t["tool7.pageDescription"]}
+  keywords="horizontal split, X post, carousel, image splitter, gap trimming, tall image"
+  image={{ src: "/images/horizontal_split_image_maker_chan_twcard.jpg", alt: t["tool7.pageTitle"] }}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
+
+  <div class="sidebar-page-shell">
+   <div class="sidebar-page-grid">
+    <HomeStyleSidebars lang={lang}>
+      <div class="main-column">
+        <HorizontalSplitImageComposer
+          bannerSrc="/images/horizontal_split_image_maker_chan.jpg"
+          bannerAlt={t["tool7.pageTitle"]}
+          shareUrl={new URL("/en/tools/horizontal-split-image", Astro.site).toString()}
+          copy={{
+            title: t["tool7.pageTitle"],
+            lead: t["tool7.lead"],
+            sourceInput: t["tool7.sourceInput"],
+            dropHint: t["tool7.dropHint"],
+            chooseButton: t["tool7.chooseButton"],
+            fileHint: t["tool7.fileHint"],
+            splitCountLabel: t["tool7.splitCountLabel"],
+            splitCountHelp: t["tool7.splitCountHelp"],
+            gapLabel: t["tool7.gapLabel"],
+            gapHelp: t["tool7.gapHelp"],
+            generate: t["tool7.generate"],
+            download: t["tool7.download"],
+            previewSplit: t["tool7.previewSplit"],
+            statusIdle: t["tool7.statusIdle"],
+            statusNeedImage: t["tool7.statusNeedImage"],
+            statusWorking: t["tool7.statusWorking"],
+            statusReady: t["tool7.statusReady"],
+            statusError: t["tool7.statusError"],
+            noteSplit: t["tool7.noteSplit"],
+            noteGap: t["tool7.noteGap"],
+            contactLabel: t["tool7.contactLabel"],
+            contactLinkText: t["tool7.contactLinkText"],
+            contactHref: "/en/profile",
+            shareButton: t["tool7.shareButton"],
+            shareText: t["tool7.shareText"],
+          }}
+        />
+      </div>
+    </HomeStyleSidebars>
+   </div>
+  </div>
+</BaseLayout>

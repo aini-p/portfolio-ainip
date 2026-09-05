@@ -1,0 +1,499 @@
+/*
+ * 製作支援ツール共通スタイル (tool-composer.css)
+ * ------------------------------------------------
+ * DualImageComposer / FourSplitImageComposer / RandomPackImageComposer /
+ * ImageToPdfComposer / VerticalSplitImageComposer で共有する土台スタイル。
+ * サイト全体のダークテーマ変数（BaseLayout.astro の :root）に合わせてあるので、
+ * 各コンポーネント側の <style> はツール固有のパーツだけを追記すればよい。
+ */
+
+.tool-shell {
+  --panel-border: var(--border-subtle);
+  --panel-bg: var(--bg-elevated);
+  --panel-bg-soft: var(--bg-elevated-2);
+  --accent: var(--accent-strong);
+
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2rem;
+  display: grid;
+  gap: 1.5rem;
+  color: var(--text-primary);
+}
+
+/* ── サーフェス共通 ── */
+.hero-card,
+.control-panel,
+.preview-card,
+.notes-panel {
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  background: var(--panel-bg);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 35%);
+}
+
+/*
+ * ── ヒーロー ──
+ * バナー画像は「白背景でそのまま書き出したイラスト」を前提にする。画像側や
+ * カード側でグラデーション／マスクを駆使して背景色差をごまかすのではなく、
+ * .hero-card 自体を真っ白にしてしまい、画像の白背景とそのまま地続きにする。
+ * 文字はこのセクションだけダーク・オン・ホワイトの配色に切り替える
+ * （ページ全体のダークテーマとは独立した「白いバナーカード」として扱う）。
+ * バナー画像自体には一切マスクをかけないので、上端まで欠けずにきっちり届く。
+ */
+.hero-card {
+  --hero-ink: #211c2c;
+  --hero-ink-soft: #5a5468;
+
+  position: relative;
+  min-height: 300px;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  background: #fff;
+}
+
+.hero-banner {
+  position: absolute;
+  inset: 0;
+  left: auto;
+  right: 0;
+  height: 100%;
+  width: auto;
+  max-width: 58%;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  display: block;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    to right,
+    #fff 20%,
+    rgb(255 255 255 / 68%) 46%,
+    transparent 78%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+  display: grid;
+  gap: 0.55rem;
+  align-self: center;
+  max-width: 66%;
+  color: var(--hero-ink);
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  background: #000;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  width: fit-content;
+  transition: background 0.15s ease;
+}
+
+.share-button:hover,
+.share-button:focus-visible {
+  background: #1a1a1a;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #6b3fa0;
+}
+
+.hero-content h1 {
+  margin-top: 0;
+  font-size: clamp(1.25rem, 2.7vw, 2rem);
+  line-height: 1.2;
+  font-weight: 500;
+  color: var(--hero-ink);
+}
+
+.lead {
+  margin-top: 0;
+  max-width: 62ch;
+  font-size: 1rem;
+  color: var(--hero-ink-soft);
+}
+
+/* ── ワークスペース ── */
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.control-panel {
+  padding: 1.4rem;
+  display: grid;
+  gap: 1rem;
+  position: sticky;
+  top: 96px;
+}
+
+/* ── ドロップゾーン / ファイル入力 ── */
+.file-field {
+  display: grid;
+  gap: 0.45rem;
+  position: relative;
+  font-weight: 600;
+  padding: 0.95rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--panel-bg-soft);
+  color: var(--text-primary);
+}
+
+.file-field input[type="file"] {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.field-label {
+  font-weight: 600;
+}
+
+.drop-hint,
+.selected-file,
+.help-text,
+.image-count {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.selected-file {
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.browse-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.browse-button {
+  justify-self: start;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--text-primary);
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.browse-button:hover,
+.browse-button:focus-visible {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+.input-thumb {
+  display: none;
+  width: 100%;
+  max-height: 190px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  object-fit: contain;
+  background: var(--bg-page);
+}
+
+.input-thumb.is-visible {
+  display: block;
+}
+
+.file-dropzone.is-dragover,
+.file-dropzone.drag-over {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 20%, var(--panel-bg-soft));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* ── チェックボックス / トグル ── */
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-weight: 600;
+}
+
+.checkbox-field input {
+  inline-size: 1.1rem;
+  block-size: 1.1rem;
+  accent-color: var(--accent);
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggle-check {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ── レンジ / 数値入力ブロック ── */
+.range-field,
+.range-block,
+.option-row,
+.quality-row {
+  display: grid;
+  gap: 0.45rem;
+  font-weight: 600;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem;
+  background: var(--panel-bg-soft);
+}
+
+.range-field input,
+.quality-slider {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.range-heading {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.range-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.crop-reset-button,
+.shuffle-button {
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  background: var(--panel-bg);
+  color: var(--text-primary);
+  padding: 0.34rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.shuffle-button {
+  padding: 0.65rem 1rem;
+  font-size: 0.85rem;
+}
+
+.crop-reset-button:hover,
+.crop-reset-button:focus-visible,
+.shuffle-button:hover:not(:disabled),
+.shuffle-button:focus-visible:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.shuffle-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.crop-preview-canvas {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: #09090b;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* ── アクションボタン ── */
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.action-row button,
+.action-button {
+  border-radius: 999px;
+  padding: 0.85rem 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text-primary);
+  background: var(--panel-bg-soft);
+  border: 1px solid var(--panel-border);
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.action-row button:disabled,
+.action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+.action-row button:hover:not(:disabled),
+.action-row button:focus-visible:not(:disabled),
+.action-button:hover:not(:disabled),
+.action-button:focus-visible:not(:disabled) {
+  transform: scale(1.01);
+  border-color: var(--accent);
+}
+
+.action-row button[data-role="generate-button"],
+.action-button.primary {
+  background: var(--accent);
+  color: #1c1424;
+  border-color: transparent;
+  box-shadow: 0 10px 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.action-row button[data-role="generate-button"]:hover:not(:disabled),
+.action-button.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 88%, #fff 12%);
+}
+
+.action-row button[data-role="download-button"] {
+  background: var(--panel-bg-soft);
+  color: var(--text-primary);
+}
+
+.status-text {
+  min-height: 1.6em;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── プレビュー ── */
+.preview-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.preview-card {
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.preview-card p {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── 注意書き ── */
+.notes-panel {
+  padding: 1rem 1.3rem;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.notes-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.notes-link {
+  margin-left: 0.3rem;
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (width <= 920px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control-panel {
+    position: static;
+  }
+}
+
+@media (width <= 640px) {
+  .tool-shell {
+    padding: 1rem;
+  }
+
+  .hero-card {
+    flex-direction: column;
+    align-items: stretch;
+    min-height: unset;
+  }
+
+  .hero-banner {
+    position: relative;
+    inset: auto;
+    max-width: 100%;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .hero-overlay {
+    display: none;
+  }
+
+  .hero-content {
+    padding: 1.2rem;
+    max-width: 100%;
+  }
+
+  .action-row button,
+  .action-button {
+    width: 100%;
+  }
+}
