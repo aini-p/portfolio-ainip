@@ -1,4 +1,6 @@
 ---
+import "~/styles/tool-composer.css";
+
 export interface Props {
   bannerSrc?: string;
   bannerAlt?: string;
@@ -176,219 +178,7 @@ const xShareHref = shareUrl
 </section>
 
 <style>
-  .tool-shell {
-    --panel-border: color-mix(in srgb, currentcolor 16%, transparent);
-    --panel-bg: color-mix(in srgb, canvas 92%, #c9e4fa 8%);
-    --accent: #1a6eb5;
-
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 2rem;
-    display: grid;
-    gap: 1.5rem;
-  }
-
-  /* ── Hero ── */
-  .hero-card,
-  .control-panel,
-  .preview-card {
-    border: 1px solid var(--panel-border);
-    border-radius: 24px;
-    background: var(--panel-bg);
-    box-shadow: 0 18px 40px rgb(15 23 42 / 8%);
-  }
-
-  .hero-card {
-    position: relative;
-    min-height: 320px;
-    overflow: hidden;
-    display: flex;
-    align-items: stretch;
-    background: #fff;
-  }
-
-  .hero-banner {
-    position: absolute;
-    inset: 0;
-    left: auto;
-    right: 0;
-    height: 100%;
-    width: auto;
-    max-width: 60%;
-    object-fit: cover;
-    object-position: center;
-    border-radius: 0 24px 24px 0;
-    display: block;
-  }
-
-  .hero-overlay {
-    position: absolute;
-    inset: 0;
-    border-radius: 24px;
-    background: linear-gradient(
-      to right,
-      #fff 16%,
-      rgb(255 255 255 / 76%) 42%,
-      rgb(255 255 255 / 0%) 74%
-    );
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 1;
-    padding: 2rem;
-    display: grid;
-    gap: 0.5rem;
-    align-self: center;
-    max-width: 68%;
-  }
-
-  .share-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    margin-top: 0.6rem;
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    background: #000;
-    color: #fff;
-    font-size: 0.88rem;
-    font-weight: 600;
-    text-decoration: none;
-    width: fit-content;
-    transition: background 0.15s ease;
-  }
-
-  .share-button:hover { background: #1a1a1a; }
-
-  .eyebrow {
-    font-size: 0.82rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    opacity: 0.82;
-  }
-
-  h1 {
-    margin-top: 0;
-    font-size: clamp(1.2rem, 2.7vw, 2rem);
-    line-height: 1.15;
-  }
-
-  .lead {
-    margin-top: 0;
-    max-width: 62ch;
-    font-size: 1rem;
-    opacity: 0.9;
-  }
-
-  /* ── Workspace grid ── */
-  .workspace-grid {
-    display: grid;
-    grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
-    gap: 1.5rem;
-    align-items: start;
-  }
-
-  .control-panel {
-    padding: 1.4rem;
-    display: grid;
-    gap: 1rem;
-    position: sticky;
-    top: 96px;
-  }
-
-  /* ── Drop zone ── */
-  .file-field {
-    display: grid;
-    gap: 0.45rem;
-    position: relative;
-    padding: 0.95rem;
-    border: 1px dashed color-mix(in srgb, currentcolor 22%, transparent);
-    border-radius: 14px;
-    background: color-mix(in srgb, canvas 94%, #dbeafe 6%);
-  }
-
-  .file-field input[type="file"] {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .field-label {
-    font-weight: 600;
-  }
-
-  .drop-hint {
-    margin: 0;
-    font-size: 0.82rem;
-    font-weight: 500;
-    opacity: 0.82;
-  }
-
-  .browse-row {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .browse-button {
-    border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
-    background: color-mix(in srgb, #dbeafe 55%, canvas 45%);
-    color: inherit;
-    border-radius: 999px;
-    padding: 0.45rem 0.95rem;
-    font-size: 0.84rem;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .browse-button:hover,
-  .browse-button:focus-visible {
-    border-color: var(--accent);
-    background: color-mix(in srgb, #bfdbfe 65%, canvas 35%);
-  }
-
-  .file-dropzone.is-dragover {
-    border-color: var(--accent);
-    background: color-mix(in srgb, #93c5fd 25%, canvas 75%);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
-  }
-
-  /* ── Options ── */
-  .option-row {
-    display: grid;
-    gap: 0.3rem;
-  }
-
-  .toggle-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .toggle-check {
-    width: 1rem;
-    height: 1rem;
-    accent-color: var(--accent);
-    flex-shrink: 0;
-  }
-
-  .help-text {
-    margin: 0;
-    font-size: 0.8rem;
-    opacity: 0.72;
-  }
-
-  .quality-row {
-    display: grid;
-    gap: 0.45rem;
-  }
-
+  /* 画像PDF連結ツール固有のスタイル。共通の見た目は tool-composer.css を参照 */
   .quality-head {
     display: flex;
     align-items: center;
@@ -404,11 +194,6 @@ const xShareHref = shareUrl
     font-variant-numeric: tabular-nums;
   }
 
-  .quality-slider {
-    width: 100%;
-    accent-color: var(--accent);
-  }
-
   .quality-slider:disabled {
     opacity: 0.45;
     cursor: not-allowed;
@@ -422,21 +207,15 @@ const xShareHref = shareUrl
     min-height: 1.6rem;
   }
 
-  .image-count {
-    margin: 0;
-    font-size: 0.8rem;
-    opacity: 0.7;
-  }
-
   .clear-button {
     border: 0;
     background: transparent;
-    color: #dc2626;
+    color: #f87171;
     font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
     padding: 0.2rem 0.4rem;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
   }
 
   .clear-button:disabled {
@@ -445,7 +224,7 @@ const xShareHref = shareUrl
   }
 
   .clear-button:hover:not(:disabled) {
-    background: color-mix(in srgb, #ef4444 15%, transparent);
+    background: color-mix(in srgb, #ef4444 18%, transparent);
   }
 
   /* ── Image list ── */
@@ -467,8 +246,8 @@ const xShareHref = shareUrl
     align-items: center;
     gap: 0.55rem;
     padding: 0.5rem 0.6rem;
-    background: color-mix(in srgb, #fff 85%, canvas 15%);
-    border-radius: 8px;
+    background: var(--panel-bg-soft);
+    border-radius: var(--radius-sm);
     font-size: 0.8rem;
     border: 1px solid transparent;
     cursor: grab;
@@ -482,7 +261,7 @@ const xShareHref = shareUrl
 
   .image-item.drag-over {
     border-color: var(--accent);
-    background: color-mix(in srgb, #dbeafe 60%, #fff 40%);
+    background: color-mix(in srgb, var(--accent) 20%, var(--panel-bg-soft));
   }
 
   .item-names {
@@ -494,14 +273,14 @@ const xShareHref = shareUrl
 
   .item-numbered {
     font-weight: 700;
-    color: var(--accent);
+    color: var(--accent-strong);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .item-original {
-    opacity: 0.6;
+    color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -510,8 +289,8 @@ const xShareHref = shareUrl
   .item-remove {
     border: 0;
     background: color-mix(in srgb, #ef4444 25%, transparent);
-    color: #dc2626;
-    border-radius: 6px;
+    color: #fca5a5;
+    border-radius: var(--radius-sm);
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
     font-weight: 700;
@@ -521,55 +300,6 @@ const xShareHref = shareUrl
 
   .item-remove:hover {
     background: color-mix(in srgb, #ef4444 45%, transparent);
-  }
-
-  /* ── Actions ── */
-  .action-row {
-    display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-  }
-
-  .action-button {
-    flex: 1;
-    min-width: 0;
-    padding: 0.7rem 1rem;
-    border-radius: 10px;
-    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
-    background: color-mix(in srgb, #dbeafe 45%, canvas 55%);
-    color: inherit;
-    font-size: 0.88rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
-  }
-
-  .action-button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-
-  .action-button:hover:not(:disabled),
-  .action-button:focus-visible:not(:disabled) {
-    border-color: var(--accent);
-    background: color-mix(in srgb, #bfdbfe 65%, canvas 35%);
-  }
-
-  .action-button.primary {
-    background: var(--accent);
-    color: #fff;
-    border-color: transparent;
-  }
-
-  .action-button.primary:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--accent) 85%, #000 15%);
-  }
-
-  .status-text {
-    margin: 0;
-    font-size: 0.84rem;
-    font-weight: 600;
-    min-height: 1.4em;
   }
 
   /* ── Preview panel ── */
@@ -593,9 +323,9 @@ const xShareHref = shareUrl
   .thumb-item {
     position: relative;
     aspect-ratio: 3 / 4;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
-    background: #f0f0f0;
+    background: var(--bg-page);
     border: 1px solid var(--panel-border);
   }
 
@@ -622,7 +352,7 @@ const xShareHref = shareUrl
   }
 
   .preview-empty {
-    color: color-mix(in srgb, currentcolor 50%, transparent);
+    color: var(--text-muted);
     font-size: 0.9rem;
     align-self: center;
     margin: auto;
@@ -631,42 +361,6 @@ const xShareHref = shareUrl
   .preview-empty:not([hidden]) ~ .thumb-grid,
   .thumb-grid:not(:empty) ~ .preview-empty {
     display: none;
-  }
-
-  /* ── Notes ── */
-  .notes-panel {
-    border: 1px solid var(--panel-border);
-    border-radius: 16px;
-    background: var(--panel-bg);
-    padding: 1.2rem 1.5rem;
-  }
-
-  .notes-list {
-    margin: 0;
-    padding: 0 0 0 1.2rem;
-    display: grid;
-    gap: 0.5rem;
-    font-size: 0.88rem;
-    opacity: 0.88;
-    line-height: 1.65;
-  }
-
-  .notes-link { color: var(--accent); }
-
-  /* ── Responsive ── */
-  @media (width <= 860px) {
-    .tool-shell { padding: 1rem; }
-
-    .workspace-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .control-panel { position: static; }
-
-    .hero-card { min-height: 200px; }
-    .hero-banner { display: none; }
-    .hero-overlay { display: none; }
-    .hero-content { max-width: 100%; }
   }
 </style>
 

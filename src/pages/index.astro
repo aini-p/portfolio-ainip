@@ -21,26 +21,32 @@ import { toPathSafeSlug } from "~/utils/slug";
 const lang = "ja";
 const t = ui[lang];
 
+const toolThumbPlaceholder = "/images/tool-mascot-placeholder.svg";
 const tools = [
   {
     title: t["tools.card.tapTitle"],
     href: "/tools/tap-change-image",
-    thumb: "/images/tap_change_image_chan_twcard.jpg",
+    thumb: toolThumbPlaceholder,
   },
   {
     title: t["tools.card.fourTitle"],
     href: "/tools/four-split-image",
-    thumb: "/images/four_split_guard_1.svg",
+    thumb: toolThumbPlaceholder,
+  },
+  {
+    title: t["tools.card.vsplitTitle"],
+    href: "/tools/vertical-split-image",
+    thumb: toolThumbPlaceholder,
   },
   {
     title: t["tools.card.packTitle"],
     href: "/tools/random-pack-image",
-    thumb: "/images/random_pack_image_chan.svg",
+    thumb: toolThumbPlaceholder,
   },
   {
     title: t["tools.card.pdfTitle"],
     href: "/tools/image-to-pdf",
-    thumb: null,
+    thumb: toolThumbPlaceholder,
   },
 ];
 

@@ -22,7 +22,7 @@ const appJsonLd = {
   title={t["tool4.pageTitle"]}
   description={t["tool4.pageDescription"]}
   keywords="4分割, X投稿, 16:9, 画像トリミング, 画像分割, BAN回避"
-  image={{ src: "/images/four_split_guard_1.svg", alt: t["tool4.pageTitle"] }}
+  image={{ src: "/images/tool-mascot-placeholder.svg", alt: t["tool4.pageTitle"] }}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
 
@@ -31,7 +31,7 @@ const appJsonLd = {
     <HomeStyleSidebars lang={lang}>
       <div class="main-column">
         <FourSplitImageComposer
-          bannerSrc="/images/tap_change_image_chan.jpg"
+          bannerSrc="/images/tool-mascot-placeholder.svg"
           bannerAlt={t["tool4.pageTitle"]}
           shareUrl={new URL("/tools/four-split-image", Astro.site).toString()}
           guardSources={[

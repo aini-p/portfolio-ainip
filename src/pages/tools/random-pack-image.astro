@@ -22,7 +22,7 @@ const appJsonLd = {
   title={t["tool5.pageTitle"]}
   description={t["tool5.pageDescription"]}
   keywords="複数画像, ランダム配置, 画像合成, パディング, 解像度指定"
-  image={{ src: "/images/random_pack_image_chan.svg", alt: t["tool5.pageTitle"] }}
+  image={{ src: "/images/tool-mascot-placeholder.svg", alt: t["tool5.pageTitle"] }}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
 
@@ -31,7 +31,7 @@ const appJsonLd = {
     <HomeStyleSidebars lang={lang}>
       <div class="main-column">
         <RandomPackImageComposer
-          bannerSrc="/images/random_pack_image_chan.jpg"
+          bannerSrc="/images/tool-mascot-placeholder.svg"
           bannerAlt={t["tool5.pageTitle"]}
           shareUrl={new URL("/tools/random-pack-image", Astro.site).toString()}
           copy={{

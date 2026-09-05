@@ -22,7 +22,7 @@ const appJsonLd = {
   title={t["tool.pageTitle"]}
   description={t["tool.pageDescription"]}
   keywords="PNG, 透過画像, 合成ツール, 白背景, 黒背景, X投稿, タップ変化"
-  image={{ src: "/images/tap_change_image_chan_twcard.jpg", alt: t["tool.pageTitle"] }}
+  image={{ src: "/images/tool-mascot-placeholder.svg", alt: t["tool.pageTitle"] }}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
 
@@ -31,7 +31,7 @@ const appJsonLd = {
     <HomeStyleSidebars lang={lang}>
       <div class="main-column">
         <DualImageComposer
-          bannerSrc="/images/tap_change_image_chan.jpg"
+          bannerSrc="/images/tool-mascot-placeholder.svg"
           bannerAlt={t["tool.pageTitle"]}
           shareUrl={new URL("/tools/tap-change-image", Astro.site).toString()}
           copy={{
