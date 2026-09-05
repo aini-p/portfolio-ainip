@@ -59,18 +59,45 @@
   object-position: center top;
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   display: block;
+
+  /*
+   * バナー画像が白背景（イラストをそのまま白キャンバスで書き出したもの等）でも
+   * ハードエッジな白い箱にならないよう、画像自体を縁だけソフトに透過させる
+   * マスクをかける。透過した部分は .hero-card の背景グラデーションが透けて見える
+   * ので、画像の背景色に関係なくカード全体になじむ。
+   */
+  -webkit-mask-image: radial-gradient(
+    110% 95% at 66% 52%,
+    rgb(0 0 0 / 88%) 34%,
+    rgb(0 0 0 / 45%) 62%,
+    transparent 92%
+  );
+  mask-image: radial-gradient(
+    110% 95% at 66% 52%,
+    rgb(0 0 0 / 88%) 34%,
+    rgb(0 0 0 / 45%) 62%,
+    transparent 92%
+  );
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
   border-radius: var(--radius-lg);
-  background: linear-gradient(
-    to right,
-    var(--bg-elevated) 20%,
-    color-mix(in srgb, var(--bg-elevated) 68%, transparent) 46%,
-    transparent 78%
-  );
+  background:
+    linear-gradient(
+      to right,
+      var(--bg-elevated) 20%,
+      color-mix(in srgb, var(--bg-elevated) 68%, transparent) 46%,
+      transparent 78%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg-elevated) 45%, transparent),
+      transparent 24%,
+      transparent 76%,
+      color-mix(in srgb, var(--bg-elevated) 45%, transparent)
+    );
 }
 
 .hero-content {
@@ -81,6 +108,7 @@
   gap: 0.55rem;
   align-self: center;
   max-width: 66%;
+  text-shadow: 0 1px 6px rgb(0 0 0 / 45%);
 }
 
 .share-button {
@@ -477,6 +505,11 @@
     object-fit: cover;
     object-position: center top;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+
+    /* PC版のマスクは中央基準の楕円なので使わず、下端だけソフトに落として
+       カード本体（下に続く暗い背景）へなじませる */
+    -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
   }
 
   .hero-overlay {
