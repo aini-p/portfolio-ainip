@@ -22,7 +22,7 @@ const appJsonLd = {
   title={t["tool7.pageTitle"]}
   description={t["tool7.pageDescription"]}
   keywords="横分割, X投稿, カルーセル, 画像分割, 隙間調整, 縦長"
-  image={{ src: "/images/tool-mascot-placeholder.svg", alt: t["tool7.pageTitle"] }}
+  image={{ src: "/images/horizontal_split_image_maker_chan_twcard.jpg", alt: t["tool7.pageTitle"] }}
 >
   <script is:inline type="application/ld+json" set:html={JSON.stringify(appJsonLd)} />
 
@@ -31,7 +31,7 @@ const appJsonLd = {
     <HomeStyleSidebars lang={lang}>
       <div class="main-column">
         <HorizontalSplitImageComposer
-          bannerSrc="/images/tool-mascot-placeholder.svg"
+          bannerSrc="/images/horizontal_split_image_maker_chan.jpg"
           bannerAlt={t["tool7.pageTitle"]}
           shareUrl={new URL("/tools/horizontal-split-image", Astro.site).toString()}
           copy={{
