@@ -29,11 +29,21 @@ const label = lang === "ja" ? "広告" : "Ad";
     display: flex;
     justify-content: center;
     align-items: center;
+    min-width: 0;
     min-height: 90px;
     padding: 1.25rem 0.75rem 0.75rem;
     border-radius: var(--radius-md);
     background: var(--bg-elevated);
     border: 0.5px solid var(--border-subtle);
+    overflow: hidden;
+  }
+
+  /* 広告ネットワーク側が挿入する要素(iframe/img/tableなど)が固定幅を持っていても、
+     枠からはみ出してモバイル表示を崩さないようにする保険 */
+  .native-ad-slot iframe,
+  .native-ad-slot img,
+  .native-ad-slot table {
+    max-width: 100%;
   }
 
   /* バッジ非表示時（DMM/fanza枠）はバッジ用の上余白を詰めて縦方向も中央寄せにする */
