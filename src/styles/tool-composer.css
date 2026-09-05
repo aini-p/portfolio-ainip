@@ -32,19 +32,26 @@
   box-shadow: 0 18px 40px rgb(0 0 0 / 35%);
 }
 
-/* ── ヒーロー ── */
+/*
+ * ── ヒーロー ──
+ * バナー画像は「白背景でそのまま書き出したイラスト」を前提にする。画像側や
+ * カード側でグラデーション／マスクを駆使して背景色差をごまかすのではなく、
+ * .hero-card 自体を真っ白にしてしまい、画像の白背景とそのまま地続きにする。
+ * 文字はこのセクションだけダーク・オン・ホワイトの配色に切り替える
+ * （ページ全体のダークテーマとは独立した「白いバナーカード」として扱う）。
+ * バナー画像自体には一切マスクをかけないので、上端まで欠けずにきっちり届く。
+ */
 .hero-card {
+  --hero-ink: #211c2c;
+  --hero-ink-soft: #5a5468;
+
   position: relative;
   min-height: 300px;
   padding: 0;
   overflow: hidden;
   display: flex;
   align-items: stretch;
-  background: linear-gradient(
-    135deg,
-    var(--bg-elevated) 40%,
-    var(--accent-soft) 130%
-  );
+  background: #fff;
 }
 
 .hero-banner {
@@ -59,45 +66,18 @@
   object-position: center top;
   border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   display: block;
-
-  /*
-   * バナー画像が白背景（イラストをそのまま白キャンバスで書き出したもの等）でも
-   * ハードエッジな白い箱にならないよう、画像自体を縁だけソフトに透過させる
-   * マスクをかける。透過した部分は .hero-card の背景グラデーションが透けて見える
-   * ので、画像の背景色に関係なくカード全体になじむ。
-   */
-  -webkit-mask-image: radial-gradient(
-    110% 95% at 66% 52%,
-    rgb(0 0 0 / 88%) 34%,
-    rgb(0 0 0 / 45%) 62%,
-    transparent 92%
-  );
-  mask-image: radial-gradient(
-    110% 95% at 66% 52%,
-    rgb(0 0 0 / 88%) 34%,
-    rgb(0 0 0 / 45%) 62%,
-    transparent 92%
-  );
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(
-      to right,
-      var(--bg-elevated) 20%,
-      color-mix(in srgb, var(--bg-elevated) 68%, transparent) 46%,
-      transparent 78%
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--bg-elevated) 45%, transparent),
-      transparent 24%,
-      transparent 76%,
-      color-mix(in srgb, var(--bg-elevated) 45%, transparent)
-    );
+  background: linear-gradient(
+    to right,
+    #fff 20%,
+    rgb(255 255 255 / 68%) 46%,
+    transparent 78%
+  );
 }
 
 .hero-content {
@@ -108,7 +88,7 @@
   gap: 0.55rem;
   align-self: center;
   max-width: 66%;
-  text-shadow: 0 1px 6px rgb(0 0 0 / 45%);
+  color: var(--hero-ink);
 }
 
 .share-button {
@@ -124,16 +104,12 @@
   font-weight: 600;
   text-decoration: none;
   width: fit-content;
-  border: 1px solid rgb(255 255 255 / 14%);
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .share-button:hover,
 .share-button:focus-visible {
   background: #1a1a1a;
-  border-color: rgb(255 255 255 / 28%);
 }
 
 .eyebrow {
@@ -141,7 +117,7 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   font-weight: 700;
-  color: var(--accent-strong);
+  color: #6b3fa0;
 }
 
 .hero-content h1 {
@@ -149,14 +125,14 @@
   font-size: clamp(1.25rem, 2.7vw, 2rem);
   line-height: 1.2;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--hero-ink);
 }
 
 .lead {
   margin-top: 0;
   max-width: 62ch;
   font-size: 1rem;
-  color: var(--text-secondary);
+  color: var(--hero-ink-soft);
 }
 
 /* ── ワークスペース ── */
@@ -505,11 +481,6 @@
     object-fit: cover;
     object-position: center top;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-
-    /* PC版のマスクは中央基準の楕円なので使わず、下端だけソフトに落として
-       カード本体（下に続く暗い背景）へなじませる */
-    -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
   }
 
   .hero-overlay {
