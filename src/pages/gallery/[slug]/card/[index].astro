@@ -1,0 +1,37 @@
+---
+import { getImage } from "astro:assets";
+import { getCollection } from "astro:content";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const lang = "ja";
+
+export async function getStaticPaths() {
+  const artworks = await getCollection(
+    "artworks",
+    ({ id, data }) => id.startsWith("ja/") && (data.ogCardImages?.length ?? 0) > 0,
+  );
+  return artworks.flatMap((artwork) =>
+    (artwork.data.ogCardImages ?? []).map((cardImage, index) => ({
+      params: { slug: artwork.slug.replace(/^(ja)\//, ""), index: String(index) },
+      props: { artwork, cardImage },
+    })),
+  );
+}
+
+const { artwork, cardImage } = Astro.props;
+
+const shareImage = await getImage({ src: cardImage, format: "webp", width: 1200 });
+const artworkSlug = artwork.slug.replace(`${lang}/`, "");
+const redirectUrl = `/gallery/${artworkSlug}/`;
+---
+<BaseLayout
+  title={artwork.data.title}
+  description={artwork.data.description}
+  keywords={artwork.data.keywords.join(", ")}
+  image={{ src: shareImage.src, alt: artwork.data.title }}
+>
+  <meta http-equiv="refresh" content={`0; url=${redirectUrl}`} />
+  <p>
+    <a href={redirectUrl}>{artwork.data.title}</a> へ移動しています…
+  </p>
+</BaseLayout>
