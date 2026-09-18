@@ -11,6 +11,8 @@ const artworksCollection = defineCollection({
         // 新形式（1記事=複数画像）: ヘッダーサムネイル＋ポートフォリオ画像群＋サンプル画像群
         headerImage: image().optional(),
         portfolioImages: z.array(image()).optional(),
+        // Twitterカード用に選んだ画像群。指定した分だけ/gallery/{slug}/card/{n}/が生成される
+        ogCardImages: z.array(image()).optional(),
         // メンバーシップ会員向けサンプル画像群
         sampleImages: z.array(image()).optional(),
         // Patreon側(無料+有料会員向けグループ)の実際の投稿枚数。ポートフォリオ掲載枚数とは異なる
