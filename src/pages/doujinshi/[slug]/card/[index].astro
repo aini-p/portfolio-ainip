@@ -1,0 +1,44 @@
+---
+import { getImage } from "astro:assets";
+import { getCollection } from "astro:content";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+const lang = "ja";
+
+export async function getStaticPaths() {
+  const items = await getCollection(
+    "doujinshi",
+    ({ id, data }) =>
+      id.startsWith("ja/") && (data.ogCardImages?.length ?? 0) > 0,
+  );
+  return items.flatMap((item) =>
+    (item.data.ogCardImages ?? []).map((cardImage, index) => ({
+      params: {
+        slug: item.slug.replace(/^(ja)\//, ""),
+        index: String(index),
+      },
+      props: { item, cardImage },
+    })),
+  );
+}
+
+const { item, cardImage } = Astro.props;
+
+const shareImage = await getImage({
+  src: cardImage,
+  format: "webp",
+  width: 1200,
+});
+const itemSlug = item.slug.replace(`${lang}/`, "");
+const redirectUrl = `/doujinshi/${itemSlug}/`;
+---
+<BaseLayout
+  title={item.data.title}
+  description={item.data.description}
+  image={{ src: shareImage.src, alt: item.data.title }}
+>
+  <meta http-equiv="refresh" content={`0; url=${redirectUrl}`} />
+  <p>
+    <a href={redirectUrl}>{item.data.title}</a> へ移動しています…
+  </p>
+</BaseLayout>

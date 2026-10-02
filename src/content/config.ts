@@ -61,6 +61,8 @@ const doujinshiCollection = defineCollection({
       // SNSシェアカード用の横長(16:9)画像。表紙(縦長)を右寄せで全体表示し、タイトル・ブランド情報を
       // 焼き込み済み。image-tagging-appのpublish時に自動生成される。未設定時はpackageImageにフォールバック
       packageEmbedImageUrl: image().optional(),
+      // Twitterカード用に選んだ画像群。指定した分だけ/doujinshi/{slug}/card/{n}/が生成される
+      ogCardImages: z.array(image()).optional(),
       sampleImages: z.array(image()).optional(),
       description: z.string(),
       // artworksのseriesと一致させることで、記事詳細ページの「同タイトルの同人誌」枠に表示される
