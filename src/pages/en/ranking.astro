@@ -39,10 +39,10 @@ const rankingIndex = [
         format: "webp",
       });
       return {
-        slug: toSlug(artwork.slug),
+        slug: toSlug(artwork.id),
         title: artwork.data.title,
         thumb: optimized.src,
-        href: toHref(artwork.slug),
+        href: toHref(artwork.id),
       };
     }),
   )),
@@ -54,10 +54,10 @@ const rankingIndex = [
         format: "webp",
       });
       return {
-        slug: `doujinshi-${toSlug(item.slug)}`,
+        slug: `doujinshi-${toSlug(item.id)}`,
         title: item.data.title,
         thumb: optimized.src,
-        href: toDoujinshiHref(item.slug),
+        href: toDoujinshiHref(item.id),
       };
     }),
   )),

@@ -1,6 +1,6 @@
 ---
 import { getImage, Image } from "astro:assets";
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArticleImageStack from "~/components/ArticleImageStack.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
@@ -29,14 +29,14 @@ export async function getStaticPaths() {
     id.startsWith("ja/"),
   );
   return items.map((item) => ({
-    params: { slug: item.slug.replace(/^ja\//, "") },
+    params: { slug: item.id.replace(/^ja\//, "") },
     props: { item },
   }));
 }
 
 const { item } = Astro.props;
-const { Content } = await item.render();
-const itemSlug = item.slug.replace(`${lang}/`, "");
+const { Content } = await render(item);
+const itemSlug = item.id.replace(`${lang}/`, "");
 
 const pageUrl = new URL(`/doujinshi/${itemSlug}`, Astro.site).toString();
 
@@ -67,9 +67,9 @@ const doujinshiJsonLd = {
 };
 
 const compiledFrom = item.data.compiledFrom
-  ? await getCollection("doujinshi", ({ id, slug }) => {
+  ? await getCollection("doujinshi", ({ id }) => {
       const itemLang = id.split("/")[0];
-      const otherSlug = slug.replace(/^ja\//, "");
+      const otherSlug = id.replace(/^ja\//, "");
       return itemLang === lang && item.data.compiledFrom?.includes(otherSlug);
     })
   : [];
@@ -83,7 +83,7 @@ const allDoujinshi = await getCollection("doujinshi", ({ id }) =>
 
 const RELATED_DOUJINSHI_LIMIT = 6;
 const otherDoujinshiAll = allDoujinshi
-  .filter((d) => d.slug !== item.slug)
+  .filter((d) => d.id !== item.id)
   .filter((d) => !item.data.series || d.data.series === item.data.series)
   .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 const hasMoreOtherDoujinshi =
@@ -117,10 +117,10 @@ const artworkRankingIndex = await Promise.all(
       format: "webp",
     });
     return {
-      slug: a.slug.replace(`${lang}/`, ""),
+      slug: a.id.replace(`${lang}/`, ""),
       title: a.data.title,
       thumb: optimized.src,
-      href: `/gallery/${a.slug.replace(`${lang}/`, "")}`,
+      href: `/gallery/${a.id.replace(`${lang}/`, "")}`,
     };
   }),
 );
@@ -134,10 +134,10 @@ const doujinshiRankingIndex = await Promise.all(
         format: "webp",
       });
       return {
-        slug: `doujinshi-${d.slug.replace(`${lang}/`, "")}`,
+        slug: `doujinshi-${d.id.replace(`${lang}/`, "")}`,
         title: d.data.title,
         thumb: optimized.src,
-        href: `/doujinshi/${d.slug.replace(`${lang}/`, "")}`,
+        href: `/doujinshi/${d.id.replace(`${lang}/`, "")}`,
       };
     }),
 );
@@ -275,7 +275,7 @@ const seriesList = await Promise.all(
           <h2>{t["doujinshi.compiledHeading"]}</h2>
           <div class="doujinshi-grid">
             {compiledFrom.map((included) => (
-              <a class="doujinshi-card" href={`/doujinshi/${included.slug.replace(`${lang}/`, '')}`}>
+              <a class="doujinshi-card" href={`/doujinshi/${included.id.replace(`${lang}/`, '')}`}>
                 <div class="package-frame">
                   <Image src={included.data.packageImage} alt={included.data.title} format="webp" width={400} />
                 </div>
@@ -392,7 +392,7 @@ const seriesList = await Promise.all(
           seeMoreLabel={hasMoreOtherDoujinshi ? t["home.seeMore"] : undefined}
         >
           {otherDoujinshi.map((other) => (
-            <a class="recommend-card" href={`/doujinshi/${other.slug.replace(`${lang}/`, '')}`}>
+            <a class="recommend-card" href={`/doujinshi/${other.id.replace(`${lang}/`, '')}`}>
               <Image src={other.data.packageImage} alt={other.data.title} format="webp" width={240} />
             </a>
           ))}
@@ -407,10 +407,10 @@ const seriesList = await Promise.all(
         >
           {sameSeriesArtworks.map((artwork) => (
             <ArtworkCard
-              href={`/gallery/${artwork.slug.replace(`${lang}/`, '')}`}
+              href={`/gallery/${artwork.id.replace(`${lang}/`, '')}`}
               title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
               image={getHeaderImage(artwork)}
-              slug={artwork.slug.replace(`${lang}/`, '')}
+              slug={artwork.id.replace(`${lang}/`, '')}
             />
           ))}
         </SidebarSection>

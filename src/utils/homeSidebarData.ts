@@ -75,10 +75,10 @@ export async function buildHomeSidebarData(
         format: "webp",
       });
       return {
-        slug: toSlug(artwork.slug),
+        slug: toSlug(artwork.id),
         title: artwork.data.title,
         thumb: optimized.src,
-        href: `${galleryPrefix}/${toSlug(artwork.slug)}`,
+        href: `${galleryPrefix}/${toSlug(artwork.id)}`,
         isNew: isRecentlyPublished(artwork),
       };
     }),
@@ -92,10 +92,10 @@ export async function buildHomeSidebarData(
         format: "webp",
       });
       return {
-        slug: `doujinshi-${toSlug(item.slug)}`,
+        slug: `doujinshi-${toSlug(item.id)}`,
         title: item.data.title,
         thumb: optimized.src,
-        href: `${doujinshiPrefix}/${toSlug(item.slug)}`,
+        href: `${doujinshiPrefix}/${toSlug(item.id)}`,
         isNew: isRecentlyPublished(item),
       };
     }),

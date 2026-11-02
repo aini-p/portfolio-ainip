@@ -145,7 +145,7 @@ const searchIndex = await Promise.all(
       format: "webp",
     });
     return {
-      slug: toSlug(artwork.slug),
+      slug: toSlug(artwork.id),
       title: artwork.data.title,
       thumb: optimized.src,
       imageCount: getTotalImageCount(artwork),
@@ -177,10 +177,10 @@ const rankingIndex = [
         format: "webp",
       });
       return {
-        slug: `doujinshi-${toSlug(item.slug)}`,
+        slug: `doujinshi-${toSlug(item.id)}`,
         title: item.data.title,
         thumb: optimized.src,
-        href: toDoujinshiHref(item.slug),
+        href: toDoujinshiHref(item.id),
         isNew: isRecentlyPublished(item),
       };
     }),
@@ -230,14 +230,14 @@ const artworkRankingIndex = rankingIndex.filter(
       <div id="rails-view" class="rails-view">
         {featuredArtwork && (
           <div class="featured-post">
-            <a class="featured-thumb" href={toHref(featuredArtwork.slug)}>
+            <a class="featured-thumb" href={toHref(featuredArtwork.id)}>
               <Image src={getHeaderImage(featuredArtwork)} alt={featuredArtwork.data.title} format="webp" width={480} loading="eager" />
               {isRecentlyPublished(featuredArtwork) && <span class="new-badge">NEW</span>}
             </a>
             <div class="featured-body">
               <h2 class="featured-title">{featuredArtwork.data.title}{formatImageCountLabel(getTotalImageCount(featuredArtwork), lang)}</h2>
               <p class="featured-excerpt">{featuredArtwork.body?.trim() || featuredArtwork.data.description}</p>
-              <a class="featured-cta" href={toHref(featuredArtwork.slug)}>{t["home.readArticle"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+              <a class="featured-cta" href={toHref(featuredArtwork.id)}>{t["home.readArticle"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
             </div>
           </div>
         )}
@@ -245,10 +245,10 @@ const artworkRankingIndex = rankingIndex.filter(
         <Rail title={t["home.latest"]} seeMoreHref="/gallery" seeMoreLabel={t["home.seeMore"]}>
           {latestArtworks.map((artwork, index) => (
             <ArtworkCard
-              href={toHref(artwork.slug)}
+              href={toHref(artwork.id)}
               title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
               image={getHeaderImage(artwork)}
-              slug={toSlug(artwork.slug)}
+              slug={toSlug(artwork.id)}
               thumbWidth={260}
               isNew={isRecentlyPublished(artwork)}
               eager={index < 4}
@@ -259,10 +259,10 @@ const artworkRankingIndex = rankingIndex.filter(
         <Rail id="recommend-rail-artworks" title={t["home.recommendHeading"]} seeMoreHref="/recommend" seeMoreLabel={t["home.seeMore"]}>
           {recommendArtworks.map((artwork) => (
             <ArtworkCard
-              href={toHref(artwork.slug)}
+              href={toHref(artwork.id)}
               title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
               image={getHeaderImage(artwork)}
-              slug={toSlug(artwork.slug)}
+              slug={toSlug(artwork.id)}
               thumbWidth={260}
               isNew={isRecentlyPublished(artwork)}
             />
@@ -283,14 +283,14 @@ const artworkRankingIndex = rankingIndex.filter(
           <Rail title={t["home.doujinshiLatestHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.seeMore"]}>
             {latestOwnDoujinshi.map((item) => (
               <ArtworkCard
-                href={toDoujinshiHref(item.slug)}
+                href={toDoujinshiHref(item.id)}
                 title={item.data.title}
                 image={item.data.packageImage}
                 aspect="4/3"
                 fit="contain"
                 thumbWidth={260}
                 isNew={isRecentlyPublished(item)}
-                slug={toSlug(item.slug)}
+                slug={toSlug(item.id)}
               />
             ))}
           </Rail>
@@ -300,14 +300,14 @@ const artworkRankingIndex = rankingIndex.filter(
           <Rail id="recommend-rail-doujinshi" title={t["home.recommendHeading"]} seeMoreHref="/doujinshi" seeMoreLabel={t["home.seeMore"]}>
             {recommendOwnDoujinshi.map((item) => (
               <ArtworkCard
-                href={toDoujinshiHref(item.slug)}
+                href={toDoujinshiHref(item.id)}
                 title={item.data.title}
                 image={item.data.packageImage}
                 aspect="4/3"
                 fit="contain"
                 thumbWidth={260}
                 isNew={isRecentlyPublished(item)}
-                slug={toSlug(item.slug)}
+                slug={toSlug(item.id)}
               />
             ))}
           </Rail>
@@ -317,10 +317,10 @@ const artworkRankingIndex = rankingIndex.filter(
           <Rail title={rail.label[lang]}>
             {rail.items.map((artwork) => (
               <ArtworkCard
-                href={toHref(artwork.slug)}
+                href={toHref(artwork.id)}
                 title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
                 image={getHeaderImage(artwork)}
-                slug={toSlug(artwork.slug)}
+                slug={toSlug(artwork.id)}
                 thumbWidth={260}
                 isNew={isRecentlyPublished(artwork)}
               />

@@ -76,10 +76,10 @@ const shareImage = await getImage({
           <section class="card-grid">
             {artworks.map((artwork, index) => (
               <ArtworkCard
-                href={`/en/gallery/${artwork.slug.replace(`${lang}/`, "")}`}
+                href={`/en/gallery/${artwork.id.replace(`${lang}/`, "")}`}
                 title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
                 image={getHeaderImage(artwork)}
-                slug={artwork.slug.replace(`${lang}/`, "")}
+                slug={artwork.id.replace(`${lang}/`, "")}
                 eager={index < 8}
               />
             ))}
