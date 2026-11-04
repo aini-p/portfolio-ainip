@@ -19,6 +19,10 @@ export interface Props {
   limit?: number;
   seeMoreHref?: string;
   seeMoreLabel?: string;
+  // 指定時は上位initialVisible件だけを表示し、残り(limit件まで)は「もっと見る」ボタンでその場に展開する
+  initialVisible?: number;
+  expandLabel?: string;
+  collapseLabel?: string;
 }
 
 const {
@@ -30,6 +34,9 @@ const {
   limit = 10,
   seeMoreHref,
   seeMoreLabel,
+  initialVisible,
+  expandLabel,
+  collapseLabel,
 } = Astro.props;
 ---
 <div
@@ -38,9 +45,15 @@ const {
   data-limit={limit}
   data-live-label={liveLabel}
   data-cached-label={cachedLabel}
+  data-initial-visible={initialVisible}
+  data-expand-label={expandLabel}
+  data-collapse-label={collapseLabel}
 >
   <p class="ranking-status" hidden></p>
   <div class="ranking-list" data-empty-text={emptyText}></div>
+  {initialVisible != null && (
+    <button type="button" class="ranking-expand" aria-expanded="false" hidden></button>
+  )}
   {seeMoreHref && seeMoreLabel && (
     <a class="ranking-see-more" href={seeMoreHref}>
       {seeMoreLabel}
@@ -79,6 +92,12 @@ const {
     const liveLabel = widget.dataset.liveLabel ?? "";
     const cachedLabel = widget.dataset.cachedLabel ?? "";
     const limit = Number(widget.dataset.limit ?? 10);
+    const initialVisible = widget.dataset.initialVisible
+      ? Number(widget.dataset.initialVisible)
+      : undefined;
+    const expandButton = widget.querySelector<HTMLButtonElement>(".ranking-expand");
+    const expandLabel = widget.dataset.expandLabel ?? "";
+    const collapseLabel = widget.dataset.collapseLabel ?? "";
     const indexScript = document.querySelector<HTMLScriptElement>(
       `.ranking-widget-index[data-widget-id="${widgetId}"]`,
     );
@@ -133,9 +152,32 @@ const {
       }
 
       resolved.forEach(({ row, entry }, index) => {
-        list.append(buildCard(entry, index + 1, row.count));
+        const card = buildCard(entry, index + 1, row.count);
+        if (initialVisible != null && index >= initialVisible) {
+          card.classList.add("ranking-item-extra");
+          card.hidden = true;
+        }
+        list.append(card);
       });
+
+      if (expandButton && initialVisible != null && resolved.length > initialVisible) {
+        setExpanded(false);
+        expandButton.hidden = false;
+      }
     }
+
+    function setExpanded(expanded: boolean) {
+      if (!list || !expandButton) return;
+      list.querySelectorAll<HTMLElement>(".ranking-item-extra").forEach((item) => {
+        item.hidden = !expanded;
+      });
+      expandButton.setAttribute("aria-expanded", String(expanded));
+      expandButton.innerHTML = `<span>${escapeHtml(expanded ? collapseLabel : expandLabel)}</span><i class="ti ti-chevron-${expanded ? "up" : "down"}" aria-hidden="true"></i>`;
+    }
+
+    expandButton?.addEventListener("click", () => {
+      setExpanded(expandButton.getAttribute("aria-expanded") !== "true");
+    });
 
     async function fetchJson(url: string): Promise<{ ranking?: RankingRow[]; generatedAt?: string }> {
       const res = await fetch(url);
@@ -316,6 +358,26 @@ const {
     margin: 0;
     font-size: 0.82rem;
     color: var(--text-muted);
+  }
+
+  .ranking-expand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    width: 100%;
+    padding: 0.45rem 0;
+    border: 0.5px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: none;
+    font: inherit;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .ranking-expand:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
   }
 
   .ranking-see-more {

@@ -14,7 +14,7 @@ export async function getStaticPaths() {
   return items.flatMap((item) =>
     (item.data.ogCardImages ?? []).map((cardImage, index) => ({
       params: {
-        slug: item.slug.replace(/^(ja)\//, ""),
+        slug: item.id.replace(/^(ja)\//, ""),
         index: String(index),
       },
       props: { item, cardImage },
@@ -29,7 +29,7 @@ const shareImage = await getImage({
   format: "webp",
   width: 1200,
 });
-const itemSlug = item.slug.replace(`${lang}/`, "");
+const itemSlug = item.id.replace(`${lang}/`, "");
 const redirectUrl = `/doujinshi/${itemSlug}/`;
 ---
 <BaseLayout

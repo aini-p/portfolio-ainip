@@ -157,10 +157,10 @@ const latestDoujinshi = [...doujinshiList]
               <Rail title="" seeMoreHref="/" seeMoreLabel={t["membership.highlightArchiveCta"]}>
                 {latestArtworks.map((artwork, index) => (
                   <ArtworkCard
-                    href={toHref(artwork.slug)}
+                    href={toHref(artwork.id)}
                     title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
                     image={getHeaderImage(artwork)}
-                    slug={toSlug(artwork.slug)}
+                    slug={toSlug(artwork.id)}
                     thumbWidth={340}
                     eager={index < 4}
                   />
@@ -179,13 +179,13 @@ const latestDoujinshi = [...doujinshiList]
               <Rail title="" seeMoreHref="/doujinshi" seeMoreLabel={t["membership.highlightShopCta"]}>
                 {latestDoujinshi.map((item) => (
                   <ArtworkCard
-                    href={toDoujinshiHref(item.slug)}
+                    href={toDoujinshiHref(item.id)}
                     title={item.data.title}
                     image={item.data.packageImage}
                     aspect="4/3"
                     fit="contain"
                     thumbWidth={340}
-                    slug={toSlug(item.slug)}
+                    slug={toSlug(item.id)}
                   />
                 ))}
               </Rail>

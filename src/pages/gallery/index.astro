@@ -41,10 +41,10 @@ function toHref(fullSlug: string) {
           <div class="gallery-grid">
             {sorted.map((artwork, index) => (
               <ArtworkCard
-                href={toHref(artwork.slug)}
+                href={toHref(artwork.id)}
                 title={`${artwork.data.title}${formatImageCountLabel(getTotalImageCount(artwork), lang)}`}
                 image={getHeaderImage(artwork)}
-                slug={toSlug(artwork.slug)}
+                slug={toSlug(artwork.id)}
                 eager={index < 8}
               />
             ))}

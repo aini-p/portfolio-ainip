@@ -1,0 +1,49 @@
+---
+// 左サイドバーの同人誌いいねランキング。自作の同人誌と他者作品レビューを別ブロックに分け、
+// それぞれ上位4件を表示して残りは「もっと見る」でその場に展開する
+import RankingList, { type RankingEntry } from "~/components/RankingList.astro";
+import SidebarSection from "~/components/SidebarSection.astro";
+import { ui } from "~/i18n/ui";
+
+export interface Props {
+  lang: "ja" | "en";
+  idPrefix: string;
+  ownIndex: RankingEntry[];
+  reviewIndex: RankingEntry[];
+}
+
+const { lang, idPrefix, ownIndex, reviewIndex } = Astro.props;
+const t = ui[lang];
+const withLabel = (label: string) =>
+  lang === "ja"
+    ? `${t["home.doujinshiRanking"]}（${label}）`
+    : `${t["home.doujinshiRanking"]} (${label})`;
+
+const sections = [
+  {
+    id: `${idPrefix}-doujinshi-ranking`,
+    title: withLabel(t["home.doujinshiRankingOwn"]),
+    index: ownIndex,
+  },
+  {
+    id: `${idPrefix}-review-doujinshi-ranking`,
+    title: withLabel(t["home.doujinshiRankingReview"]),
+    index: reviewIndex,
+  },
+].filter((section) => section.index.length > 0);
+---
+{sections.map((section) => (
+  <SidebarSection title={section.title}>
+    <RankingList
+      id={section.id}
+      rankingIndex={section.index}
+      emptyText={t["home.rankingEmpty"]}
+      liveLabel={t["home.rankingLive"]}
+      cachedLabel={t["home.rankingCached"]}
+      limit={10}
+      initialVisible={4}
+      expandLabel={t["home.seeMore"]}
+      collapseLabel={t["home.showLess"]}
+    />
+  </SidebarSection>
+))}

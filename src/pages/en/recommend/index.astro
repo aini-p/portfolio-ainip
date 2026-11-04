@@ -30,7 +30,7 @@ const sorted = [...items].sort(
           {sorted.length > 0 ? (
             <div class="doujinshi-grid">
               {sorted.map((item) => (
-                <a class="doujinshi-card" href={`/en/doujinshi/${item.slug.replace(`${lang}/`, "")}`}>
+                <a class="doujinshi-card" href={`/en/doujinshi/${item.id.replace(`${lang}/`, "")}`}>
                   <div class="package-frame">
                     <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={400} />
                   </div>

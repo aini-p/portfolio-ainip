@@ -14,7 +14,7 @@ export async function getStaticPaths() {
   return artworks.flatMap((artwork) =>
     (artwork.data.ogCardImages ?? []).map((cardImage, index) => ({
       params: {
-        slug: artwork.slug.replace(/^(ja)\//, ""),
+        slug: artwork.id.replace(/^(ja)\//, ""),
         index: String(index),
       },
       props: { artwork, cardImage },
@@ -29,7 +29,7 @@ const shareImage = await getImage({
   format: "webp",
   width: 1200,
 });
-const artworkSlug = artwork.slug.replace(`${lang}/`, "");
+const artworkSlug = artwork.id.replace(`${lang}/`, "");
 const redirectUrl = `/gallery/${artworkSlug}/`;
 ---
 <BaseLayout

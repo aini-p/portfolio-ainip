@@ -7,7 +7,7 @@ export function getHeaderImage(artwork: Artwork) {
   const { headerImage, portfolioImages, src } = artwork.data;
   const image = headerImage ?? portfolioImages?.[0] ?? src;
   if (!image) {
-    throw new Error(`artwork "${artwork.slug}" has no header image source`);
+    throw new Error(`artwork "${artwork.id}" has no header image source`);
   }
   return image;
 }
