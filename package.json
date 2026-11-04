@@ -8,6 +8,7 @@
   "scripts": {
     "prepare": "husky",
     "dev": "astro dev",
+    "dev:cf": "astro dev",
     "start": "astro dev",
     "build": "astro check && node scripts/fetch-ranking-snapshot.mjs && astro build",
     "ranking:snapshot": "node scripts/fetch-ranking-snapshot.mjs",

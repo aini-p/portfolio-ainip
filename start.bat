@@ -38,7 +38,12 @@ if not exist "node_modules" (
 
 echo Starting Astro development server...
 echo To stop the server, close this window or press Ctrl+C in this terminal.
+echo The browser opens automatically once the top page is ready.
 echo.
+
+REM サーバー起動を待ってトップページを1度リクエスト(初回描画を済ませる)してからブラウザを開く。
+REM 起動直後に開くと初回描画の待ち時間をブラウザ上で待つことになるため
+start "" /b powershell -NoProfile -Command "$u='http://localhost:4321/'; for($i=0;$i -lt 180;$i++){ try { Invoke-WebRequest $u -UseBasicParsing -TimeoutSec 120 | Out-Null; Start-Process $u; break } catch { Start-Sleep 1 } }"
 
 npm run dev
 

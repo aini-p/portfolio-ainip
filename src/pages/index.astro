@@ -3,6 +3,7 @@ import { getImage, Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import AffiliateColumn from "~/components/AffiliateColumn.astro";
 import ArtworkCard from "~/components/ArtworkCard.astro";
+import DoujinshiRankingSections from "~/components/DoujinshiRankingSections.astro";
 import NativeAdSlot from "~/components/NativeAdSlot.astro";
 import Rail from "~/components/Rail.astro";
 import RankingList from "~/components/RankingList.astro";
@@ -98,6 +99,11 @@ const ownDoujinshi = [...doujinshiList]
   .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 const latestOwnDoujinshi = ownDoujinshi.slice(0, 12);
 const recommendOwnDoujinshi = ownDoujinshi.slice(0, 3);
+const reviewDoujinshi = [...doujinshiList]
+  .filter((d) => d.data.isOwnWork === false)
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+const latestReviewDoujinshi = reviewDoujinshi.slice(0, 12);
+const recommendReviewDoujinshi = reviewDoujinshi.slice(0, 3);
 
 // 作品別セクション: シリーズごとの件数と最新作をまとめる
 const seriesMap = new Map<
@@ -168,9 +174,10 @@ const rankingIndex = [
     title: entry.title,
     thumb: entry.thumb,
     href: toHref(entry.slug),
+    isReview: false,
   })),
   ...(await Promise.all(
-    ownDoujinshi.map(async (item) => {
+    [...ownDoujinshi, ...reviewDoujinshi].map(async (item) => {
       const optimized = await getImage({
         src: item.data.packageImage,
         width: 480,
@@ -182,14 +189,18 @@ const rankingIndex = [
         thumb: optimized.src,
         href: toDoujinshiHref(item.id),
         isNew: isRecentlyPublished(item),
+        isReview: item.data.isOwnWork === false,
       };
     }),
   )),
 ];
 
 // 左サイドバー用: 同人誌のいいねランキングは同人誌エントリのみに絞り込む
-const doujinshiRankingIndex = rankingIndex.filter((entry) =>
-  entry.slug.startsWith("doujinshi-"),
+const doujinshiRankingIndex = rankingIndex.filter(
+  (entry) => entry.slug.startsWith("doujinshi-") && !entry.isReview,
+);
+const reviewDoujinshiRankingIndex = rankingIndex.filter(
+  (entry) => entry.slug.startsWith("doujinshi-") && entry.isReview,
 );
 // 右サイドバー用: いいねランキングは投稿記事(イラスト)のみのスコープにする
 const artworkRankingIndex = rankingIndex.filter(
@@ -204,18 +215,12 @@ const artworkRankingIndex = rankingIndex.filter(
   <div class="home">
    <div class="home-grid">
     <AffiliateColumn lang={lang} adBanner>
-      {doujinshiRankingIndex.length > 0 && (
-        <SidebarSection title={t["home.doujinshiRanking"]}>
-          <RankingList
-            id="home-doujinshi-ranking"
-            rankingIndex={doujinshiRankingIndex}
-            emptyText={t["home.rankingEmpty"]}
-            liveLabel={t["home.rankingLive"]}
-            cachedLabel={t["home.rankingCached"]}
-            limit={5}
-          />
-        </SidebarSection>
-      )}
+      <DoujinshiRankingSections
+        lang={lang}
+        idPrefix="home"
+        ownIndex={doujinshiRankingIndex}
+        reviewIndex={reviewDoujinshiRankingIndex}
+      />
     </AffiliateColumn>
 
     <div class="main-column">
@@ -313,6 +318,42 @@ const artworkRankingIndex = rankingIndex.filter(
           </Rail>
         )}
 
+        <NativeAdSlot lang={lang} />
+
+        {latestReviewDoujinshi.length > 0 && (
+          <Rail title={t["home.doujinshiReviewHeading"]} seeMoreHref="/recommend" seeMoreLabel={t["home.seeMore"]}>
+            {latestReviewDoujinshi.map((item) => (
+              <ArtworkCard
+                href={toDoujinshiHref(item.id)}
+                title={item.data.title}
+                image={item.data.packageImage}
+                aspect="4/3"
+                fit="contain"
+                thumbWidth={260}
+                isNew={isRecentlyPublished(item)}
+                slug={toSlug(item.id)}
+              />
+            ))}
+          </Rail>
+        )}
+
+        {recommendReviewDoujinshi.length > 0 && (
+          <Rail id="recommend-rail-review-doujinshi" title={t["home.recommendHeading"]} seeMoreHref="/recommend" seeMoreLabel={t["home.seeMore"]}>
+            {recommendReviewDoujinshi.map((item) => (
+              <ArtworkCard
+                href={toDoujinshiHref(item.id)}
+                title={item.data.title}
+                image={item.data.packageImage}
+                aspect="4/3"
+                fit="contain"
+                thumbWidth={260}
+                isNew={isRecentlyPublished(item)}
+                slug={toSlug(item.id)}
+              />
+            ))}
+          </Rail>
+        )}
+
         {categoryRails.map((rail) => (
           <Rail title={rail.label[lang]}>
             {rail.items.map((artwork) => (
@@ -327,8 +368,6 @@ const artworkRankingIndex = rankingIndex.filter(
             ))}
           </Rail>
         ))}
-
-        <NativeAdSlot lang={lang} />
 
         <Rail title={t["home.toolsHeading"]} seeMoreHref="/tools" seeMoreLabel={t["home.toolsCta"]}>
           {tools.map((tool) => (
@@ -404,6 +443,7 @@ const artworkRankingIndex = rankingIndex.filter(
     thumb: string;
     href: string;
     isNew?: boolean;
+    isReview?: boolean;
   }
 
   const indexScript = document.getElementById("artworks-index");
@@ -510,9 +550,11 @@ const artworkRankingIndex = rankingIndex.filter(
 
   // いいねランキング本体の表示ロジックはRankingList.astro側のクライアントスクリプトが担う。
   // ここではおすすめ同人誌レールの抽選対象を作るためだけにrankingIndexを再利用する。
-  const doujinshiPool: RankingEntry[] = rankingIndex.filter((entry) => entry.slug.startsWith("doujinshi-"));
+  const doujinshiPool: RankingEntry[] = rankingIndex.filter((entry) => entry.slug.startsWith("doujinshi-") && !entry.isReview);
+  const reviewDoujinshiPool: RankingEntry[] = rankingIndex.filter((entry) => entry.slug.startsWith("doujinshi-") && entry.isReview);
   setupRandomRail("recommend-rail-artworks", searchIndex, 3, buildCard);
   setupRandomRail("recommend-rail-doujinshi", doujinshiPool, 3, buildDoujinshiRecommendCard);
+  setupRandomRail("recommend-rail-review-doujinshi", reviewDoujinshiPool, 3, buildDoujinshiRecommendCard);
 </script>
 
 <style is:global>
