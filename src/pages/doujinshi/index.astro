@@ -14,15 +14,16 @@ const items = await getCollection("doujinshi", ({ id }) =>
 const sorted = [...items].sort(
   (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
 );
-// 自作の同人誌を買ってもらうことを優先し、一覧は「自作2件→他者作品レビュー1件」の順で混ぜて並べる。
+// 一覧は「自作1件→他者作品レビュー2件」の順で混ぜて並べる。
 // 先頭は必ず自作。どちらかが尽きたら残りをそのまま後ろに続ける
-const OWN_PER_REVIEW = 2;
+const OWN_PER_GROUP = 1;
+const REVIEW_PER_GROUP = 2;
 const ownItems = sorted.filter((item) => item.data.isOwnWork !== false);
 const reviewItems = sorted.filter((item) => item.data.isOwnWork === false);
 const listed: typeof sorted = [];
 while (ownItems.length > 0 || reviewItems.length > 0) {
-  listed.push(...ownItems.splice(0, OWN_PER_REVIEW));
-  listed.push(...reviewItems.splice(0, 1));
+  listed.push(...ownItems.splice(0, OWN_PER_GROUP));
+  listed.push(...reviewItems.splice(0, REVIEW_PER_GROUP));
 }
 ---
 <BaseLayout title={t["doujinshi.pageTitle"]} description={t["doujinshi.pageDescription"]}>
