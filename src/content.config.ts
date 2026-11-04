@@ -25,7 +25,7 @@ const artworksCollection = defineCollection({
         // 旧形式（1記事=1画像）との後方互換。新形式では省略可
         src: image().optional(),
         patreonUrl: z.union([
-          z.string().url(), // 有効なURL
+          z.url(), // 有効なURL
           z.literal("None"), // "None" という文字列
           z.literal(""), // 空の文字列
         ]),
@@ -76,10 +76,10 @@ const doujinshiCollection = defineCollection({
       characters: z.array(z.string()).optional(),
       author: z.string().optional(),
       pageCount: z.number().optional(),
-      fanzaUrl: z.string().url().optional(),
-      patreonUrl: z.string().url().optional(),
-      dlsiteUrl: z.string().url().optional(),
-      digiketUrl: z.string().url().optional(),
+      fanzaUrl: z.url().optional(),
+      patreonUrl: z.url().optional(),
+      dlsiteUrl: z.url().optional(),
+      digiketUrl: z.url().optional(),
       // 総集編が収録する他doujinshiエントリのslug
       compiledFrom: z.array(z.string()).optional(),
       keywords: z.array(z.string()).optional(),
