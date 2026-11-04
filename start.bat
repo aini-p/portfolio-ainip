@@ -4,8 +4,17 @@ title Astro Project Launcher
 echo Checking for required packages...
 echo.
 
-REM node_modulesフォルダが存在しない場合のみ、npm installを実行
-if not exist "node_modules" (
+REM ブランチ切り替えやpullで依存パッケージが変わった(package-lock.jsonの方が新しい)場合は
+REM node_modulesが古いまま起動してエラーになるため、入れ直しの対象にする
+set "NEED_INSTALL="
+if not exist "node_modules" set "NEED_INSTALL=1"
+if exist "node_modules\.package-lock.json" (
+    powershell -NoProfile -Command "if ((Get-Item 'package-lock.json').LastWriteTime -gt (Get-Item 'node_modules\.package-lock.json').LastWriteTime) { exit 1 }"
+    if errorlevel 1 set "NEED_INSTALL=1"
+)
+
+REM node_modulesが無いか古い場合のみ、npm installを実行
+if defined NEED_INSTALL (
     echo Dependencies not found. Installing all required packages...
     echo This might take a moment.
     echo.
