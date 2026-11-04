@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const OUTPUT_PATH = path.join(ROOT, "public", "ranking-snapshot.json");
-const LIMIT = 50;
+const LIMIT = 200;
 const TIMEOUT_MS = 10_000;
 
 // astro/viteはビルド時に.envを自動で読むが、このスクリプトは単体のNodeプロセスなので
