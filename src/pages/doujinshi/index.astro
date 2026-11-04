@@ -2,7 +2,6 @@
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import HomeStyleSidebars from "~/components/HomeStyleSidebars.astro";
-import Rail from "~/components/Rail.astro";
 import { ui } from "~/i18n/ui";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
@@ -15,18 +14,17 @@ const items = await getCollection("doujinshi", ({ id }) =>
 const sorted = [...items].sort(
   (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf(),
 );
-// 自作の同人誌と他者作品のレビュー記事を、それぞれ横スクロールの1列にまとめて表示する
-const rows = [
-  {
-    title: t["doujinshi.ownRowHeading"],
-    items: sorted.filter((item) => item.data.isOwnWork !== false),
-  },
-  {
-    title: t["doujinshi.reviewRowHeading"],
-    items: sorted.filter((item) => item.data.isOwnWork === false),
-    seeMoreHref: "/recommend",
-  },
-].filter((row) => row.items.length > 0);
+// 一覧は「自作1件→他者作品レビュー2件」の順で混ぜて並べる。
+// 先頭は必ず自作。どちらかが尽きたら残りをそのまま後ろに続ける
+const OWN_PER_GROUP = 1;
+const REVIEW_PER_GROUP = 2;
+const ownItems = sorted.filter((item) => item.data.isOwnWork !== false);
+const reviewItems = sorted.filter((item) => item.data.isOwnWork === false);
+const listed: typeof sorted = [];
+while (ownItems.length > 0 || reviewItems.length > 0) {
+  listed.push(...ownItems.splice(0, OWN_PER_GROUP));
+  listed.push(...reviewItems.splice(0, REVIEW_PER_GROUP));
+}
 ---
 <BaseLayout title={t["doujinshi.pageTitle"]} description={t["doujinshi.pageDescription"]}>
   <div class="sidebar-page-shell">
@@ -39,9 +37,9 @@ const rows = [
             <p>{t["doujinshi.lead"]}</p>
           </header>
 
-          {rows.map((row) => (
-            <Rail title={row.title} seeMoreHref={row.seeMoreHref} seeMoreLabel={row.seeMoreHref ? t["home.seeMore"] : undefined}>
-              {row.items.map((item) => (
+          <div class="doujinshi-grid">
+            {listed.map((item) => {
+              return (
                 <a class="doujinshi-card" href={`/doujinshi/${item.id.replace(`${lang}/`, "")}`}>
                   <div class="package-frame">
                     <Image src={item.data.packageImage} alt={item.data.title} format="webp" width={400} />
@@ -52,9 +50,9 @@ const rows = [
                     <span class="card-cta">{t["doujinshi.viewButton"]} <i class="ti ti-arrow-right" aria-hidden="true"></i></span>
                   </div>
                 </a>
-              ))}
-            </Rail>
-          ))}
+              );
+            })}
+          </div>
         </div>
       </div>
     </HomeStyleSidebars>
@@ -81,10 +79,13 @@ const rows = [
     max-width: 65ch;
   }
 
+  .doujinshi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
   .doujinshi-card {
-    flex: 0 0 auto;
-    width: 260px;
-    scroll-snap-align: start;
     display: grid;
     gap: 0;
     border-radius: var(--radius-lg);
@@ -153,6 +154,6 @@ const rows = [
 
   @media (width <= 768px) {
     .doujinshi-shell { gap: 1.25rem; }
-    .doujinshi-card { width: 220px; }
+    .doujinshi-grid { grid-template-columns: 1fr; }
   }
 </style>

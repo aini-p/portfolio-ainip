@@ -116,7 +116,7 @@ const {
     // 取得件数にすると、このウィジェットが対象とする種別（rankingIndexに含まれる方）が
     // 上位に少ない場合に表示件数が足りなくなる。取得件数は多めに確保し、種別で絞り込んだ
     // 上で改めてlimit件に切り詰める
-    const fetchLimit = Math.max(limit * 10, 50);
+    const fetchLimit = Math.max(limit * 10, 200);
 
     function buildCard(entry: RankingEntry, rank: number, count: number) {
       const a = document.createElement("a");

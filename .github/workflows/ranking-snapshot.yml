@@ -1,0 +1,47 @@
+# いいねランキングの静的スナップショット(public/ranking-snapshot.json)を毎日更新する。
+# スナップショットはランキングAPI(Worker)が落ちている時のフォールバック表示に使うため、
+# デプロイの時だけでなく毎日最新化しておく。ランキングに変化があった日だけmainにコミットし、
+# そのpushでCloudflare側のビルド・デプロイが走る。
+name: Update ranking snapshot
+
+on:
+  schedule:
+    - cron: "0 18 * * *" # 毎日 03:00 JST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ranking-snapshot
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch ranking snapshot
+        env:
+          PUBLIC_API_BASE: https://at5fun-api.aini-h-panda.workers.dev
+        run: node scripts/fetch-ranking-snapshot.mjs
+
+      - name: Commit if the ranking changed
+        run: |
+          # generatedAtだけが変わった日はコミットしない(無駄な再デプロイを避ける)
+          if git diff --quiet -I '"generatedAt"' -- public/ranking-snapshot.json; then
+            echo "ranking unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/ranking-snapshot.json
+          git commit -m "Update ranking snapshot"
+          git push
