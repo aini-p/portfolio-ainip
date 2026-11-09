@@ -2,6 +2,7 @@ import cloudflare from "@astrojs/cloudflare";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
+import { contentAssetRefresh } from "./plugins/contentAssetRefresh.mjs";
 
 // `astro dev`はCloudflareアダプタがあるとworkerd上で動き、起動・初回表示が遅い。
 // サイトはCloudflareのバインディングを使っていないため、通常の`npm run dev`ではアダプタを外して
@@ -18,6 +19,8 @@ export default defineConfig({
   prefetch: true,
   adapter: isDev && !useCloudflareInDev ? undefined : cloudflare(),
   vite: {
+    // 記事再アップロード後に画像参照が古いまま残りエラーになるのを防ぐ(開発時のみ)
+    plugins: [contentAssetRefresh()],
     ssr: {
       noExternal: ["smartypants"],
     },
