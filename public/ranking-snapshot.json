@@ -1,49 +1,205 @@
 {
-  "generatedAt": "2026-08-15T15:54:00.612Z",
+  "generatedAt": "2026-11-05T23:28:23.356Z",
   "ranking": [
     {
-      "slug": "fe9c5733bca8337f",
-      "count": 1
+      "slug": "a811020ff2c8b447",
+      "count": 79
     },
     {
-      "slug": "f5328543da70f0f3",
-      "count": 1
+      "slug": "f341e4981272c44c",
+      "count": 28
     },
     {
-      "slug": "ab5544ba3aba6203",
-      "count": 1
+      "slug": "article_c37c55c774bf",
+      "count": 24
     },
     {
-      "slug": "481947c45ffd51b2",
-      "count": 1
+      "slug": "90bf158e035849c0",
+      "count": 23
     },
     {
-      "slug": "72009c51584299d3",
-      "count": 1
+      "slug": "article_871361768f25",
+      "count": 22
     },
     {
-      "slug": "db8167fd71c0097c",
-      "count": 1
+      "slug": "2d59ec612833afc2",
+      "count": 17
     },
     {
-      "slug": "doujinshi-work-4",
-      "count": 1
+      "slug": "article_730ad0a6b6fa",
+      "count": 14
     },
     {
-      "slug": "doujinshi-work-12",
-      "count": 1
+      "slug": "article_3c87e99c81d1",
+      "count": 12
     },
     {
       "slug": "doujinshi-work-2",
-      "count": 1
+      "count": 11
     },
     {
-      "slug": "doujinshi-work-1",
-      "count": 1
+      "slug": "53ed216a5ff3887a",
+      "count": 11
+    },
+    {
+      "slug": "article_804a51389f86",
+      "count": 11
+    },
+    {
+      "slug": "0db3e2820e80edf5",
+      "count": 10
+    },
+    {
+      "slug": "article_e143f191d83a",
+      "count": 10
+    },
+    {
+      "slug": "article_d9d3765fb1f5",
+      "count": 10
     },
     {
       "slug": "62d2c58881008f9c",
-      "count": 1
+      "count": 9
+    },
+    {
+      "slug": "121a431a4db6d9c8",
+      "count": 9
+    },
+    {
+      "slug": "28a3093a1b98d869",
+      "count": 9
+    },
+    {
+      "slug": "db8167fd71c0097c",
+      "count": 9
+    },
+    {
+      "slug": "dca550a6a932098c",
+      "count": 9
+    },
+    {
+      "slug": "article_db67e381834f",
+      "count": 9
+    },
+    {
+      "slug": "article_c61a41591f54",
+      "count": 9
+    },
+    {
+      "slug": "4d4d5efd2efb0bd8",
+      "count": 8
+    },
+    {
+      "slug": "b340ae499187716e",
+      "count": 8
+    },
+    {
+      "slug": "bdba9050dd23bdd6",
+      "count": 8
+    },
+    {
+      "slug": "article_28563e3c2b9c",
+      "count": 8
+    },
+    {
+      "slug": "article_24e144c23b96",
+      "count": 8
+    },
+    {
+      "slug": "doujinshi-article_67b18a9ddfc8",
+      "count": 8
+    },
+    {
+      "slug": "doujinshi-work-4",
+      "count": 7
+    },
+    {
+      "slug": "7cf6a8a832decc3d",
+      "count": 7
+    },
+    {
+      "slug": "e64fe9b61e7e131a",
+      "count": 7
+    },
+    {
+      "slug": "article_199105d71ea6",
+      "count": 7
+    },
+    {
+      "slug": "article_0c14a358a2b0",
+      "count": 7
+    },
+    {
+      "slug": "article_5d2f6d371335",
+      "count": 7
+    },
+    {
+      "slug": "article_d1e1abb5ad84",
+      "count": 7
+    },
+    {
+      "slug": "fdcb1da3553b3118",
+      "count": 6
+    },
+    {
+      "slug": "ab5544ba3aba6203",
+      "count": 6
+    },
+    {
+      "slug": "b73bf776888bb6e2",
+      "count": 6
+    },
+    {
+      "slug": "d387948579160869",
+      "count": 6
+    },
+    {
+      "slug": "f0af6d8efc3c33b4",
+      "count": 6
+    },
+    {
+      "slug": "article_3b0fcac4ee73",
+      "count": 6
+    },
+    {
+      "slug": "doujinshi-article_76244724ffd4",
+      "count": 6
+    },
+    {
+      "slug": "article_ef13f0e53806",
+      "count": 6
+    },
+    {
+      "slug": "article_a786154ada36",
+      "count": 6
+    },
+    {
+      "slug": "article_e54e89957d67",
+      "count": 6
+    },
+    {
+      "slug": "fe9c5733bca8337f",
+      "count": 5
+    },
+    {
+      "slug": "9ee24166b21a9341",
+      "count": 5
+    },
+    {
+      "slug": "doujinshi-work-11",
+      "count": 5
+    },
+    {
+      "slug": "f5328543da70f0f3",
+      "count": 5
+    },
+    {
+      "slug": "a6cb50a7df14fd51",
+      "count": 5
+    },
+    {
+      "slug": "40c6f94e7dcb6ae0",
+      "count": 5
     }
   ]
 }
