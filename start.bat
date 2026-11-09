@@ -25,10 +25,11 @@ if defined NEED_INSTALL (
         del pnpm-lock.yaml
     )
     
-    npm install
-    
+    call npm install
+
     REM npm installが失敗した場合、エラーを表示して停止する
-    if %errorlevel% neq 0 (
+    REM (ブロック内の%errorlevel%は読み込み時に展開され直前の判定結果が残るため、if errorlevelで実行時の値を見る)
+    if errorlevel 1 (
         echo.
         echo ******************************************************
         echo  ERROR: Package installation failed.
