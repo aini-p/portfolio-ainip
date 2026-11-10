@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-05T23:28:23.356Z",
+  "generatedAt": "2026-11-10T01:21:02.429Z",
   "ranking": [
     {
       "slug": "a811020ff2c8b447",
-      "count": 79
+      "count": 80
     },
     {
       "slug": "f341e4981272c44c",
@@ -11,7 +11,7 @@
     },
     {
       "slug": "article_c37c55c774bf",
-      "count": 24
+      "count": 25
     },
     {
       "slug": "90bf158e035849c0",
@@ -27,7 +27,11 @@
     },
     {
       "slug": "article_730ad0a6b6fa",
-      "count": 14
+      "count": 15
+    },
+    {
+      "slug": "article_d28e6b1b2974",
+      "count": 13
     },
     {
       "slug": "article_3c87e99c81d1",
@@ -98,6 +102,14 @@
       "count": 8
     },
     {
+      "slug": "article_199105d71ea6",
+      "count": 8
+    },
+    {
+      "slug": "article_0c14a358a2b0",
+      "count": 8
+    },
+    {
       "slug": "article_28563e3c2b9c",
       "count": 8
     },
@@ -119,14 +131,6 @@
     },
     {
       "slug": "e64fe9b61e7e131a",
-      "count": 7
-    },
-    {
-      "slug": "article_199105d71ea6",
-      "count": 7
-    },
-    {
-      "slug": "article_0c14a358a2b0",
       "count": 7
     },
     {
@@ -195,10 +199,6 @@
     },
     {
       "slug": "a6cb50a7df14fd51",
-      "count": 5
-    },
-    {
-      "slug": "40c6f94e7dcb6ae0",
       "count": 5
     }
   ]
