@@ -2,6 +2,8 @@
 User-agent: *
 # すべてのページへのクロールを許可します (Allow: /)
 Allow: /
+# Discord Bot 用の画像置き場（サイトからはリンクしていない）はクロール対象外
+Disallow: /image-archive/
 
 # サイトマップの場所をGoogleに伝えます
 Sitemap: https://at5fun.com/sitemap-index.xml
