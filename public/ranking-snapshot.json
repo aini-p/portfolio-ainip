@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T02:04:43.090Z",
+  "generatedAt": "2026-11-27T01:36:39.038Z",
   "ranking": [
     {
       "slug": "a811020ff2c8b447",
@@ -7,7 +7,7 @@
     },
     {
       "slug": "f341e4981272c44c",
-      "count": 29
+      "count": 30
     },
     {
       "slug": "article_c37c55c774bf",
@@ -23,7 +23,7 @@
     },
     {
       "slug": "article_d28e6b1b2974",
-      "count": 20
+      "count": 22
     },
     {
       "slug": "2d59ec612833afc2",
@@ -102,6 +102,10 @@
       "count": 9
     },
     {
+      "slug": "doujinshi-article_234e41b65865",
+      "count": 9
+    },
+    {
       "slug": "4d4d5efd2efb0bd8",
       "count": 8
     },
@@ -119,10 +123,6 @@
     },
     {
       "slug": "article_24e144c23b96",
-      "count": 8
-    },
-    {
-      "slug": "doujinshi-article_234e41b65865",
       "count": 8
     },
     {
